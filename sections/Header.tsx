@@ -52,16 +52,16 @@ export const Header: React.FC = () => {
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled || isOpen ? 'bg-background/95 backdrop-blur-xl border-b border-white/5' : 'bg-transparent border-transparent'
-      }`}
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled || isOpen ? 'bg-background/95 backdrop-blur-xl border-b border-white/5' : 'bg-transparent border-transparent'
+        }`}
     >
       <Container className="flex items-center justify-between h-20">
         {/* Logo */}
-        <a 
-          href="#" 
-          onClick={(e) => handleClick(e, '#')} 
-          className="text-xl font-medium tracking-tight text-white hover:opacity-80 transition-opacity z-50 relative"
+        <a
+          href="#"
+          onClick={(e) => handleClick(e, '#')}
+          className="text-xl font-medium tracking-tight text-white hover:opacity-80 transition-opacity z-50 relative notranslate"
+          translate="no"
         >
           Louisse.
         </a>

@@ -13,16 +13,17 @@ export const LoadingScreen: React.FC = () => {
           initial={{ y: 50, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
-          className="text-white text-2xl md:text-3xl font-light tracking-tight"
+          className="text-white text-2xl md:text-3xl font-light tracking-tight notranslate"
+          translate="no"
         >
           Louisse Dominique Bertillo
         </motion.h1>
-        
+
         <motion.div
-            initial={{ scaleX: 0 }}
-            animate={{ scaleX: 1 }}
-            transition={{ duration: 1.5, ease: "easeInOut", delay: 0.2 }}
-            className="h-[1px] bg-neutral-800 mx-auto w-24 md:w-32"
+          initial={{ scaleX: 0 }}
+          animate={{ scaleX: 1 }}
+          transition={{ duration: 1.5, ease: "easeInOut", delay: 0.2 }}
+          className="h-[1px] bg-neutral-800 mx-auto w-24 md:w-32"
         />
 
         <motion.p

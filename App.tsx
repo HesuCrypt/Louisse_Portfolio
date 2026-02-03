@@ -26,7 +26,7 @@ export default function App() {
       <AnimatePresence mode="wait">
         {loading && <LoadingScreen key="loader" />}
       </AnimatePresence>
-      
+
       {!loading && (
         <div>
           <Header />
@@ -43,9 +43,9 @@ export default function App() {
           <Skills />
           <Divider />
           <Contact />
-          
+
           <footer className="py-12 text-center text-neutral-600 text-sm">
-            <p>&copy; {new Date().getFullYear()} Louisse Dominique Bertillo. All rights reserved.</p>
+            <p className="notranslate" translate="no">&copy; {new Date().getFullYear()} Louisse Dominique Bertillo. All rights reserved.</p>
           </footer>
         </div>
       )}

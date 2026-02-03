@@ -26,20 +26,20 @@ export const Hero: React.FC = () => {
       </div>
 
       <Container className="relative z-10">
-        <motion.div 
+        <motion.div
           className="max-w-4xl space-y-8 md:space-y-10"
           variants={containerVariants}
           initial="hidden"
           animate="visible"
         >
-          <motion.div variants={itemVariants}>
+          <motion.div variants={itemVariants} className="notranslate" translate="no">
             <Label>{profile.hero.label}</Label>
           </motion.div>
-          
-          <motion.div variants={itemVariants}>
+
+          <motion.div variants={itemVariants} className="notranslate" translate="no">
             <H1>{profile.hero.headline}</H1>
           </motion.div>
-          
+
           <motion.div variants={itemVariants}>
             <Body className="text-xl md:text-2xl text-neutral-400">
               {profile.hero.subtext}
@@ -56,9 +56,9 @@ export const Hero: React.FC = () => {
           </motion.div>
         </motion.div>
       </Container>
-      
+
       {/* Subtle Scroll Indicator */}
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1.5, duration: 1 }}
