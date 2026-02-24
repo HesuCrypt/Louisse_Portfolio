@@ -18,7 +18,7 @@ export const skills: SkillCategory[] = [
   },
   {
     category: "Platforms",
-    items: ["WordPress", "Shopify", "Liquid", "Squarespace", "Webflow"]
+    items: ["WordPress", "Shopify", "Platforms", "Squarespace", "Webflow"]
   },
   {
     category: "Tools",

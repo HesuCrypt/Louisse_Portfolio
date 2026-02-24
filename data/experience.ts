@@ -25,6 +25,6 @@ export const experience: Job[] = [
     type: "Part-time",
     period: "January 2026 – Present",
     website: "https://www.meridianauctions.com/",
-    focus: "Lead Full Stack Engineer handling the live auction platform. Overseeing frontend architecture, backend systems, and database management while mentoring a team of three developers."
+    focus: "Lead Full Stack Developer handling the live auction platform. Overseeing frontend architecture, backend systems, and database management while mentoring a team of three developers."
   }
 ];

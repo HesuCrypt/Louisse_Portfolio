@@ -9,7 +9,7 @@ export const featured = [
   },
   {
     company: "Meridian Auctions",
-    role: "Lead Full Stack Engineer",
+    role: "Lead Full Stack Developer",
     description: "Architecting and maintaining the core auction infrastructure, ensuring real-time reliability for high-value transactions.",
     stat: "High-Traffic System",
     link: "https://www.meridianauctions.com/",
