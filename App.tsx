@@ -48,7 +48,7 @@ export default function App() {
           <Contact />
 
           <footer className="py-12 text-center text-neutral-600 text-sm">
-            <p className="notranslate" translate="no">&copy; {new Date().getFullYear()} Louisse Dominique Bertillo. All rights reserved.</p>
+            <p>&copy; {new Date().getFullYear()} Louisse Dominique Bertillo. All rights reserved.</p>
           </footer>
         </div>
       )}

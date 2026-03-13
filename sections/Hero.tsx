@@ -32,11 +32,11 @@ export const Hero: React.FC = () => {
           initial="hidden"
           animate="visible"
         >
-          <motion.div variants={itemVariants} className="notranslate" translate="no">
+          <motion.div variants={itemVariants}>
             <Label>{profile.hero.label}</Label>
           </motion.div>
 
-          <motion.div variants={itemVariants} className="notranslate" translate="no">
+          <motion.div variants={itemVariants}>
             <H1>{profile.hero.headline}</H1>
           </motion.div>
 

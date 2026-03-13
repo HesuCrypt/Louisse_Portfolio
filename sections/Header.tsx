@@ -61,8 +61,7 @@ export const Header: React.FC = () => {
         <a
           href="#"
           onClick={(e) => handleClick(e, '#')}
-          className="text-xl font-medium tracking-tight text-white hover:opacity-80 transition-opacity z-50 relative notranslate"
-          translate="no"
+          className="text-xl font-medium tracking-tight text-white hover:opacity-80 transition-opacity z-50 relative"
         >
           Louisse.
         </a>

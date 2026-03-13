@@ -13,8 +13,7 @@ export const LoadingScreen: React.FC = () => {
           initial={{ y: 50, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
-          className="text-white text-2xl md:text-3xl font-light tracking-tight notranslate"
-          translate="no"
+          className="text-white text-2xl md:text-3xl font-light tracking-tight"
         >
           Louisse Dominique Bertillo
         </motion.h1>
