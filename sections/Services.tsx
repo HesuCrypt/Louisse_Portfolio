@@ -18,8 +18,6 @@ const pricingCards = [
       'Mobile responsive design',
       'Project gallery showcase',
       'Social media links',
-      'Contact form for inquiries',
-      'Basic SEO setup',
     ],
     bestFor: 'Freelancers, designers, developers, photographers, content creators',
     popular: false,
