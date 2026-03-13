@@ -5,6 +5,7 @@ import { Menu, X } from 'lucide-react';
 
 const navItems = [
   { name: 'About', href: '#about' },
+  { name: 'Services', href: '#services' },
   { name: 'Experience', href: '#experience' },
   { name: 'Work', href: '#featured' }, // Links to the top of the "Work" area (Current Platforms)
   { name: 'Contact', href: '#contact' },

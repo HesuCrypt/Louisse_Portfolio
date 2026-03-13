@@ -4,6 +4,7 @@ import { Header } from './sections/Header';
 import { Hero } from './sections/Hero';
 import { Featured } from './sections/Featured';
 import { About } from './sections/About';
+import { Services } from './sections/Services';
 import { Experience } from './sections/Experience';
 import { Projects } from './sections/Projects';
 import { Skills } from './sections/Skills';
@@ -33,6 +34,8 @@ export default function App() {
           <Hero />
           <Divider />
           <About />
+          <Divider />
+          <Services />
           <Divider />
           <Experience />
           <Divider />
