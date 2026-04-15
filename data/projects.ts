@@ -17,6 +17,13 @@ export interface Project {
 
 export const projects: Project[] = [
   {
+    title: "Fruit Jam",
+    description: "A launched web game that reached 3.4k players in 3 days, 8k total visits, 240k+ database requests, and 120k+ real-time requests.",
+    tech: "Web Game, Real-time Architecture, Database Optimization",
+    live: "https://issyfruitjam.com/",
+    featured: true
+  },
+  {
     title: "Game Library",
     description: "A React-based game library with playable web games and smooth navigation.",
     tech: "React, JavaScript",

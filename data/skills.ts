@@ -6,11 +6,21 @@ export interface SkillCategory {
 export const skills: SkillCategory[] = [
   {
     category: "Frontend",
-    items: ["React", "TypeScript", "Tailwind", "JavaScript", "Desktop & Mobile Optimization", "Web Game Development"]
+    items: [
+      "Next.js",
+      "React",
+      "TypeScript",
+      "JavaScript",
+      "Tailwind CSS",
+      "CSS",
+      "Responsive Design",
+      "Framer Motion",
+      "Web Game Development"
+    ]
   },
   {
     category: "Backend",
-    items: ["PHP", "MySQL", "Supabase", "Auth0"]
+    items: ["PHP", "MySQL", "Supabase", "REST API", "EmailJS", "Auth0"]
   },
   {
     category: "Design",
@@ -22,6 +32,17 @@ export const skills: SkillCategory[] = [
   },
   {
     category: "Tools",
-    items: ["GPT", "Claude", "Gemini", "Cursor", "DeepSeek", "Google Antigravity", "Google AI Studio", "Lovable AI", "BoltAI"]
+    items: [
+      "GitHub",
+      "Vercel",
+      "Cloudflare",
+      "Google Cloud Console",
+      "ESLint",
+      "PostCSS",
+      "Cursor",
+      "GPT",
+      "Claude",
+      "Gemini"
+    ]
   }
 ];
