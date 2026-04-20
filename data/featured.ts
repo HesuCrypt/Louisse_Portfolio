@@ -1,5 +1,13 @@
 export const featured = [
   {
+    company: "ISSY Cosmetics",
+    role: "Lead Web Developer",
+    description: "Driving sales growth through advanced Shopify development, gamification, and performance optimization for a leading beauty brand.",
+    stat: "170% Sales Increase",
+    link: "https://issycosmetics.com/",
+    status: "Handling Live Site"
+  },
+  {
     company: "Fruit Jam",
     role: "Creator & Lead Developer",
     description: "Launched a web game that scaled quickly with 3.4k players in 3 days, 8k total visits, 240k+ database requests, and 120k+ real-time requests.",
@@ -8,11 +16,11 @@ export const featured = [
     status: "Launched Live"
   },
   {
-    company: "ISSY Cosmetics",
-    role: "Lead Web Developer",
-    description: "Driving sales growth through advanced Shopify development, gamification, and performance optimization for a leading beauty brand.",
-    stat: "170% Sales Increase",
-    link: "https://issycosmetics.com/",
+    company: "La Fleur",
+    role: "Web Developer",
+    description: "Built and optimized a modern florist storefront experience focused on elegant product presentation, same-day ordering flow, and clear customer trust signals.",
+    stat: "Live E-commerce Experience",
+    link: "https://lafleurph.com/",
     status: "Handling Live Site"
   },
   {

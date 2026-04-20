@@ -46,15 +46,15 @@ const pricingCards: PricingCard[] = [
   {
     id: 'starter-website',
     title: 'Starter Website Package',
-    price: '₱20,000',
+    price: '₱30,000',
     scopeLine: '3 pages · credible small-business presence',
     summary: [
       'Adds real business structure: story (About) + trust + contact that actually sends messages.',
       'Sweet spot when you’ve outgrown a link-in-bio but don’t need maps, galleries, or extra modules yet.',
     ],
-    pagesTitle: 'Pages (₱12,000 value)',
+    pagesTitle: 'Pages (₱18,000 value)',
     pages: ['Home Page', 'About Page', 'Contact Page'],
-    extrasTitle: 'Included Extras (₱8,000 value)',
+    extrasTitle: 'Included Extras (₱12,000 value)',
     extras: [
       'Responsive layout (phone, tablet, desktop)',
       'Contact form with validation + email delivery setup',
@@ -68,13 +68,13 @@ const pricingCards: PricingCard[] = [
   {
     id: 'business-website',
     title: 'Business Website Package',
-    price: '₱30,000',
+    price: '₱40,000',
     scopeLine: '5 pages · built for local & service businesses',
     summary: [
       'More surface area for services, proof, and visuals—plus location and performance tuning.',
       'Adds what Starter can’t: dedicated Services, gallery, Maps, and speed-focused polish.',
     ],
-    pagesTitle: 'Pages (₱18,000 value)',
+    pagesTitle: 'Pages (₱24,000 value)',
     pages: [
       'Home Page',
       'About Page',
@@ -82,7 +82,7 @@ const pricingCards: PricingCard[] = [
       'Gallery / Portfolio',
       'Contact Page',
     ],
-    extrasTitle: 'Included Extras (₱12,000 value)',
+    extrasTitle: 'Included Extras (₱16,000 value)',
     extras: [
       'Responsive QA across common devices & breakpoints',
       'Advanced contact form (custom fields as needed)',
@@ -98,13 +98,13 @@ const pricingCards: PricingCard[] = [
   {
     id: 'professional-website',
     title: 'Professional Website Package',
-    price: '₱35,000',
+    price: '₱45,000',
     scopeLine: '8 pages · marketing site with content depth',
     summary: [
       'For teams that need publishing (blog), objections handled (FAQ), and proof (testimonials).',
       'Heavier information architecture, stronger SEO scaffolding, and conversion-focused modules.',
     ],
-    pagesTitle: 'Pages (₱25,000 value)',
+    pagesTitle: 'Pages (₱30,000 value)',
     pages: [
       'Home Page',
       'About Page',
@@ -115,7 +115,7 @@ const pricingCards: PricingCard[] = [
       'Testimonials',
       'Contact Page',
     ],
-    extrasTitle: 'Included Extras (₱10,000 value)',
+    extrasTitle: 'Included Extras (₱15,000 value)',
     extras: [
       'Fully responsive UI with more modules & page types',
       'SEO-ready structure (clean URLs, internal linking, heading hierarchy)',
@@ -286,9 +286,9 @@ export const Services: React.FC = () => {
             <div className="px-4 py-4 md:px-6 border-b border-neutral-800">
               <p className="text-sm font-medium text-white">Compare packages</p>
               <p className="text-xs text-neutral-500 mt-1">
-                Use this table to see what changes between tiers. The big jump from ₱5k → ₱20k is mostly{' '}
-                <span className="text-neutral-400">structure + a real contact form</span>; ₱30k adds{' '}
-                <span className="text-neutral-400">more pages, Maps, gallery, and speed work</span>; ₱35k adds{' '}
+                Use this table to see what changes between tiers. The big jump from ₱5k → ₱30k is mostly{' '}
+                <span className="text-neutral-400">structure + a real contact form</span>; ₱40k adds{' '}
+                <span className="text-neutral-400">more pages, Maps, gallery, and speed work</span>; ₱45k adds{' '}
                 <span className="text-neutral-400">blog + FAQ + testimonials</span> as full site sections.
               </p>
             </div>
@@ -298,9 +298,9 @@ export const Services: React.FC = () => {
                   <tr className="border-b border-neutral-800 text-neutral-500 text-xs uppercase tracking-wider">
                     <th className="px-4 py-3 md:px-6 font-medium">Feature</th>
                     <th className="px-3 py-3 font-medium whitespace-nowrap">₱5k</th>
-                    <th className="px-3 py-3 font-medium whitespace-nowrap">₱20k</th>
                     <th className="px-3 py-3 font-medium whitespace-nowrap">₱30k</th>
-                    <th className="px-3 py-3 pr-4 md:pr-6 font-medium whitespace-nowrap">₱35k</th>
+                    <th className="px-3 py-3 font-medium whitespace-nowrap">₱40k</th>
+                    <th className="px-3 py-3 pr-4 md:pr-6 font-medium whitespace-nowrap">₱45k</th>
                   </tr>
                 </thead>
                 <tbody className="text-neutral-300">
