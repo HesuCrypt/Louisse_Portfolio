@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { MessageCircle, X, SendHorizontal } from 'lucide-react';
 
 type ChatMessage = {
@@ -13,9 +13,17 @@ export const AIChatWidget: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const messagesContainerRef = useRef<HTMLDivElement | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([
     { role: 'assistant', content: starterMessage },
   ]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const container = messagesContainerRef.current;
+    if (!container) return;
+    container.scrollTop = container.scrollHeight;
+  }, [messages, isLoading, isOpen]);
 
   const sendMessage = async () => {
     const trimmed = input.trim();
@@ -121,7 +129,7 @@ export const AIChatWidget: React.FC = () => {
             </button>
           </div>
 
-          <div className="h-80 overflow-y-auto p-4 space-y-3">
+          <div ref={messagesContainerRef} className="h-80 overflow-y-auto p-4 space-y-3">
             {messages.map((message, index) => (
               <div
                 key={`${message.role}-${index}`}
