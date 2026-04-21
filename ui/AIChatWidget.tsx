@@ -41,7 +41,17 @@ export const AIChatWidget: React.FC = () => {
         if (response.status === 404) {
           throw new Error('API_ROUTE_MISSING');
         }
-        throw new Error('REQUEST_FAILED');
+
+        let errorMessage = 'REQUEST_FAILED';
+        try {
+          const errorData = await response.json();
+          if (errorData?.error) {
+            errorMessage = String(errorData.error);
+          }
+        } catch {
+          // Ignore JSON parse issues and keep generic error code.
+        }
+        throw new Error(errorMessage);
       }
 
       const data = await response.json();
@@ -67,12 +77,16 @@ export const AIChatWidget: React.FC = () => {
         setIsLoading(false);
         return;
       }
+      const fallbackMessage =
+        error instanceof Error && error.message === 'Missing GROQ_API_KEY on server'
+          ? 'AI chat is not configured yet on this deployment. Add GROQ_API_KEY in Vercel Project Settings > Environment Variables, then redeploy.'
+          : 'I hit an error while contacting the AI service. Please retry in a moment or use the contact form below.';
+
       setMessages([
         ...nextMessages,
         {
           role: 'assistant',
-          content:
-            'I hit an error while contacting the AI service. Please retry in a moment or use the contact form below.',
+          content: fallbackMessage,
         },
       ]);
     } finally {
