@@ -11,6 +11,7 @@ import { Skills } from './sections/Skills';
 import { Contact } from './sections/Contact';
 import { Divider } from './ui/Divider';
 import { LoadingScreen } from './ui/LoadingScreen';
+import { AIChatWidget } from './ui/AIChatWidget';
 
 export default function App() {
   const [loading, setLoading] = useState(true);
@@ -49,7 +50,13 @@ export default function App() {
 
           <footer className="py-12 text-center text-neutral-600 text-sm">
             <p>&copy; {new Date().getFullYear()} Louisse Dominique Bertillo. All rights reserved.</p>
+            <div className="mt-3 flex items-center justify-center gap-4 text-xs">
+              <a href="#privacy" className="hover:text-neutral-400 transition-colors">Privacy Policy</a>
+              <span>•</span>
+              <a href="#terms" className="hover:text-neutral-400 transition-colors">Terms of Service</a>
+            </div>
           </footer>
+          <AIChatWidget />
         </div>
       )}
     </main>

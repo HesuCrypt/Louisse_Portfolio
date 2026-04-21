@@ -136,6 +136,25 @@ const trustItems = [
   'Free consultation',
 ];
 
+const engagementTerms = [
+  {
+    label: 'Timeline',
+    value: 'Portfolio: 3-5 days · Starter: 7-10 days · Business: 10-14 days · Professional: 14-21 days',
+  },
+  {
+    label: 'Revisions',
+    value: 'Two revision rounds per page section are included in every package.',
+  },
+  {
+    label: 'Payment Terms',
+    value: '50% upfront to start, 50% before final handoff and deployment.',
+  },
+  {
+    label: 'What Is Not Included',
+    value: 'Domain/hosting fees, premium paid plugins, and custom copywriting unless agreed in scope.',
+  },
+];
+
 const comparisonRows: { feature: string; portfolio: string; starter: string; business: string; professional: string }[] = [
   {
     feature: 'Typical page count',
@@ -315,6 +334,21 @@ export const Services: React.FC = () => {
                   ))}
                 </tbody>
               </table>
+            </div>
+          </motion.div>
+
+          <motion.div
+            variants={itemVariants}
+            className="mb-16 rounded-2xl border border-neutral-800 bg-neutral-950/30 p-6 md:p-8"
+          >
+            <p className="text-sm font-medium text-white mb-5">Engagement Terms</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {engagementTerms.map((item) => (
+                <div key={item.label} className="rounded-xl border border-neutral-800 p-4">
+                  <p className="text-xs uppercase tracking-wider text-neutral-500 mb-2">{item.label}</p>
+                  <p className="text-sm text-neutral-300 leading-relaxed">{item.value}</p>
+                </div>
+              ))}
             </div>
           </motion.div>
 
