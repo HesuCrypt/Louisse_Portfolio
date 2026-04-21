@@ -28,7 +28,17 @@ export const skills: SkillCategory[] = [
   },
   {
     category: "Platforms",
-    items: ["WordPress", "Shopify", "Platforms", "Squarespace", "Webflow"]
+    items: ["WordPress", "Shopify", "Squarespace", "Webflow"]
+  },
+  {
+    category: "AI",
+    items: [
+      "AI-assisted development",
+      "Chatbot integration",
+      "Prompt engineering",
+      "LLM workflow automation",
+      "AI prototyping for product features"
+    ]
   },
   {
     category: "Tools",
@@ -39,10 +49,7 @@ export const skills: SkillCategory[] = [
       "Google Cloud Console",
       "ESLint",
       "PostCSS",
-      "Cursor",
-      "GPT",
-      "Claude",
-      "Gemini"
+      "Cursor"
     ]
   }
 ];
