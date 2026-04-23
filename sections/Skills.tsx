@@ -19,15 +19,15 @@ export const Skills: React.FC = () => {
             <H2>Technical Expertise</H2>
           </motion.div>
 
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8 md:gap-12">
-            {skills.map((skillGroup, index) => (
-              <motion.div key={index} variants={itemVariants} className="space-y-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-6 gap-6 md:gap-8 lg:gap-6 xl:gap-8">
+            {skills.map((skillGroup) => (
+              <motion.div key={skillGroup.category} variants={itemVariants} className="space-y-4 min-w-0">
                 <h4 className="text-white font-medium border-b border-neutral-800 pb-2 mb-4 text-sm">
                   {skillGroup.category}
                 </h4>
                 <ul className="space-y-3">
-                  {skillGroup.items.map((skill, idx) => (
-                    <li key={idx} className="text-neutral-400 text-sm hover:text-white transition-colors duration-200 cursor-default">
+                  {skillGroup.items.map((skill) => (
+                    <li key={skill} className="text-neutral-400 text-sm hover:text-white transition-colors duration-200 cursor-default break-words">
                       {skill}
                     </li>
                   ))}

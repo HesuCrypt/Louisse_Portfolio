@@ -37,7 +37,8 @@ export const skills: SkillCategory[] = [
       "Chatbot integration",
       "Prompt engineering",
       "LLM workflow automation",
-      "AI prototyping for product features"
+      "AI prototyping for product features",
+      "Claude"
     ]
   },
   {

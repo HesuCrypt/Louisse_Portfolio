@@ -55,8 +55,10 @@ export const Contact: React.FC = () => {
         });
         setIsSubmitting(false);
         return;
-      } catch {
-        setSubmitFeedback('Email service is not available right now. Opening your email app instead.');
+      } catch (error: any) {
+        const debugReason =
+          error?.text || error?.message || error?.status?.toString() || 'Unknown EmailJS error';
+        setSubmitFeedback(`EmailJS error: ${debugReason}. Opening your email app instead.`);
       }
     }
 

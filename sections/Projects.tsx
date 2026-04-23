@@ -51,9 +51,12 @@ export const Projects: React.FC = () => {
             </div>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-            {filteredProjects.map((project, index) => (
-              <motion.div key={index} variants={itemVariants} className="h-full">
+          <div
+            key={activeFilter}
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8"
+          >
+            {filteredProjects.map((project) => (
+              <motion.div key={project.title} variants={itemVariants} className="h-full">
                 <Card className="h-full flex flex-col justify-between min-h-[280px]">
                   <div className="space-y-6">
                     <div className="flex justify-between items-start">
