@@ -19,7 +19,7 @@ export interface Project {
 export const projects: Project[] = [
   {
     title: "Fruit Jam",
-    description: "A launched web game that reached 3.4k players in 3 days, 8k total visits, 240k+ database requests, and 120k+ real-time requests.",
+    description: "A browser game launch that reached 3.4k players in 3 days while handling high real-time traffic and large request volume.",
     tech: "Web Game, Real-time Architecture, Database Optimization",
     category: "Game",
     live: "https://issyfruitjam.com/",
@@ -27,7 +27,7 @@ export const projects: Project[] = [
   },
   {
     title: "Game Library",
-    description: "A React-based game library with playable web games and smooth navigation.",
+    description: "A React-based game hub designed to organize playable browser experiences with smooth navigation and lightweight UI.",
     tech: "React, JavaScript",
     category: "Game",
     live: "https://hesucrypt.github.io/game/",
@@ -35,28 +35,28 @@ export const projects: Project[] = [
   },
   {
     title: "3D Farming Game",
-    description: "An interactive 3D farming simulation experience built for the web.",
+    description: "A web-based 3D interactive experience exploring gameplay mechanics, scene rendering, and browser-friendly immersion.",
     tech: "React, Three.js",
     category: "Game",
     live: "https://issy-farm.vercel.app/"
   },
   {
     title: "QC Weather Hub",
-    description: "Real-time weather dashboard providing accurate location-based forecasts.",
+    description: "A location-aware weather dashboard focused on fast access to forecast data through a clean, responsive interface.",
     tech: "React, Weather API",
     category: "Web App",
     live: "https://hesucrypt.github.io/qc-weather-vibe/"
   },
   {
     title: "Appointment Scheduler",
-    description: "A streamlined application for booking and managing appointments efficiently.",
+    description: "A scheduling workflow that simplifies appointment booking, availability management, and customer coordination.",
     tech: "React, Supabase",
     category: "Business Site",
     live: "https://hesucrypt.github.io/appointment/"
   },
   {
     title: "Library Management System",
-    description: "A backend-driven system for managing books, users, and transactions.",
+    description: "A backend-driven system built to manage books, borrowing records, and user transactions with structured data handling.",
     tech: "PHP, MySQL",
     category: "System"
   }

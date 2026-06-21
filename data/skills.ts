@@ -12,7 +12,6 @@ export const skills: SkillCategory[] = [
       "TypeScript",
       "JavaScript",
       "Tailwind CSS",
-      "CSS",
       "Responsive Design",
       "Framer Motion",
       "Web Game Development"
@@ -23,23 +22,25 @@ export const skills: SkillCategory[] = [
     items: ["PHP", "MySQL", "Supabase", "REST API", "EmailJS", "Auth0"]
   },
   {
+    category: "Platforms",
+    items: ["Shopify", "WordPress", "Squarespace", "Webflow"]
+  },
+  {
+    category: "Automation & AI",
+    items: [
+      "n8n",
+      "Zapier",
+      "Claude",
+      "Trae",
+      "Prompt Engineering",
+      "Workflow Automation",
+      "AI-Assisted Operations",
+      "Customer Support Automation"
+    ]
+  },
+  {
     category: "Design",
     items: ["Figma", "Framer", "Canva"]
-  },
-  {
-    category: "Platforms",
-    items: ["WordPress", "Shopify", "Squarespace", "Webflow"]
-  },
-  {
-    category: "AI",
-    items: [
-      "AI-assisted development",
-      "Chatbot integration",
-      "Prompt engineering",
-      "LLM workflow automation",
-      "AI prototyping for product features",
-      "Claude"
-    ]
   },
   {
     category: "Tools",
@@ -49,8 +50,7 @@ export const skills: SkillCategory[] = [
       "Cloudflare",
       "Google Cloud Console",
       "ESLint",
-      "PostCSS",
-      "Cursor"
+      "PostCSS"
     ]
   }
 ];

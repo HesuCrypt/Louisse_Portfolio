@@ -38,14 +38,16 @@ export const Experience: React.FC = () => {
                       <H3 className="mb-0">{job.role}</H3>
                       <span className="text-neutral-400">{job.company}</span>
                     </div>
-                    <Button 
-                      href={job.website} 
-                      variant="link" 
-                      className="text-xs text-neutral-500 hover:text-white"
-                      icon={<ExternalLink size={12} />}
-                    >
-                      Visit
-                    </Button>
+                    {job.website ? (
+                      <Button 
+                        href={job.website} 
+                        variant="link" 
+                        className="text-xs text-neutral-500 hover:text-white"
+                        icon={<ExternalLink size={12} />}
+                      >
+                        Visit
+                      </Button>
+                    ) : null}
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-neutral-400 pt-2">

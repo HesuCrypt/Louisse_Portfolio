@@ -1,208 +1,16 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Check } from 'lucide-react';
-import { Container } from '../ui/Container';
-import { H2, Body } from '../ui/Text';
-import { Button } from '../ui/Button';
+import { comparisonRows, engagementTerms, servicePackages, trustItems } from '../data/services';
+import { useLocalizedCurrency } from '../hooks/useLocalizedCurrency';
 import { containerVariants, itemVariants } from '../motion/variants';
-
-interface PricingCard {
-  id: string;
-  title: string;
-  price: string;
-  scopeLine: string;
-  summary: [string, string];
-  pagesTitle: string;
-  pages: string[];
-  extrasTitle: string;
-  extras: string[];
-  bestFor: string;
-  popular: boolean;
-}
-
-const pricingCards: PricingCard[] = [
-  {
-    id: 'portfolio-starter',
-    title: 'Portfolio Starter Package',
-    price: '₱5,000',
-    scopeLine: '2 pages · quick personal showcase',
-    summary: [
-      'Fastest way to go live: home + work, minimal moving parts.',
-      'Not included: About/Services pages, working form backend, or multi-section business layouts.',
-    ],
-    pagesTitle: 'Pages (₱3,000 value)',
-    pages: ['Home Page', 'Portfolio / Projects Page'],
-    extrasTitle: 'Included Extras (₱2,000 value)',
-    extras: [
-      'Mobile-friendly layout (2 pages)',
-      'Project grid / showcase for your work',
-      'Social profile links (icons + URLs)',
-      'Contact via mailto or simple CTA block (no form integration)',
-      'Light SEO: page titles & meta descriptions',
-    ],
-    bestFor: 'Freelancers, designers, developers, photographers—anyone who mainly needs “here’s my work.”',
-    popular: false,
-  },
-  {
-    id: 'starter-website',
-    title: 'Starter Website Package',
-    price: '₱30,000',
-    scopeLine: '3 core pages · clean brand presence',
-    summary: [
-      'Built for businesses that need a polished online presence with a clear message and a real inquiry flow.',
-      'Best starting tier for launching professionally before adding heavier features like gallery, maps, and content modules.',
-    ],
-    pagesTitle: 'Pages (₱18,000 value)',
-    pages: ['Home Page', 'About Page', 'Contact Page'],
-    extrasTitle: 'Included Extras (₱12,000 value)',
-    extras: [
-      'Responsive layout (phone, tablet, desktop)',
-      'Contact form with validation + email delivery setup',
-      'On-brand section design and clear page hierarchy',
-      'Social links + footer essentials',
-      'Basic on-page SEO (titles, meta, headings)',
-      'Speed baseline setup (compressed assets + clean structure)',
-    ],
-    bestFor: 'Small businesses, personal brands, startups validating their offer online.',
-    popular: false,
-  },
-  {
-    id: 'business-website',
-    title: 'Business Website Package',
-    price: '₱40,000',
-    scopeLine: '5 conversion pages · service-business ready',
-    summary: [
-      'Expanded for businesses that need stronger conversion flow, service clarity, and location-based trust.',
-      'Adds dedicated service and gallery content plus more advanced lead capture and optimization.',
-    ],
-    pagesTitle: 'Pages (₱24,000 value)',
-    pages: [
-      'Home Page',
-      'About Page',
-      'Services Page',
-      'Gallery / Portfolio',
-      'Contact Page',
-    ],
-    extrasTitle: 'Included Extras (₱16,000 value)',
-    extras: [
-      'Responsive QA across common devices and breakpoints',
-      'Advanced contact form (custom fields + stronger inquiry structure)',
-      'Google Maps / location embed for local trust',
-      'Dedicated gallery visuals and proof-oriented layouts',
-      'Local SEO structure (service intent + business/location signals)',
-      'Speed and image optimization pass',
-      'Social integration placements across key sections',
-    ],
-    bestFor: 'Restaurants, salons, clinics, agencies—anyone who needs services + visuals + location.',
-    popular: true,
-  },
-  {
-    id: 'professional-website',
-    title: 'Professional Website Package',
-    price: '₱45,000',
-    scopeLine: '8 strategic pages · content and authority focused',
-    summary: [
-      'Designed for brands that need authority content, deeper trust signals, and long-term SEO growth.',
-      'Best for teams ready for full funnel messaging: discovery, proof, objections, and ongoing content.',
-    ],
-    pagesTitle: 'Pages (₱30,000 value)',
-    pages: [
-      'Home Page',
-      'About Page',
-      'Services Page',
-      'Portfolio / Gallery',
-      'Blog Page',
-      'FAQ Page',
-      'Testimonials',
-      'Contact Page',
-    ],
-    extrasTitle: 'Included Extras (₱15,000 value)',
-    extras: [
-      'Fully responsive multi-page UI system',
-      'SEO-ready site architecture (URLs, internal linking, heading hierarchy)',
-      'Multiple conversion touchpoints with email notifications',
-      'Blog system setup (listing + post template structure)',
-      'FAQ and testimonials integrated into conversion flow',
-      'Deeper performance pass (loading strategy + asset optimization)',
-      'Scalable layout structure for future pages/content expansion',
-    ],
-    bestFor: 'Companies and brands that publish content, answer objections, and need a fuller marketing footprint.',
-    popular: false,
-  },
-];
-
-const trustItems = [
-  'Fast delivery',
-  'Mobile optimized',
-  'Clean modern design',
-  'Free consultation',
-];
-
-const engagementTerms = [
-  {
-    label: 'Timeline',
-    value: 'Portfolio: 3-5 days · Starter: 7-10 days · Business: 10-14 days · Professional: 14-21 days',
-  },
-  {
-    label: 'Revisions',
-    value: 'Two revision rounds per page section are included in every package.',
-  },
-  {
-    label: 'Payment Terms',
-    value: '50% upfront to start, 50% before final handoff and deployment.',
-  },
-  {
-    label: 'What Is Not Included',
-    value: 'Domain/hosting fees, premium paid plugins, and custom copywriting unless agreed in scope.',
-  },
-];
-
-const comparisonRows: { feature: string; portfolio: string; starter: string; business: string; professional: string }[] = [
-  {
-    feature: 'Typical page count',
-    portfolio: '2',
-    starter: '3',
-    business: '5',
-    professional: '8',
-  },
-  {
-    feature: 'Business pages (About / Services)',
-    portfolio: '—',
-    starter: 'About',
-    business: 'About + Services',
-    professional: 'About + Services',
-  },
-  {
-    feature: 'Contact',
-    portfolio: 'mailto / simple CTA',
-    starter: 'Form + email delivery',
-    business: 'Advanced form + Maps',
-    professional: 'Multi-touch forms + notifications',
-  },
-  {
-    feature: 'Gallery / proof',
-    portfolio: 'Work grid on portfolio page',
-    starter: '—',
-    business: 'Dedicated gallery page',
-    professional: 'Gallery + testimonials',
-  },
-  {
-    feature: 'Blog / FAQ / long-form',
-    portfolio: '—',
-    starter: '—',
-    business: '—',
-    professional: 'Blog + FAQ included',
-  },
-  {
-    feature: 'SEO & performance focus',
-    portfolio: 'Light (meta)',
-    starter: 'Core on-page + speed baseline',
-    business: 'Local SEO + optimization pass',
-    professional: 'Advanced structure + deeper perf pass',
-  },
-];
+import { Button } from '../ui/Button';
+import { Container } from '../ui/Container';
+import { Body, H2 } from '../ui/Text';
 
 export const Services: React.FC = () => {
+  const { formatEstimatedPrice, formatPhpPrice, showEstimate } = useLocalizedCurrency();
+
   return (
     <section id="services" className="py-24 md:py-32 scroll-mt-20">
       <Container>
@@ -216,88 +24,100 @@ export const Services: React.FC = () => {
             <H2 className="mb-4">Website Development Services</H2>
             <Body className="text-neutral-400 !max-w-none">
               Four fixed packages so scope is clear. You pay for page depth, integrations (forms, maps), and the amount of
-              layout + content systems (blog, FAQ, testimonials). Everything below is what typically ships in each tier—tell
+              layout + content systems (blog, FAQ, testimonials). Everything below is what typically ships in each tier. Tell
               me your niche and we align copy and sections.
             </Body>
           </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
-            {pricingCards.map((card) => (
-              <motion.div key={card.id} variants={itemVariants} className="relative">
-                <motion.article
-                  whileHover={{ scale: 1.02 }}
-                  transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-                  className={`h-full flex flex-col rounded-2xl border bg-neutral-900/50 backdrop-blur-sm p-6 transition-all duration-300 hover:border-neutral-600 hover:shadow-xl hover:shadow-black/20 ${
-                    card.popular
-                      ? 'border-white/30 shadow-lg shadow-white/5 lg:scale-[1.05] z-10'
-                      : 'border-neutral-800'
-                  }`}
-                >
-                  {card.popular && (
-                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 whitespace-nowrap">
-                      <span className="inline-block px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider bg-white text-neutral-900 border border-white">
-                        Most Popular
-                      </span>
-                    </div>
-                  )}
+            {servicePackages.map((card) => {
+              const estimatedPrice = formatEstimatedPrice(card.basePricePhp);
 
-                  <div className="mb-6">
-                    <h3 className="text-lg font-semibold text-white mb-2">{card.title}</h3>
-                    <p className="text-2xl font-bold text-white">{card.price}</p>
-                    <p className="text-xs text-neutral-500 mt-2 leading-relaxed">{card.scopeLine}</p>
-                    <div className="mt-3 space-y-2 text-xs text-neutral-500 leading-relaxed border-t border-neutral-800/80 pt-3">
-                      <p>{card.summary[0]}</p>
-                      <p>{card.summary[1]}</p>
-                    </div>
-                  </div>
+              return (
+                <motion.div key={card.id} variants={itemVariants} className="relative">
+                  <motion.article
+                    whileHover={{ scale: 1.02 }}
+                    transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+                    className={`h-full flex flex-col rounded-2xl border bg-neutral-900/50 backdrop-blur-sm p-6 transition-all duration-300 hover:border-neutral-600 hover:shadow-xl hover:shadow-black/20 ${
+                      card.popular
+                        ? 'border-white/30 shadow-lg shadow-white/5 lg:scale-[1.05] z-10'
+                        : 'border-neutral-800'
+                    }`}
+                  >
+                    {card.popular && (
+                      <div className="absolute -top-3 left-1/2 -translate-x-1/2 whitespace-nowrap">
+                        <span className="inline-block px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider bg-white text-neutral-900 border border-white">
+                          Most Popular
+                        </span>
+                      </div>
+                    )}
 
-                  <div className="space-y-4 flex-1">
-                    <div>
-                      <p className="text-xs font-medium text-neutral-500 uppercase tracking-wider mb-2">
-                        {card.pagesTitle}
-                      </p>
-                      <ul className="space-y-1.5">
-                        {card.pages.map((item, i) => (
-                          <li key={i} className="text-sm text-neutral-300 flex items-center gap-2">
-                            <Check className="w-4 h-4 text-emerald-500/80 shrink-0" />
-                            {item}
-                          </li>
-                        ))}
-                      </ul>
+                    <div className="mb-6">
+                      <h3 className="text-lg font-semibold text-white mb-2">{card.title}</h3>
+                      <p className="text-2xl font-bold text-white">{formatPhpPrice(card.basePricePhp)}</p>
+                      {showEstimate && estimatedPrice && (
+                        <>
+                          <p className="mt-2 text-sm text-neutral-400">Approx. {estimatedPrice}</p>
+                          <p className="mt-1 text-[11px] text-neutral-500">
+                            Estimated local price based on current exchange rates
+                          </p>
+                        </>
+                      )}
+                      <p className="text-xs text-neutral-500 mt-2 leading-relaxed">{card.scopeLine}</p>
+                      <div className="mt-3 space-y-2 text-xs text-neutral-500 leading-relaxed border-t border-neutral-800/80 pt-3">
+                        <p>{card.summary[0]}</p>
+                        <p>{card.summary[1]}</p>
+                      </div>
                     </div>
 
-                    <div>
-                      <p className="text-xs font-medium text-neutral-500 uppercase tracking-wider mb-2">
-                        {card.extrasTitle}
-                      </p>
-                      <ul className="space-y-1.5">
-                        {card.extras.map((item, i) => (
-                          <li key={i} className="text-sm text-neutral-300 flex items-center gap-2">
-                            <Check className="w-4 h-4 text-emerald-500/80 shrink-0" />
-                            {item}
-                          </li>
-                        ))}
-                      </ul>
+                    <div className="space-y-4 flex-1">
+                      <div>
+                        <p className="text-xs font-medium text-neutral-500 uppercase tracking-wider mb-2">
+                          {card.pagesTitle}
+                        </p>
+                        <ul className="space-y-1.5">
+                          {card.pages.map((item, i) => (
+                            <li key={i} className="text-sm text-neutral-300 flex items-center gap-2">
+                              <Check className="w-4 h-4 text-emerald-500/80 shrink-0" />
+                              {item}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+
+                      <div>
+                        <p className="text-xs font-medium text-neutral-500 uppercase tracking-wider mb-2">
+                          {card.extrasTitle}
+                        </p>
+                        <ul className="space-y-1.5">
+                          {card.extras.map((item, i) => (
+                            <li key={i} className="text-sm text-neutral-300 flex items-center gap-2">
+                              <Check className="w-4 h-4 text-emerald-500/80 shrink-0" />
+                              {item}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+
+                      <div className="pt-2">
+                        <p className="text-xs text-neutral-500 mb-1">Best for:</p>
+                        <p className="text-sm text-neutral-400">{card.bestFor}</p>
+                      </div>
                     </div>
 
-                    <div className="pt-2">
-                      <p className="text-xs text-neutral-500 mb-1">Best for:</p>
-                      <p className="text-sm text-neutral-400">{card.bestFor}</p>
+                    <div className="mt-6 pt-6 border-t border-neutral-800">
+                      <Button
+                        href="#contact"
+                        variant={card.popular ? 'primary' : 'secondary'}
+                        className="w-full justify-center"
+                      >
+                        Get Started
+                      </Button>
                     </div>
-                  </div>
-
-                  <div className="mt-6 pt-6 border-t border-neutral-800">
-                    <Button
-                      href="#contact"
-                      variant={card.popular ? 'primary' : 'secondary'}
-                      className="w-full justify-center"
-                    >
-                      Get Started
-                    </Button>
-                  </div>
-                </motion.article>
-              </motion.div>
-            ))}
+                  </motion.article>
+                </motion.div>
+              );
+            })}
           </div>
 
           <motion.div

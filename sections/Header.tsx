@@ -2,16 +2,21 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Container } from '../ui/Container';
 import { Menu, X } from 'lucide-react';
+import { AppRoute, buildHomeSectionPath, pushRoute, scrollToSection } from '../utils/routing';
 
 const navItems = [
-  { name: 'About', href: '#about' },
-  { name: 'Services', href: '#services' },
-  { name: 'Experience', href: '#experience' },
-  { name: 'Work', href: '#featured' }, // Links to the top of the "Work" area (Current Platforms)
-  { name: 'Contact', href: '#contact' },
-];
+  { name: 'About', sectionId: 'about' },
+  { name: 'Experience', sectionId: 'experience' },
+  { name: 'Work', sectionId: 'featured' },
+  { name: 'Contact', sectionId: 'contact' },
+  { name: 'Services', path: '/services' },
+] as const;
 
-export const Header: React.FC = () => {
+interface HeaderProps {
+  currentRoute: AppRoute;
+}
+
+export const Header: React.FC<HeaderProps> = ({ currentRoute }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
@@ -30,22 +35,44 @@ export const Header: React.FC = () => {
     } else {
       document.body.style.overflow = 'unset';
     }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
   }, [isOpen]);
 
-  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
-    e.preventDefault();
-    setIsOpen(false);
-    const element = document.querySelector(href);
-    if (element) {
-      const offset = 80; // Height of header
-      const elementPosition = element.getBoundingClientRect().top;
-      const offsetPosition = elementPosition + window.pageYOffset - offset;
-
-      window.scrollTo({
-        top: offsetPosition,
-        behavior: 'smooth'
-      });
+  useEffect(() => {
+    if (currentRoute === '/' && window.location.hash) {
+      requestAnimationFrame(() => scrollToSection(window.location.hash));
+    } else if (currentRoute === '/services') {
+      window.scrollTo({ top: 0, behavior: 'auto' });
     }
+  }, [currentRoute]);
+
+  const handleNav = (item: (typeof navItems)[number]) => {
+    setIsOpen(false);
+
+    if ('path' in item) {
+      pushRoute(item.path);
+      return;
+    }
+
+    if (currentRoute === '/') {
+      scrollToSection(item.sectionId);
+      return;
+    }
+
+    pushRoute(buildHomeSectionPath(item.sectionId));
+  };
+
+  const handleLogoClick = () => {
+    setIsOpen(false);
+
+    if (currentRoute === '/') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
+    pushRoute('/');
   };
 
   return (
@@ -58,25 +85,25 @@ export const Header: React.FC = () => {
     >
       <Container className="flex items-center justify-between h-20">
         {/* Logo */}
-        <a
-          href="#"
-          onClick={(e) => handleClick(e, '#')}
+        <button
+          type="button"
+          onClick={handleLogoClick}
           className="text-xl font-medium tracking-tight text-white hover:opacity-80 transition-opacity z-50 relative"
         >
           Louisse.
-        </a>
+        </button>
 
         {/* Desktop Nav */}
         <nav className="hidden md:flex items-center gap-8">
           {navItems.map((item) => (
-            <a
+            <button
               key={item.name}
-              href={item.href}
-              onClick={(e) => handleClick(e, item.href)}
+              type="button"
+              onClick={() => handleNav(item)}
               className="text-sm font-medium text-neutral-400 hover:text-white transition-colors"
             >
               {item.name}
-            </a>
+            </button>
           ))}
         </nav>
 
@@ -100,14 +127,14 @@ export const Header: React.FC = () => {
               className="absolute inset-0 top-0 h-screen w-full bg-background flex flex-col items-center justify-center space-y-8 md:hidden p-4"
             >
               {navItems.map((item) => (
-                <a
+                <button
                   key={item.name}
-                  href={item.href}
-                  onClick={(e) => handleClick(e, item.href)}
+                  type="button"
+                  onClick={() => handleNav(item)}
                   className="text-3xl font-light text-white hover:text-neutral-400 transition-colors"
                 >
                   {item.name}
-                </a>
+                </button>
               ))}
             </motion.div>
           )}

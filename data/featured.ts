@@ -2,33 +2,33 @@ export const featured = [
   {
     company: "ISSY Cosmetics",
     role: "Lead Web Developer",
-    description: "Driving sales growth through advanced Shopify development, gamification, and performance optimization for a leading beauty brand.",
+    description: "Leading Shopify development, conversion-focused improvements, and interactive campaigns that support measurable e-commerce growth.",
     stat: "170% Sales Increase",
     link: "https://issycosmetics.com/",
-    status: "Handling Live Site"
+    status: "Live Platform"
   },
   {
     company: "Fruit Jam",
     role: "Creator & Lead Developer",
-    description: "Launched a web game that scaled quickly with 3.4k players in 3 days, 8k total visits, 240k+ database requests, and 120k+ real-time requests.",
+    description: "Built and launched a browser game that scaled quickly through real-time gameplay, high request volume, and fast player adoption.",
     stat: "3.4k Players in 3 Days",
     link: "https://issyfruitjam.com/",
-    status: "Launched Live"
+    status: "Launched Project"
   },
   {
     company: "La Fleur",
     role: "Web Developer",
-    description: "Built and optimized a modern florist storefront experience focused on elegant product presentation, same-day ordering flow, and clear customer trust signals.",
+    description: "Developed a polished florist storefront with stronger product presentation, smoother ordering, and clearer customer trust cues.",
     stat: "Live E-commerce Experience",
     link: "https://lafleurph.com/",
-    status: "Handling Live Site"
+    status: "Live Platform"
   },
   {
     company: "Meridian Auctions",
     role: "Lead Full Stack Developer",
-    description: "Architecting and maintaining the core auction infrastructure, ensuring real-time reliability for high-value transactions.",
+    description: "Delivered a full stack auction platform focused on real-time reliability, backend coordination, and scalable transaction handling.",
     stat: "High-Traffic System",
     link: "https://www.meridianauctions.com/",
-    status: "Handling Live Site"
+    status: "3-Month Project"
   }
 ];

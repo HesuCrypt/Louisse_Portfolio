@@ -18,8 +18,8 @@ export const Featured: React.FC = () => {
           viewport={{ once: true, margin: "-10%" }}
         >
           <motion.div variants={itemVariants} className="mb-12 flex flex-col md:flex-row md:items-baseline md:justify-between gap-4">
-            <H2 className="mb-0">Current Platforms</H2>
-            <span className="text-neutral-500 text-sm">Active Development & Maintenance</span>
+            <H2 className="mb-0">Featured Work</H2>
+            <span className="text-neutral-500 text-sm">Selected platforms, launches, and systems work</span>
           </motion.div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
