@@ -12,7 +12,7 @@ export interface Job {
 export const experience: Job[] = [
   {
     company: "ISSY Cosmetics",
-    role: "IT Officer",
+    role: "Senior Web Developer",
     type: "Full-time",
     period: "May 2026 - Present",
     website: "https://issycosmetics.com/",
