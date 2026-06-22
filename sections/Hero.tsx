@@ -53,6 +53,9 @@ export const Hero: React.FC = () => {
             <Button onClick={scrollToContact} variant="secondary">
               Contact
             </Button>
+            <Button href="/resume.txt" download="Louisse_Dominique_Bertillo_Resume.txt" variant="secondary">
+              Download Resume
+            </Button>
           </motion.div>
         </motion.div>
       </Container>

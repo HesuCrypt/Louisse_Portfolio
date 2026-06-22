@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary' | 'link';
   href?: string;
+  download?: string;
   children: React.ReactNode;
   icon?: React.ReactNode;
 }
@@ -11,6 +12,7 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 export const Button: React.FC<ButtonProps> = ({ 
   variant = 'primary', 
   href, 
+  download,
   children, 
   className = "",
   icon,
@@ -35,6 +37,7 @@ export const Button: React.FC<ButtonProps> = ({
     return (
       <motion.a 
         href={href}
+        download={download}
         className={`${baseStyles} ${variants[variant]} ${className}`}
         whileHover={{ scale: variant === 'link' ? 1 : 1.02 }}
         whileTap={{ scale: 0.98 }}

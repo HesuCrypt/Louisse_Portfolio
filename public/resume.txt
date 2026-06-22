@@ -1,0 +1,88 @@
+LOUISSE DOMINIQUE BERTILLO
+WEB DEVELOPER
+
+09507560274
+louissebertillo2004@mail.com
+Portfolio
+Ermin Garcia
+
+ABOUT ME
+
+Web Developer focused on building refined, production ready digital experiences that balance visual quality, performance, and long term scalability. Experienced in e commerce, high traffic platforms, automation workflows, and AI assisted systems. Skilled in developing modern websites, optimizing user experience, improving operational efficiency, and building solutions that support real business growth.
+
+SKILLS
+
+Frontend: React.js, Next.js, TypeScript, JavaScript, Tailwind CSS, HTML5, CSS3, Framer Motion
+Backend: PHP, MySQL, Supabase, REST API, EmailJS, Auth0
+Platforms: Shopify, WordPress, Squarespace, Webflow
+Automation and AI: n8n, Zapier, Claude, Trae, Prompt Engineering, Workflow Automation, AI Assisted Operations, Customer Support Automation
+Design: Figma, Framer, Canva
+Tools: GitHub, Vercel, Cloudflare, Google Cloud Console, ESLint, PostCSS
+Other: Web Game Development, Three.js, Responsive Design, Performance Optimization
+
+EXPERIENCE
+
+SENIOR WEB DEVELOPER
+ISSY COSMETICS
+May 2026 - Present
+
+• Analyze business operations to identify bottlenecks and improve workflow efficiency
+• Build scalable automation systems using n8n and Zapier to connect internal tools and office processes
+• Integrate AI tools such as Claude and Trae for data extraction, decision support, and customer service automation
+• Streamline manual processes into automated workflows that reduce response times and support company growth
+• Contribute to both digital product execution and internal systems improvement
+
+WEB DEVELOPER
+ISSY COSMETICS
+September 2025 - Present
+
+• Develop and maintain the live e commerce website using modern web technologies and Shopify
+• Build custom modular sections and responsive experiences for desktop and mobile platforms
+• Optimize website performance, loading speed, and user experience across devices
+• Collaborate with design and brand teams to launch campaigns, product pages, and interactive experiences
+• Increased online sales by 170% through improved user experience and conversion focused execution
+• Successfully launched mobile responsive design systems and web game initiatives
+
+FULL STACK DEVELOPER
+MERIDIAN AUCTIONS
+3 Month Project
+
+• Led full stack development for the auction platform, covering frontend architecture, backend systems, and database management
+• Helped deliver a high traffic system designed for reliable real time transactions
+• Coordinated development efforts while mentoring a team of three developers
+• Built and maintained scalable infrastructure to support platform stability and performance
+
+UI/UX DESIGNER INTERN
+PRIME PHILIPPINES
+March 2025 - June 2025
+
+• Designed intuitive interfaces for internal platforms and real estate systems
+• Created wireframes and prototypes using Figma and Framer
+• Supported product ideation and interface improvements through user centered design thinking
+
+FRONT END DEVELOPER INTERN
+PRIME PHILIPPINES
+March 2025 - June 2025
+
+• Developed responsive web components using React.js and Tailwind CSS
+• Collaborated with backend developers and designers to integrate APIs and enhance UI
+• Helped improve usability and consistency across internal web interfaces
+
+SELECTED PROJECTS
+
+FRUIT JAM
+
+• Built and launched a browser based game that reached 3.4k players in 3 days
+• Generated 8k total visits, 240k plus database requests, and 120k plus real time requests
+• Designed for high traffic performance, responsive gameplay, and scalable real time interaction
+
+EDUCATION
+
+ACCESS COMPUTER COLLEGE
+Bachelor of Science in Information Technology
+2022 - Present
+GWA: 92.48
+
+APEC NEW MANILA
+Senior High School
+2019 - 2021
