@@ -22,6 +22,7 @@ export const experience: Job[] = [
     highlight: "Designed and deployed automation systems with n8n, Zapier, Claude AI, and Trae to streamline internal operations, customer support, and decision workflows.",
     focus: "I analyze internal business operations to identify bottlenecks and transform manual processes into streamlined, automated workflows. By leveraging integration platforms such as Zapier and n8n, I design and deploy scalable multi-step pipelines that connect office systems. I also integrate AI tools such as Claude and Trae to automate data extraction and decision support, while building customer service automation systems that reduce response times and improve workflow efficiency to support growth.",
     roadmap: [
+      "Maintain and upgrade the live website with performance, UX, and conversion improvements.",
       "Build sales automation across departments to reduce manual workflows and improve lead handling.",
       "Launch a loyalty program that connects the online store with offline retail experiences.",
       "Deploy an AI assistant for sales analytics, store tracking, and restocking insights to support faster decisions.",
@@ -49,6 +50,11 @@ export const experience: Job[] = [
     period: "3-Month Project",
     location: "Germany",
     website: "https://www.meridianauctions.com/",
-    focus: "Led full stack development for the auction platform, overseeing frontend architecture, backend systems, and database management while mentoring a team of three developers."
+    focus: "Improved and stabilized the auction platform by taking over an inherited codebase, addressing technical debt, strengthening security fundamentals, and upgrading the overall UI and user experience while fixing critical issues across the stack.",
+    roadmap: [
+      "Audit the existing codebase and resolve inherited bugs, regressions, and instability issues.",
+      "Harden security by improving access control, input validation, and dependency hygiene.",
+      "Redesign and rebuild key UI flows to improve clarity, usability, and visual consistency.",
+    ],
   }
 ];
