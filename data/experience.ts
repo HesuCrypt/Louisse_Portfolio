@@ -19,8 +19,8 @@ export const experience: Job[] = [
     period: "May 2026 - Present",
     location: "Philippines",
     website: "https://issycosmetics.com/",
-    highlight: "Designed and deployed automation systems with n8n, Zapier, Claude AI, and Trae to streamline internal operations, customer support, and decision workflows.",
-    focus: "I analyze internal business operations to identify bottlenecks and transform manual processes into streamlined, automated workflows. By leveraging integration platforms such as Zapier and n8n, I design and deploy scalable multi-step pipelines that connect office systems. I also integrate AI tools such as Claude and Trae to automate data extraction and decision support, while building customer service automation systems that reduce response times and improve workflow efficiency to support growth.",
+    highlight: "Designed and deployed automation systems with n8n, Claude AI, and Trae to streamline internal operations, customer support, and decision workflows.",
+    focus: "I analyze internal business operations to identify bottlenecks and transform manual processes into streamlined, automated workflows. By leveraging integration platforms such as n8n, I design and deploy scalable multi-step pipelines that connect office systems. I also integrate AI tools such as Claude and Trae to automate data extraction and decision support, while building customer service automation systems that reduce response times and improve workflow efficiency to support growth.",
     roadmap: [
       "Launch a loyalty program that connects the online store with offline retail experiences.",
       "Deploy an AI assistant for sales analytics, store tracking, and restocking insights to support faster decisions.",
