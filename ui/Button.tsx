@@ -18,7 +18,7 @@ export const Button: React.FC<ButtonProps> = ({
   icon,
   ...props 
 }) => {
-  const baseStyles = "inline-flex items-center gap-2 px-6 py-3 text-sm font-medium tracking-wide transition-all duration-300 rounded-full focus:outline-none focus:ring-2 focus:ring-neutral-700 focus:ring-offset-2 focus:ring-offset-black";
+  const baseStyles = "inline-flex items-center gap-2 px-6 py-3 text-sm font-medium tracking-wide transition-all duration-300 rounded-full focus:outline-none focus:ring-2 focus:ring-neutral-700 focus:ring-offset-2 focus:ring-offset-black whitespace-nowrap shrink-0";
   
   const variants = {
     primary: "bg-white text-black hover:bg-neutral-200 border border-transparent",

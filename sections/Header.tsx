@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Container } from '../ui/Container';
 import { Menu, X } from 'lucide-react';
-import { AppRoute, buildHomeSectionPath, pushRoute, scrollToSection } from '../utils/routing';
+import { AppRoute, buildHomeSectionPath, pushRoute, scrollToSection, scrollToTop } from '../utils/routing';
 
 const navItems = [
   { name: 'About', sectionId: 'about' },
@@ -68,7 +68,7 @@ export const Header: React.FC<HeaderProps> = ({ currentRoute }) => {
     setIsOpen(false);
 
     if (currentRoute === '/') {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      scrollToTop();
       return;
     }
 

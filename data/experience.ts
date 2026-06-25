@@ -14,7 +14,7 @@ export interface Job {
 export const experience: Job[] = [
   {
     company: "ISSY Cosmetics",
-    role: "Senior Web Developer",
+    role: "Lead IT & Web Developer",
     type: "Full-time",
     period: "May 2026 - Present",
     location: "Philippines",
@@ -29,6 +29,16 @@ export const experience: Job[] = [
     ],
   },
   {
+    company: "La Fleur",
+    role: "Freelance Web Developer",
+    type: "Project-based",
+    period: "April 2026 - 1 month project",
+    location: "Philippines",
+    website: "",
+    highlight: "Delivered a launch-ready website before the Mother’s Day season, including extra improvements and a map feature while staying within a limited budget.",
+    focus: "Built and launched a brand-aligned website under a tight deadline, translating design and theme requirements into a polished, functional experience. I handled client requests end to end, added practical improvements beyond scope where it added value, and kept long-term maintenance costs minimal.",
+  },
+  {
     company: "ISSY Cosmetics",
     role: "Web Developer",
     type: "Full-time",
@@ -38,9 +48,9 @@ export const experience: Job[] = [
     highlight: "Increased online sales by 170%",
     focus: "I maintain and improve the live e-commerce website. I focus on advanced Shopify development, custom modular sections, performance optimization, and responsive experiences across desktop and mobile. I also build interactive web game experiences and internal systems that support day-to-day operations.",
     roadmap: [
-      "Maintain and upgrade the live website with performance, UX, and conversion improvements.",
-      "Develop interactive web game experiences to support campaigns and customer engagement.",
       "Create an office-wide room booking system to streamline scheduling and resource allocation.",
+      "Develop interactive web game experiences to support campaigns and customer engagement.",
+      "Maintain and upgrade the live website with performance, UX, and conversion improvements.",
     ],
   },
   {

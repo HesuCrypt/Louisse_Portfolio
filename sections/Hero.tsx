@@ -5,15 +5,16 @@ import { H1, Body, Label } from '../ui/Text';
 import { Button } from '../ui/Button';
 import { profile } from '../data/profile';
 import { containerVariants, itemVariants } from '../motion/variants';
+import { scrollToSection } from '../utils/routing';
 import { ArrowDown } from 'lucide-react';
 
 export const Hero: React.FC = () => {
   const scrollToProjects = () => {
-    document.getElementById('projects')?.scrollIntoView({ behavior: 'smooth' });
+    scrollToSection('projects');
   };
 
   const scrollToContact = () => {
-    document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' });
+    scrollToSection('contact');
   };
 
   return (
