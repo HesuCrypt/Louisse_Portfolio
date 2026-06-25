@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Container } from '../ui/Container';
-import { H2, H3, Body, Label } from '../ui/Text';
+import { H2, H3 } from '../ui/Text';
 import { Button } from '../ui/Button';
 import { experience } from '../data/experience';
 import { containerVariants, itemVariants } from '../motion/variants';
@@ -30,6 +30,7 @@ export const Experience: React.FC = () => {
               >
                 <div className="md:col-span-1">
                   <span className="text-neutral-500 text-sm font-mono">{job.period}</span>
+                  <div className="text-neutral-600 text-xs mt-2">{job.location}</div>
                 </div>
                 
                 <div className="md:col-span-3 space-y-4">
@@ -62,6 +63,26 @@ export const Experience: React.FC = () => {
                       </div>
                     )}
                   </div>
+
+                  {job.roadmap?.length ? (
+                    <div className="pt-4">
+                      <span className="text-neutral-600 block mb-3 uppercase text-[10px] tracking-wider">Roadmap</span>
+                      <ul className="space-y-3">
+                        {job.roadmap.map((item, itemIndex) => (
+                          <li key={`${job.company}-${job.role}-${itemIndex}`} className="relative pl-7">
+                            <span className="absolute left-0 top-[0.5rem] h-2 w-2 rounded-full bg-neutral-500" aria-hidden="true" />
+                            {itemIndex < job.roadmap!.length - 1 ? (
+                              <span
+                                className="absolute left-[3px] top-[1.15rem] bottom-[-0.85rem] w-px bg-neutral-800"
+                                aria-hidden="true"
+                              />
+                            ) : null}
+                            <span className="text-neutral-300">{item}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ) : null}
                 </div>
               </motion.div>
             ))}
