@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Check } from 'lucide-react';
+import { ArrowUpRight, Check } from 'lucide-react';
+import { featured } from '../data/featured';
 import { comparisonRows, engagementTerms, servicePackages, trustItems } from '../data/services';
 import { useLocalizedCurrency } from '../hooks/useLocalizedCurrency';
 import { containerVariants, itemVariants } from '../motion/variants';
@@ -10,6 +11,9 @@ import { Body, H2 } from '../ui/Text';
 
 export const Services: React.FC = () => {
   const { formatEstimatedPrice, formatPhpPrice, showEstimate } = useLocalizedCurrency();
+  const completedWork = featured.filter(
+    (item) => item.company === 'La Fleur' || item.company === 'Meridian Auctions'
+  );
 
   return (
     <section id="services" className="py-24 md:py-32 scroll-mt-20">
@@ -28,6 +32,42 @@ export const Services: React.FC = () => {
               me your niche and we align copy and sections.
             </Body>
           </motion.div>
+
+          {completedWork.length ? (
+            <motion.div variants={itemVariants} className="mb-16">
+              <div className="mx-auto max-w-3xl text-center mb-10">
+                <p className="text-[11px] uppercase tracking-[0.24em] text-neutral-500 mb-3">Recent Launches</p>
+                <p className="text-neutral-300 text-base md:text-lg">
+                  A quick look at websites I’ve already delivered, so you can see the build quality and finish.
+                </p>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+                {completedWork.map((item) => (
+                  <motion.div
+                    key={item.company}
+                    variants={itemVariants}
+                    className="rounded-2xl border border-neutral-800 bg-neutral-900/20 p-6 md:p-8 flex flex-col h-full"
+                  >
+                    <div className="flex-1">
+                      <p className="text-white text-lg font-medium">{item.company}</p>
+                      <p className="text-neutral-500 text-xs uppercase tracking-[0.24em] mt-2">{item.status}</p>
+                      <p className="text-neutral-400 text-sm md:text-base mt-4 leading-relaxed">{item.description}</p>
+                    </div>
+                    <div className="pt-6 mt-6 border-t border-neutral-800/50">
+                      <Button
+                        href={item.link}
+                        variant="secondary"
+                        className="w-full justify-center"
+                        icon={<ArrowUpRight size={16} />}
+                      >
+                        Visit Platform
+                      </Button>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
+          ) : null}
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
             {servicePackages.map((card) => {

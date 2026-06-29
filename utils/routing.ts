@@ -85,3 +85,126 @@ export function scrollToSection(sectionId: string, offset = 80): void {
   const elementPosition = element.getBoundingClientRect().top + window.pageYOffset;
   scrollToY(elementPosition - offset);
 }
+
+let fluidScrollEnabled = false;
+let fluidScrollRaf: number | null = null;
+let fluidTargetY = 0;
+
+function cancelFluidScrollAnimation(): void {
+  if (fluidScrollRaf !== null) {
+    window.cancelAnimationFrame(fluidScrollRaf);
+    fluidScrollRaf = null;
+  }
+}
+
+function normalizeWheelDelta(event: WheelEvent): number {
+  if (event.deltaMode === 1) return event.deltaY * 16;
+  if (event.deltaMode === 2) return event.deltaY * (window.innerHeight * 0.9);
+  return event.deltaY;
+}
+
+function isEditableTarget(target: EventTarget | null): boolean {
+  const element = target instanceof Element ? target : null;
+  if (!element) return false;
+  if (element.closest('[contenteditable="true"]')) return true;
+  const tagName = element.tagName.toLowerCase();
+  return tagName === 'input' || tagName === 'textarea' || tagName === 'select';
+}
+
+function canScrollElementInDirection(element: Element, deltaY: number): boolean {
+  const htmlElement = element as HTMLElement;
+  const style = window.getComputedStyle(htmlElement);
+  const overflowY = style.overflowY;
+  if (overflowY !== 'auto' && overflowY !== 'scroll' && overflowY !== 'overlay') return false;
+  if (htmlElement.scrollHeight <= htmlElement.clientHeight) return false;
+
+  const scrollTop = htmlElement.scrollTop;
+  const maxScrollTop = htmlElement.scrollHeight - htmlElement.clientHeight;
+
+  if (deltaY > 0) return scrollTop < maxScrollTop;
+  if (deltaY < 0) return scrollTop > 0;
+  return false;
+}
+
+function hasScrollableAncestor(target: EventTarget | null, deltaY: number): boolean {
+  let element = target instanceof Element ? target : null;
+
+  while (element && element !== document.body && element !== document.documentElement) {
+    if (canScrollElementInDirection(element, deltaY)) {
+      return true;
+    }
+    element = element.parentElement;
+  }
+
+  return false;
+}
+
+function clampToDocumentScroll(y: number): number {
+  const maxScrollY = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+  return Math.min(Math.max(0, y), maxScrollY);
+}
+
+export function enableFluidScroll(): () => void {
+  if (typeof window === 'undefined') return () => {};
+  if (fluidScrollEnabled) return () => {};
+
+  fluidScrollEnabled = true;
+
+  const handleWheel = (event: WheelEvent) => {
+    if (!fluidScrollEnabled) return;
+    if (prefersReducedMotion()) return;
+    if (event.defaultPrevented) return;
+    if (event.ctrlKey || event.metaKey || event.altKey || event.shiftKey) return;
+    if (isEditableTarget(event.target)) return;
+
+    const delta = normalizeWheelDelta(event);
+    if (delta === 0) return;
+    if (hasScrollableAncestor(event.target, delta)) return;
+
+    event.preventDefault();
+
+    if (activeScrollAnimationFrame !== null) {
+      window.cancelAnimationFrame(activeScrollAnimationFrame);
+      activeScrollAnimationFrame = null;
+    }
+
+    if (fluidScrollRaf === null) {
+      fluidTargetY = window.scrollY ?? window.pageYOffset ?? 0;
+    }
+
+    fluidTargetY = clampToDocumentScroll(fluidTargetY + delta);
+
+    const step = () => {
+      const currentY = window.scrollY ?? window.pageYOffset ?? 0;
+      const diff = fluidTargetY - currentY;
+      const nextY = currentY + diff * 0.12;
+
+      window.scrollTo({ top: nextY, behavior: 'auto' });
+
+      if (Math.abs(diff) < 0.5) {
+        fluidScrollRaf = null;
+        return;
+      }
+
+      fluidScrollRaf = window.requestAnimationFrame(step);
+    };
+
+    if (fluidScrollRaf !== null) {
+      window.cancelAnimationFrame(fluidScrollRaf);
+    }
+    fluidScrollRaf = window.requestAnimationFrame(step);
+  };
+
+  window.addEventListener('wheel', handleWheel, { passive: false });
+
+  return () => {
+    fluidScrollEnabled = false;
+    window.removeEventListener('wheel', handleWheel);
+    cancelFluidScrollAnimation();
+  };
+}
+
+export function disableFluidScroll(): void {
+  fluidScrollEnabled = false;
+  cancelFluidScrollAnimation();
+}

@@ -5,7 +5,7 @@ import { ServicesPage } from './pages/ServicesPage';
 import { Header } from './sections/Header';
 import { LoadingScreen } from './ui/LoadingScreen';
 import { AIChatWidget } from './ui/AIChatWidget';
-import { getAppRoute } from './utils/routing';
+import { enableFluidScroll, getAppRoute } from './utils/routing';
 
 export default function App() {
   const [loading, setLoading] = useState(true);
@@ -23,6 +23,11 @@ export default function App() {
     window.addEventListener('popstate', syncPathname);
     return () => window.removeEventListener('popstate', syncPathname);
   }, []);
+
+  useEffect(() => {
+    if (loading) return;
+    return enableFluidScroll();
+  }, [loading]);
 
   const route = useMemo(() => getAppRoute(pathname), [pathname]);
 
