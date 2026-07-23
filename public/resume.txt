@@ -22,9 +22,19 @@ Other: Web Game Development, Three.js, Responsive Design, Performance Optimizati
 
 EXPERIENCE
 
-SENIOR WEB DEVELOPER
+LEAD IT - WEB DEVELOPER & AI IMPLEMENTATION
 ISSY COSMETICS
-May 2026 - Present
+July 22, 2026 - Present
+
+• Lead company-wide AI strategy, research, and integration of Artificial Intelligence tools into core business workflows
+• Design and deploy automated AI pipelines (using LLMs, n8n, Claude, Trae) for data processing, internal operations, and decision support
+• Implement AI-powered customer service tools and interactive chatbots to improve response times and customer satisfaction
+• Build custom AI analytics solutions for sales tracking, store performance, and restocking insights
+• Maintain and optimize the live e-commerce web platform for peak performance, visual quality, and conversion rates
+
+LEAD IT & WEB DEVELOPER
+ISSY COSMETICS
+May 2026 - July 2026
 
 • Analyze business operations to identify bottlenecks and improve workflow efficiency
 • Build scalable automation systems using n8n and Zapier to connect internal tools and office processes
@@ -34,7 +44,7 @@ May 2026 - Present
 
 WEB DEVELOPER
 ISSY COSMETICS
-September 2025 - Present
+September 2025 - May 2026
 
 • Develop and maintain the live e commerce website using modern web technologies and Shopify
 • Build custom modular sections and responsive experiences for desktop and mobile platforms
