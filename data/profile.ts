@@ -8,7 +8,7 @@ export const profile = {
   },
   about: {
     title: "About",
-    description: `He (he/him) is a Web Developer focused on building refined, production-ready digital experiences that balance visual quality, performance, and long-term scalability.
+    description: `Web Developer focused on building refined, production-ready digital experiences that balance visual quality, performance, and long-term scalability.
 
 He works across modern websites, commerce builds, and product systems, while also improving internal operations through automation and AI-assisted workflows. Using tools like Shopify, n8n, Zapier, Claude, and Trae, he streamlines manual processes, connects platforms, and helps teams move faster with better systems.
 
