@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Container } from '../ui/Container';
 import { Menu, X } from 'lucide-react';
 import { AppRoute, buildHomeSectionPath, pushRoute, scrollToSection, scrollToTop } from '../utils/routing';
+import { useTheme } from '../utils/theme';
 
 const navItems = [
   { name: 'About', sectionId: 'about' },
@@ -17,6 +18,7 @@ interface HeaderProps {
 }
 
 export const Header: React.FC<HeaderProps> = ({ currentRoute }) => {
+  const { theme, toggleTheme } = useTheme();
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
@@ -91,6 +93,16 @@ export const Header: React.FC<HeaderProps> = ({ currentRoute }) => {
           className="text-xl font-medium tracking-tight text-white hover:opacity-80 transition-opacity z-50 relative"
         >
           Louisse.
+        </button>
+        {/* Theme Toggle */}
+        <button
+          type="button"
+          onClick={toggleTheme}
+          className="flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium border border-neutral-700/60 bg-neutral-900/60 hover:bg-neutral-800/80 hover:border-neutral-500 text-neutral-300 transition-all shadow-sm cursor-pointer ml-auto mr-4 md:mr-0"
+          aria-label="Toggle liquid glass theme"
+        >
+          <span className={`w-2 h-2 rounded-full transition-all ${theme === 'glass' ? 'bg-cyan-400 shadow-[0_0_8px_rgba(34,211,238,0.8)]' : 'bg-neutral-500'}`}></span>
+          <span>{theme === 'glass' ? 'Liquid Glass' : 'Monochrome'}</span>
         </button>
 
         {/* Desktop Nav */}

@@ -6,7 +6,7 @@ import { Header } from './sections/Header';
 import { LoadingScreen } from './ui/LoadingScreen';
 import { AIChatWidget } from './ui/AIChatWidget';
 import { getAppRoute } from './utils/routing';
-
+import { ThemeProvider } from './utils/theme';
 export default function App() {
   const [loading, setLoading] = useState(true);
   const [pathname, setPathname] = useState(window.location.pathname);
@@ -27,7 +27,8 @@ export default function App() {
   const route = useMemo(() => getAppRoute(pathname), [pathname]);
 
   return (
-    <main className="min-h-screen w-full bg-background text-neutral-300 selection:bg-white/20 relative">
+    <ThemeProvider>
+        <main className="min-h-screen w-full bg-background text-neutral-300 selection:bg-white/20 relative">
       <AnimatePresence mode="wait">
         {loading && <LoadingScreen key="loader" />}
       </AnimatePresence>
@@ -48,6 +49,7 @@ export default function App() {
           <AIChatWidget />
         </div>
       )}
-    </main>
+            </main>
+      </ThemeProvider>
   );
 }
