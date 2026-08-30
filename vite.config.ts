@@ -52,7 +52,7 @@ If asked for contact, direct to the page contact form and booking consultation.
 If the user asks something unrelated to website/project services, politely redirect back to portfolio-related help.`;
 
                     const response = await fetch(
-                      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+                      `https://generativelanguage.googleapis.com/v1/models/gemini-3.5-flash:generateContent?key=${apiKey}`,
                       {
                         method: 'POST',
                         headers: {
