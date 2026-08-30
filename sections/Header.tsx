@@ -94,39 +94,43 @@ export const Header: React.FC<HeaderProps> = ({ currentRoute }) => {
         >
           Louisse.
         </button>
-        {/* Theme Toggle */}
-        <button
-          type="button"
-          onClick={toggleTheme}
-          className="flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium border border-neutral-700/60 bg-neutral-900/60 hover:bg-neutral-800/80 hover:border-neutral-500 text-neutral-300 transition-all shadow-sm cursor-pointer ml-auto mr-4 md:mr-0"
-          aria-label="Toggle liquid glass theme"
-        >
-          <span className={`w-2 h-2 rounded-full transition-all ${theme === 'glass' ? 'bg-cyan-400 shadow-[0_0_8px_rgba(34,211,238,0.8)]' : 'bg-neutral-500'}`}></span>
-          <span>{theme === 'glass' ? 'Liquid Glass' : 'Monochrome'}</span>
-        </button>
 
-        {/* Desktop Nav */}
-        <nav className="hidden md:flex items-center gap-8">
-          {navItems.map((item) => (
-            <button
-              key={item.name}
-              type="button"
-              onClick={() => handleNav(item)}
-              className="text-sm font-medium text-neutral-400 hover:text-white transition-colors"
-            >
-              {item.name}
-            </button>
-          ))}
-        </nav>
+        {/* Right Section: Desktop Nav + Theme Toggle + Mobile Menu Button */}
+        <div className="flex items-center gap-4 md:gap-8 z-50">
+          {/* Desktop Nav */}
+          <nav className="hidden md:flex items-center gap-8">
+            {navItems.map((item) => (
+              <button
+                key={item.name}
+                type="button"
+                onClick={() => handleNav(item)}
+                className="text-sm font-medium text-neutral-400 hover:text-white transition-colors cursor-pointer"
+              >
+                {item.name}
+              </button>
+            ))}
+          </nav>
 
-        {/* Mobile Menu Toggle */}
-        <button
-          className="md:hidden text-white z-50 relative p-2 -mr-2 focus:outline-none"
-          onClick={() => setIsOpen(!isOpen)}
-          aria-label="Toggle menu"
-        >
-          {isOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
+          {/* Theme Toggle */}
+          <button
+            type="button"
+            onClick={toggleTheme}
+            className="flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-medium border border-neutral-700/60 bg-neutral-900/80 hover:bg-neutral-800 hover:border-neutral-500 text-neutral-300 transition-all shadow-sm cursor-pointer shrink-0"
+            aria-label="Toggle liquid glass theme"
+          >
+            <span className={`w-2 h-2 rounded-full transition-all ${theme === 'glass' ? 'bg-cyan-400 shadow-[0_0_8px_rgba(34,211,238,0.8)]' : 'bg-neutral-400'}`}></span>
+            <span>{theme === 'glass' ? 'Liquid Glass' : 'Monochrome'}</span>
+          </button>
+
+          {/* Mobile Menu Toggle */}
+          <button
+            className="md:hidden text-white relative p-2 focus:outline-none"
+            onClick={() => setIsOpen(!isOpen)}
+            aria-label="Toggle menu"
+          >
+            {isOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
+        </div>
 
         {/* Mobile Nav Overlay */}
         <AnimatePresence>
@@ -148,6 +152,17 @@ export const Header: React.FC<HeaderProps> = ({ currentRoute }) => {
                   {item.name}
                 </button>
               ))}
+
+              <div className="pt-4 border-t border-neutral-800 w-full flex justify-center">
+                <button
+                  type="button"
+                  onClick={toggleTheme}
+                  className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium border border-neutral-700 bg-neutral-900 text-neutral-200"
+                >
+                  <span className={`w-2.5 h-2.5 rounded-full ${theme === 'glass' ? 'bg-cyan-400 shadow-[0_0_8px_rgba(34,211,238,0.8)]' : 'bg-neutral-400'}`}></span>
+                  <span>{theme === 'glass' ? 'Liquid Glass Theme' : 'Monochrome Theme'}</span>
+                </button>
+              </div>
             </motion.div>
           )}
         </AnimatePresence>
