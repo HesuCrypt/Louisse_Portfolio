@@ -86,8 +86,8 @@ export const AIChatWidget: React.FC = () => {
         return;
       }
       const fallbackMessage =
-        error instanceof Error && error.message === 'Missing GROQ_API_KEY on server'
-          ? 'AI chat is not configured yet on this deployment. Add GROQ_API_KEY in Vercel Project Settings > Environment Variables, then redeploy.'
+        error instanceof Error && error.message === 'Missing GEMINI_API_KEY on server'
+          ? 'AI chat is not configured yet on this deployment. Add GEMINI_API_KEY in Vercel Project Settings > Environment Variables, then redeploy.'
           : 'I hit an error while contacting the AI service. Please retry in a moment or use the contact form below.';
 
       setMessages([
