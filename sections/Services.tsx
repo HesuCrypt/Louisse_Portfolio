@@ -118,7 +118,7 @@ export const Services: React.FC = () => {
                         <ul className="space-y-1.5">
                           {card.pages.map((item, i) => (
                             <li key={i} className="text-sm text-neutral-300 flex items-center gap-2">
-                              <Check className="w-4 h-4 text-emerald-500/80 shrink-0" />
+                              <Check className="w-4 h-4 text-neutral-400 shrink-0" />
                               {item}
                             </li>
                           ))}
@@ -132,7 +132,7 @@ export const Services: React.FC = () => {
                         <ul className="space-y-1.5">
                           {card.extras.map((item, i) => (
                             <li key={i} className="text-sm text-neutral-300 flex items-center gap-2">
-                              <Check className="w-4 h-4 text-emerald-500/80 shrink-0" />
+                              <Check className="w-4 h-4 text-neutral-400 shrink-0" />
                               {item}
                             </li>
                           ))}
@@ -220,7 +220,7 @@ export const Services: React.FC = () => {
           >
             {trustItems.map((item, i) => (
               <span key={i} className="inline-flex items-center gap-2 text-sm text-neutral-400">
-                <Check className="w-4 h-4 text-emerald-500/80 shrink-0" />
+                <Check className="w-4 h-4 text-neutral-400 shrink-0" />
                 {item}
               </span>
             ))}

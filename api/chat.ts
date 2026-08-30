@@ -39,8 +39,8 @@ export default async function handler(req: any, res: any) {
   }
 
   try {
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1/models/gemini-3.5-flash:generateContent?key=${apiKey}`,
+    let response = await fetch(
+      `https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
       {
         method: 'POST',
         headers: {
@@ -57,6 +57,28 @@ export default async function handler(req: any, res: any) {
         }),
       }
     );
+
+    if (!response.ok) {
+      // Fallback to gemini-1.5-flash if 2.5-flash endpoint is unavailable
+      response = await fetch(
+        `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            contents: messages.map((m) => ({
+              role: m.role === 'assistant' ? 'model' : 'user',
+              parts: [{ text: m.content }],
+            })),
+            systemInstruction: {
+              parts: [{ text: systemPrompt }],
+            },
+          }),
+        }
+      );
+    }
 
     if (!response.ok) {
       const detail = await response.text();

@@ -81,7 +81,7 @@ export const ProjectContact: React.FC = () => {
           className="max-w-4xl mx-auto"
         >
           <motion.div variants={itemVariants} className="mb-8">
-            <span className="inline-flex items-center rounded-full border border-emerald-500/40 bg-emerald-500/10 px-3 py-1 text-[11px] uppercase tracking-wider text-emerald-400 mb-4">
+            <span className="inline-flex items-center rounded-full border border-neutral-700 bg-neutral-900 px-3 py-1 text-[11px] uppercase tracking-wider text-neutral-300 font-mono mb-4">
               Available for 2 projects this month
             </span>
             <H2>Let&apos;s Work Together</H2>
@@ -196,7 +196,7 @@ export const ProjectContact: React.FC = () => {
               </button>
             </div>
             {submitFeedback && (
-              <p className="mt-3 text-xs text-emerald-400" aria-live="polite">
+              <p className="mt-3 text-xs text-neutral-200" aria-live="polite">
                 {submitFeedback}
               </p>
             )}

@@ -1,17 +1,18 @@
 export const profile = {
   name: "Louisse Dominique Bertillo",
-  title: "Web Developer",
+  title: "Web Developer & AI Specialist",
   hero: {
     label: "Louisse Dominique Bertillo",
-    headline: "Building refined web experiences and scalable digital systems.",
-    subtext: "I build high-performance websites, commerce experiences, and automation-ready products with a focus on clarity, performance, and long-term usability."
+    headline: "Building refined web experiences and intelligent digital systems.",
+    subtext: "Engineering high-performance web applications, modern e-commerce platforms, and automated workflow solutions built for speed, scale, and long-term impact."
   },
   about: {
     title: "About",
-    description: `Web Developer focused on building refined, production-ready digital experiences that balance visual quality, performance, and long-term scalability.
+    description: `I am a Web Developer and AI Implementation Specialist dedicated to crafting high-performance digital experiences that combine visual precision, technical speed, and long-term scalability.
 
-He works across modern websites, commerce builds, and product systems, while also improving internal operations through automation and AI-assisted workflows. Using tools like Shopify, n8n, Zapier, Claude, and Trae, he streamlines manual processes, connects platforms, and helps teams move faster with better systems.
+Across e-commerce platforms, modern web applications, and internal operations, I engineer custom web solutions and integrate AI-assisted workflows using technologies such as React, Next.js, TypeScript, Shopify, n8n, Claude, OpenAI, and Trae. From automating complex multi-step pipelines to deploying custom AI agents for business intelligence, my focus is eliminating operational friction and maximizing efficiency.
 
-His approach combines strong product thinking with operational efficiency. He cares about how digital experiences look, how they perform, and how effectively they support real business goals.`
+My methodology connects rigorous software engineering with modern product design—delivering solutions that look sleek, load fast, and achieve tangible commercial results.`
   }
 };
+

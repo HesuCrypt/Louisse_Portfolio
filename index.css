@@ -3,19 +3,13 @@
   --bg-default: #050505;
   --bg-surface: #0a0a0a;
   --text-primary: #e5e5e5;
-  --card-bg: rgba(18, 18, 18, 0.7);
-  --card-border: rgba(255, 255, 255, 0.08);
-  --glass-backdrop: none;
 }
 
 /* Glass theme overrides */
 [data-theme="glass"] {
-  --bg-default: #07090e;
-  --bg-surface: rgba(255, 255, 255, 0.04);
-  --text-primary: #f3f4f6;
-  --card-bg: rgba(255, 255, 255, 0.05);
-  --card-border: rgba(255, 255, 255, 0.14);
-  --glass-backdrop: blur(16px) saturate(180%);
+  --bg-default: rgba(255, 255, 255, 0.05);
+  --bg-surface: rgba(255, 255, 255, 0.1);
+  --backdrop-blur: blur(12px);
 }
 
 body {
@@ -24,61 +18,15 @@ body {
   font-family: 'Inter', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  transition: background-color 0.4s ease, color 0.4s ease;
-  overflow-x: hidden;
 }
 
-/* Liquid Glass Background Effects */
-[data-theme="glass"] body::before {
-  content: '';
-  position: fixed;
-  top: -20%;
-  left: -10%;
-  width: 65vw;
-  height: 65vw;
-  background: radial-gradient(circle, rgba(99, 102, 241, 0.12) 0%, rgba(168, 85, 247, 0.08) 40%, rgba(0, 0, 0, 0) 70%);
-  filter: blur(80px);
-  pointer-events: none;
-  z-index: 0;
-  animation: floatOrb 18s ease-in-out infinite alternate;
+[data-theme="glass"] body {
+  backdrop-filter: var(--backdrop-blur);
 }
 
-[data-theme="glass"] body::after {
-  content: '';
-  position: fixed;
-  bottom: -20%;
-  right: -10%;
-  width: 60vw;
-  height: 60vw;
-  background: radial-gradient(circle, rgba(56, 189, 248, 0.12) 0%, rgba(59, 130, 246, 0.08) 40%, rgba(0, 0, 0, 0) 70%);
-  filter: blur(80px);
-  pointer-events: none;
-  z-index: 0;
-  animation: floatOrb 22s ease-in-out infinite alternate-reverse;
+/* Surface elements (cards, sections) */
+.surface {
+  background-color: var(--bg-surface);
+  border-radius: 0.5rem;
+  padding: 1rem;
 }
-
-@keyframes floatOrb {
-  0% { transform: translate(0, 0) scale(1); }
-  50% { transform: translate(40px, -30px) scale(1.08); }
-  100% { transform: translate(-30px, 40px) scale(0.95); }
-}
-
-/* Glass panel overlays */
-[data-theme="glass"] .bg-surface,
-[data-theme="glass"] [class*="bg-neutral-900"],
-[data-theme="glass"] [class*="bg-neutral-950"],
-[data-theme="glass"] [class*="bg-black/"] {
-  background-color: var(--card-bg) !important;
-  backdrop-filter: blur(16px) saturate(180%) !important;
-  -webkit-backdrop-filter: blur(16px) saturate(180%) !important;
-  border-color: var(--card-border) !important;
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37), inset 0 1px 1px 0 rgba(255, 255, 255, 0.1) !important;
-}
-
-[data-theme="glass"] header {
-  background-color: rgba(7, 9, 14, 0.65) !important;
-  backdrop-filter: blur(20px) saturate(190%) !important;
-  -webkit-backdrop-filter: blur(20px) saturate(190%) !important;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.12) !important;
-}
-

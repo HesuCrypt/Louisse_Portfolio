@@ -301,7 +301,7 @@ export const GeneralContact: React.FC = () => {
               </button>
             </div>
             {submitFeedback && (
-              <p className="mt-3 text-xs text-emerald-400" aria-live="polite">
+              <p className="mt-3 text-xs text-neutral-200" aria-live="polite">
                 {submitFeedback}
               </p>
             )}
