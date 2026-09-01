@@ -29,6 +29,7 @@ export const skills: SkillCategory[] = [
     category: "Automation & AI",
     items: [
       "n8n",
+      "Google Agent ADK",
       "Zapier",
       "Claude",
       "Trae",

@@ -27,7 +27,7 @@ export const Skills: React.FC = () => {
                 </h4>
                 <ul className="space-y-3">
                   {skillGroup.items.map((skill) => (
-                    <li key={skill} className="text-neutral-400 text-sm hover:text-white transition-colors duration-200 cursor-default break-words">
+                    <li key={skill} className={skill === 'n8n' || skill === 'Google Agent ADK' ? 'text-white font-semibold hover:text-white transition-colors duration-200 cursor-default break-words' : 'text-neutral-400 text-sm hover:text-white transition-colors duration-200 cursor-default break-words'}>
                       {skill}
                     </li>
                   ))}

@@ -88,9 +88,10 @@ export const Header: React.FC<HeaderProps> = ({ currentRoute }) => {
         <button
           type="button"
           onClick={handleLogoClick}
-          className="text-xl font-medium tracking-tight text-white hover:opacity-80 transition-opacity z-50 relative"
+          className="flex items-center gap-3 hover:opacity-80 transition-opacity z-50 relative focus:outline-none"
         >
-          Louisse.
+          <img src="/logo.jpg" alt="Louisse Dominique Bertillo" className="h-9 w-auto object-contain rounded-sm" />
+          <span className="text-xl font-medium tracking-tight text-white">Louisse.</span>
         </button>
 
         {/* Desktop Nav */}
