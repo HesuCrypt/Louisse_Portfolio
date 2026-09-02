@@ -15,14 +15,14 @@ import { containerVariants, itemVariants } from '../motion/variants';
 const testimonials = [
   {
     quote:
-      "Everything was delivered fast and with great quality, especially with the tight timeline before the Mother’s Day season. Louisse did his best to meet the deadline. The design and theme matched our brand, and every request was handled well. We also appreciated the extra improvements and bonus features, like adding a map, even with our limited budget. Louisse is a great web development partner with clear communication. He explained what we needed to know, including the cost of maintaining the website. His honesty, knowledge, and ability to find ways for us to save money made the whole process smooth. I highly recommend the service we received.",
+      "Everything was delivered fast and with great quality, especially with the tight timeline before the Mother’s Day season. Louisse worked tirelessly to meet the deadline. The design and theme matched our brand, and every request was handled well. We also appreciated the extra improvements and bonus features, like adding a map, even with our limited budget. Louisse is a great web development partner with clear communication, thoroughly explaining what we needed to know, including the cost of maintaining the website. That honesty, knowledge, and ability to find ways for us to save money made the whole process smooth. I highly recommend the service we received.",
     author: 'Maricel',
     title: 'Owner',
     company: 'La Fleur',
   },
   {
     quote:
-      'I really like how fast they work and how responsive the communication is. Even with the distance, keeping in touch was never an issue. Louisse provided clear scheduling, proper time management, and an honest roadmap for the work. I also appreciate how he manages his small team and keeps everything efficient. Communication is the main reason I prefer working with Louisse, because the process is simple and transparent, with weekly updates that clearly explain what was done.',
+      'I really like how fast they work and how responsive the communication is. Even with the distance, keeping in touch was never an issue. Louisse provided clear scheduling, proper time management, and an honest roadmap for the work. I also appreciate how Louisse manages the team and keeps everything efficient. Communication is the main reason I prefer working with Louisse, because the process is simple and transparent, with weekly updates that clearly explain what was done.',
     author: 'Jonathan',
     title: 'Owner',
     company: 'Meridian Auctions',
