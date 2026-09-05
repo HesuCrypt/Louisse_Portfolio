@@ -51,44 +51,33 @@ Use this business context:
 If asked for contact, direct to the page contact form and booking consultation.
 If the user asks something unrelated to website/project services, politely redirect back to portfolio-related help.`;
 
-                    let response = await fetch(
-                      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
-                      {
-                        method: 'POST',
-                        headers: {
-                          'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                          contents: messages.map((m: any) => ({
-                            role: m.role === 'assistant' ? 'model' : 'user',
-                            parts: [{ text: m.content }],
-                          })),
-                          systemInstruction: {
-                            parts: [{ text: systemPrompt }],
-                          },
-                        }),
-                      }
-                    );
+                    const candidateModels = ['gemini-3.6-flash', 'gemini-3.5-flash', 'gemini-flash-latest'];
+                    let response: any = null;
 
-                    if (!response.ok) {
-                      response = await fetch(
-                        `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
-                        {
-                          method: 'POST',
-                          headers: {
-                            'Content-Type': 'application/json',
-                          },
-                          body: JSON.stringify({
-                            contents: messages.map((m: any) => ({
-                              role: m.role === 'assistant' ? 'model' : 'user',
-                              parts: [{ text: m.content }],
-                            })),
-                            systemInstruction: {
-                              parts: [{ text: systemPrompt }],
+                    for (const model of candidateModels) {
+                      try {
+                        response = await fetch(
+                          `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
+                          {
+                            method: 'POST',
+                            headers: {
+                              'Content-Type': 'application/json',
                             },
-                          }),
-                        }
-                      );
+                            body: JSON.stringify({
+                              contents: messages.map((m: any) => ({
+                                role: m.role === 'assistant' ? 'model' : 'user',
+                                parts: [{ text: m.content }],
+                              })),
+                              systemInstruction: {
+                                parts: [{ text: systemPrompt }],
+                              },
+                            }),
+                          }
+                        );
+                        if (response.ok) break;
+                      } catch {
+                        // try next candidate
+                      }
                     }
 
                     if (!response.ok) {
