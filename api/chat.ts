@@ -23,24 +23,59 @@ type Message = {
   content: string;
 };
 
-export default async function handler(req: any, res: any) {
+export default async function handler(req: any, res?: any) {
+  const isWebReq = typeof req.json === 'function';
+
   if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
+    const errorBody = { error: 'Method not allowed' };
+    if (isWebReq) {
+      return new Response(JSON.stringify(errorBody), {
+        status: 405,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+    return res.status(405).json(errorBody);
   }
 
-  const apiKey = process.env.GEMINI_API_KEY;
+  const apiKey = process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY;
   if (!apiKey) {
-    return res.status(500).json({ error: 'Missing GEMINI_API_KEY on server' });
+    const errorBody = { error: 'Missing GEMINI_API_KEY on server' };
+    if (isWebReq) {
+      return new Response(JSON.stringify(errorBody), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+    return res.status(500).json(errorBody);
   }
 
-  const messages: Message[] = req.body?.messages ?? [];
+  let messages: Message[] = [];
+  try {
+    if (isWebReq) {
+      const body = await req.json();
+      messages = body?.messages ?? [];
+    } else {
+      messages = (typeof req.body === 'string' ? JSON.parse(req.body) : req.body)?.messages ?? [];
+    }
+  } catch {
+    messages = [];
+  }
+
   if (!Array.isArray(messages) || messages.length === 0) {
-    return res.status(400).json({ error: 'Messages are required' });
+    const errorBody = { error: 'Messages are required' };
+    if (isWebReq) {
+      return new Response(JSON.stringify(errorBody), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+    return res.status(400).json(errorBody);
   }
 
   try {
+    // Attempt 1: gemini-2.0-flash via v1beta API
     let response = await fetch(
-      `https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
       {
         method: 'POST',
         headers: {
@@ -58,8 +93,8 @@ export default async function handler(req: any, res: any) {
       }
     );
 
+    // Fallback: gemini-1.5-flash via v1 API
     if (!response.ok) {
-      // Fallback to gemini-1.5-flash if 2.5-flash endpoint is unavailable
       response = await fetch(
         `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
         {
@@ -82,16 +117,39 @@ export default async function handler(req: any, res: any) {
 
     if (!response.ok) {
       const detail = await response.text();
-      return res.status(response.status).json({ error: 'Gemini request failed', detail });
+      const errorBody = { error: 'Gemini API request failed', detail };
+      if (isWebReq) {
+        return new Response(JSON.stringify(errorBody), {
+          status: 502,
+          headers: { 'Content-Type': 'application/json' },
+        });
+      }
+      return res.status(502).json(errorBody);
     }
 
     const data = await response.json();
     const answer = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
-    return res.status(200).json({
+    const successBody = {
       answer: answer || 'I could not generate a response right now. Please try again.',
-    });
+    };
+
+    if (isWebReq) {
+      return new Response(JSON.stringify(successBody), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+    return res.status(200).json(successBody);
   } catch (error) {
-    return res.status(500).json({ error: 'Unexpected server error', detail: String(error) });
+    const errorBody = { error: 'Unexpected server error', detail: String(error) };
+    if (isWebReq) {
+      return new Response(JSON.stringify(errorBody), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+    return res.status(500).json(errorBody);
   }
 }
+
 

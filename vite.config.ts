@@ -51,8 +51,8 @@ Use this business context:
 If asked for contact, direct to the page contact form and booking consultation.
 If the user asks something unrelated to website/project services, politely redirect back to portfolio-related help.`;
 
-                    const response = await fetch(
-                      `https://generativelanguage.googleapis.com/v1/models/gemini-3.5-flash:generateContent?key=${apiKey}`,
+                    let response = await fetch(
+                      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
                       {
                         method: 'POST',
                         headers: {
@@ -69,6 +69,27 @@ If the user asks something unrelated to website/project services, politely redir
                         }),
                       }
                     );
+
+                    if (!response.ok) {
+                      response = await fetch(
+                        `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+                        {
+                          method: 'POST',
+                          headers: {
+                            'Content-Type': 'application/json',
+                          },
+                          body: JSON.stringify({
+                            contents: messages.map((m: any) => ({
+                              role: m.role === 'assistant' ? 'model' : 'user',
+                              parts: [{ text: m.content }],
+                            })),
+                            systemInstruction: {
+                              parts: [{ text: systemPrompt }],
+                            },
+                          }),
+                        }
+                      );
+                    }
 
                     if (!response.ok) {
                       const err = await response.text();
