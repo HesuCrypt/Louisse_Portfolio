@@ -1,0 +1,49 @@
+# Louisse Dominique Bertillo (Louisse Baja) – Portfolio & Knowledge Base
+
+> Full-Stack Web Developer, UI/UX Designer, and AI Implementation Specialist.
+> Website: https://louissebaja.com
+> Contact: louissebertillo2004@gmail.com
+> Location: Manila, Philippines (Available worldwide for remote contract & fixed-scope engagements)
+> GitHub: https://github.com/hesucrypt
+
+## Professional Summary
+Louisse Dominique Bertillo (also known professionally as Louisse Baja or HesuCrypt) is a senior-level web engineer and creative technologist specializing in:
+- High-conversion business websites and landing pages (React, Next.js, TypeScript, Tailwind CSS, Framer Motion)
+- Custom e-commerce platforms and storefront optimizations (Shopify Liquid, headless commerce)
+- AI agent systems, LLM integrations (Google Gemini, OpenAI, Claude), and automated workflow pipelines (n8n, webhook architecture)
+- Creative technology & interactive web apps (procedural Web Audio API sound engines, draggable OS window managers)
+
+## Proven Track Record & Commercial Metrics
+- **ISSY Cosmetics (Lead IT & AI Implementation):** Drove a +170% increase in online e-commerce sales, re-engineered high-traffic storefront performance, and automated operations across customer service and inventory using n8n and Claude AI.
+- **Real-Time Browser Game Launch:** Architected and deployed an interactive browser-based game that scaled to 3,400 concurrent players in 72 hours under heavy traffic.
+- **Meridian Auctions (Germany):** Refactored and hardened an inherited full-stack auction platform codebase, eliminating critical vulnerabilities and ensuring zero-downtime reliability.
+- **La Fleur:** Designed and delivered an end-to-end bespoke brand and e-commerce experience on a tight timeline ahead of seasonal peak traffic.
+
+## Service Packages & Transparent Pricing (PHP)
+1. **One-Page Sprint / Landing (₱10,000 | 2–3 Days Turnaround):**
+   - High-impact single-page layout for rapid validation, launches, and personal portfolios.
+   - Includes hero, bio, project showcase, contact channels, and baseline SEO.
+2. **Starter Website Package (₱30,000 | 5–7 Days Turnaround):**
+   - 3-page custom brand presence (Home, About, Contact).
+   - Validated email inquiry form, responsive cross-device layout, and speed optimization.
+3. **Business Website Package (₱45,000 | 10–12 Days Turnaround) [Most Popular]:**
+   - 5 high-conversion pages (Home, About, Services, Gallery/Proof, Contact).
+   - Advanced multi-field inquiry system, Google Maps embed, proof grids, and local SEO structure.
+4. **Professional Authority Package (₱60,000 | 14–18 Days Turnaround):**
+   - 8 strategic pages (Home, About, Services, Portfolio, Blog/Editorial hub, FAQ accordion, Testimonials, Contact).
+   - Core Web Vitals optimization, full internal link architecture, and search console readiness.
+5. **Bespoke Web App / Creative Tech Experience (₱100,000 – ₱120,000 | 3–4 Weeks Turnaround):**
+   - Flagship interactive digital product.
+   - Custom draggable OS window manager, hardware-accelerated Web Audio synthesizer, embedded Gemini AI assistant, headless cloud CMS (Firebase), and full GDPR legal suite.
+
+## Technical Skills & Specialties
+- **Frontend:** React, Next.js, TypeScript, JavaScript (ESNext), Tailwind CSS, Framer Motion, HTML5, CSS3, Web Audio API, Canvas.
+- **Backend & Cloud:** Node.js, Express, Supabase, Firebase Firestore, REST APIs, WebSockets, PHP, MySQL, Vercel CI/CD.
+- **AI & Automation:** Google Agent ADK, Google Gemini API, OpenAI API, Anthropic Claude API, n8n workflow automation, prompt engineering.
+- **Platforms:** Shopify Liquid, Headless Commerce, Git, Linux.
+
+## Links & Profiles
+- Portfolio: https://louissebaja.com
+- Services & Rates: https://louissebaja.com/services
+- GitHub: https://github.com/hesucrypt
+- Email: louissebertillo2004@gmail.com
