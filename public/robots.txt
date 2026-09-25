@@ -31,3 +31,4 @@ Allow: /
 Sitemap: https://louissebaja.com/sitemap.xml
 # LLM Context: https://louissebaja.com/llms.txt
 # LLM Deep Context: https://louissebaja.com/llms-full.txt
+# AI Profile: https://louissebaja.com/ai-profile.json

@@ -67,6 +67,12 @@ export default function App() {
           {renderContent()}
 
           <footer className="py-12 text-center text-neutral-600 text-sm border-t border-neutral-900/60 mt-12">
+            <p className="text-neutral-400 text-xs mb-1.5 font-medium">
+              Louisse Dominique Bertillo (Louisse Baja) &middot; Full-Stack Web Developer &amp; AI Implementation
+            </p>
+            <p className="text-neutral-500 text-xs mb-3">
+              Specializing in high-conversion websites, custom Shopify platforms, and automated AI workflows.
+            </p>
             <p>&copy; {new Date().getFullYear()} Louisse Dominique Bertillo. All rights reserved.</p>
             <div className="mt-3 flex flex-wrap items-center justify-center gap-3 md:gap-4 text-xs">
               <button
