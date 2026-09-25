@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { AnimatePresence } from 'framer-motion';
+import { Analytics } from '@vercel/analytics/react';
 import { HomePage } from './pages/HomePage';
 import { ServicesPage } from './pages/ServicesPage';
 import { Header } from './sections/Header';
@@ -48,6 +49,7 @@ export default function App() {
           <AIChatWidget />
         </div>
       )}
+      <Analytics />
     </main>
   );
 }
