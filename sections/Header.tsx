@@ -48,7 +48,10 @@ export const Header: React.FC<HeaderProps> = ({ currentRoute }) => {
 
   useEffect(() => {
     if (currentRoute === '/' && window.location.hash) {
-      requestAnimationFrame(() => scrollToSection(window.location.hash));
+      const timer = setTimeout(() => {
+        scrollToSection(window.location.hash);
+      }, 30);
+      return () => clearTimeout(timer);
     } else if (currentRoute === '/services') {
       window.scrollTo({ top: 0, behavior: 'auto' });
     }

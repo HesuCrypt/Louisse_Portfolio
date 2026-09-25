@@ -53,57 +53,95 @@ function prefersReducedMotion(): boolean {
     : false;
 }
 
-function easeInOutCubic(t: number): number {
-  return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+/**
+ * Quintic ease-out curve (1 - (1 - t)^5):
+ * Instant response: starts moving immediately on the very first frame (zero perceived lag)
+ * then smoothly glides and decelerates into a silky, friction-cushioned landing.
+ */
+function easeOutQuint(t: number): number {
+  return 1 - Math.pow(1 - t, 5);
 }
 
 let activeScrollAnimationFrame: number | null = null;
+let stopScrollListener: (() => void) | null = null;
 
-export function scrollToY(targetY: number, duration = 650): void {
-  if (typeof window === 'undefined') return;
-
+export function cancelActiveScroll(): void {
   if (activeScrollAnimationFrame !== null) {
     window.cancelAnimationFrame(activeScrollAnimationFrame);
     activeScrollAnimationFrame = null;
   }
+  if (stopScrollListener) {
+    stopScrollListener();
+    stopScrollListener = null;
+  }
+}
+
+export function scrollToY(targetY: number, customDuration?: number): void {
+  if (typeof window === 'undefined') return;
+
+  cancelActiveScroll();
 
   const startY = window.scrollY ?? window.pageYOffset ?? 0;
   const maxScrollY = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
   const clampedTargetY = Math.min(Math.max(0, targetY), maxScrollY);
   const delta = clampedTargetY - startY;
 
-  if (Math.abs(delta) < 1) return;
+  if (Math.abs(delta) < 2) return;
 
   if (prefersReducedMotion() || typeof window.requestAnimationFrame !== 'function') {
     window.scrollTo({ top: clampedTargetY, behavior: 'auto' });
     return;
   }
 
+  // Dynamic butter-smooth duration:
+  // Short distance (~400px): ~320ms
+  // Medium distance (~1500px): ~420ms
+  // Long distance (~4000px): ~520ms (never crawls or drags!)
+  const distance = Math.abs(delta);
+  const duration =
+    customDuration ??
+    Math.min(520, Math.max(320, Math.round(Math.sqrt(distance) * 8.2)));
+
+  // Listen for user wheel or touch interaction to allow natural interruption
+  const handleInterrupt = () => {
+    cancelActiveScroll();
+  };
+  window.addEventListener('wheel', handleInterrupt, { passive: true, once: true });
+  window.addEventListener('touchstart', handleInterrupt, { passive: true, once: true });
+  stopScrollListener = () => {
+    window.removeEventListener('wheel', handleInterrupt);
+    window.removeEventListener('touchstart', handleInterrupt);
+  };
+
   const startTime = typeof performance !== 'undefined' ? performance.now() : Date.now();
 
   const step = (now: number) => {
     const elapsed = now - startTime;
     const progress = Math.min(1, elapsed / duration);
-    const eased = easeInOutCubic(progress);
-    window.scrollTo({ top: startY + delta * eased, behavior: 'auto' });
+    const eased = easeOutQuint(progress);
+    const currentY = startY + delta * eased;
+
+    window.scrollTo({ top: currentY, behavior: 'auto' });
 
     if (progress < 1) {
       activeScrollAnimationFrame = window.requestAnimationFrame(step);
       return;
     }
 
-    activeScrollAnimationFrame = null;
+    window.scrollTo({ top: clampedTargetY, behavior: 'auto' });
+    cancelActiveScroll();
   };
 
   activeScrollAnimationFrame = window.requestAnimationFrame(step);
 }
 
-export function scrollToTop(duration = 650): void {
+export function scrollToTop(duration?: number): void {
   scrollToY(0, duration);
 }
 
 export function scrollToSection(sectionId: string, offset = 80): void {
-  const element = document.getElementById(normalizeSectionHash(sectionId));
+  const normalized = normalizeSectionHash(sectionId);
+  const element = document.getElementById(normalized);
   if (!element) {
     return;
   }
