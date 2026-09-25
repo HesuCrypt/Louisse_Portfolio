@@ -13,7 +13,7 @@ export const ProjectContact: React.FC = () => {
     name: '',
     email: '',
     projectType: 'Business Website',
-    budget: 'PHP 30k to PHP 40k',
+    budget: 'PHP 45k to PHP 60k',
     timeline: 'Within 2 to 4 weeks',
     message: '',
   });
@@ -51,7 +51,7 @@ export const ProjectContact: React.FC = () => {
           name: '',
           email: '',
           projectType: 'Business Website',
-          budget: 'PHP 30k to PHP 40k',
+          budget: 'PHP 45k to PHP 60k',
           timeline: 'Within 2 to 4 weeks',
           message: '',
         });
@@ -134,10 +134,11 @@ export const ProjectContact: React.FC = () => {
                   onChange={(e) => setFormData({ ...formData, projectType: e.target.value })}
                   className="mt-2 w-full rounded-lg border border-neutral-800 bg-neutral-900 px-3 py-2 text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:border-neutral-500"
                 >
-                  <option>Portfolio Starter</option>
+                  <option>One-Page Sprint / Landing</option>
                   <option>Starter Website</option>
                   <option>Business Website</option>
-                  <option>Professional Website</option>
+                  <option>Professional Authority</option>
+                  <option>Bespoke Web App / Creative Tech</option>
                   <option>Custom Project</option>
                 </select>
               </label>
@@ -150,9 +151,11 @@ export const ProjectContact: React.FC = () => {
                   onChange={(e) => setFormData({ ...formData, budget: e.target.value })}
                   className="mt-2 w-full rounded-lg border border-neutral-800 bg-neutral-900 px-3 py-2 text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:border-neutral-500"
                 >
-                  <option>PHP 5k to PHP 20k</option>
-                  <option>PHP 30k to PHP 40k</option>
-                  <option>PHP 45k and up</option>
+                  <option>PHP 10k to PHP 25k</option>
+                  <option>PHP 30k to PHP 45k</option>
+                  <option>PHP 45k to PHP 60k</option>
+                  <option>PHP 60k to PHP 100k</option>
+                  <option>PHP 100k and above</option>
                 </select>
               </label>
               <label className="text-sm text-neutral-400 md:col-span-2">

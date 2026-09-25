@@ -6,6 +6,7 @@ import { Divider } from '../ui/Divider';
 import { Container } from '../ui/Container';
 import { Body, H1, H2 } from '../ui/Text';
 import { containerVariants, itemVariants } from '../motion/variants';
+import { ArrowDown } from 'lucide-react';
 
 const testimonials = [
   {
@@ -67,21 +68,30 @@ const Testimonials: React.FC = () => {
 export const ServicesPage: React.FC = () => {
   return (
     <>
-      <section className="pt-32 pb-16">
+      <section className="min-h-[75vh] md:min-h-[82vh] flex items-center justify-start relative pt-20 pb-16">
         <Container>
           <motion.div
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
+            className="space-y-6 max-w-4xl"
           >
-            <p className="text-sm uppercase tracking-[0.24em] text-neutral-500 mb-4">Services</p>
-            <H1 className="max-w-3xl mb-4">Website packages built for launch, conversion, and long-term growth.</H1>
-            <Body className="text-neutral-400 !max-w-2xl">
-              Choose a fixed-scope package, compare inclusions, and reach out when you want a version tailored to your niche.
+            <p className="text-xs font-mono uppercase tracking-[0.24em] text-neutral-500">Services &amp; Pricing</p>
+            <H1 className="max-w-3xl mb-4 leading-tight">
+              Website &amp; web app packages built for launch, conversion, and creative impact.
+            </H1>
+            <Body className="text-neutral-400 !max-w-2xl text-lg md:text-xl leading-relaxed">
+              Choose a fixed-scope package, compare inclusions and add-ons, and reach out when you want a version tailored to your brand.
             </Body>
           </motion.div>
         </Container>
+
+        {/* Subtle Scroll Indicator */}
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 text-neutral-600 hidden md:block pointer-events-none">
+          <ArrowDown size={18} className="animate-bounce" />
+        </div>
       </section>
+
       <Services />
       <Divider />
       <Testimonials />

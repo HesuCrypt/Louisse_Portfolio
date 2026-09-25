@@ -2,14 +2,20 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import { HomePage } from './pages/HomePage';
 import { ServicesPage } from './pages/ServicesPage';
+import { LegalPage } from './pages/LegalPage';
 import { Header } from './sections/Header';
 import { LoadingScreen } from './ui/LoadingScreen';
 import { AIChatWidget } from './ui/AIChatWidget';
-import { getAppRoute } from './utils/routing';
+import { CookieConsentBanner } from './ui/CookieConsentBanner';
+import { getAppRoute, isLegalRoute, pushRoute } from './utils/routing';
+import { openCookiePreferences } from './utils/cookies';
 
 export default function App() {
   const [loading, setLoading] = useState(true);
-  const [pathname, setPathname] = useState(window.location.pathname);
+  const [locationState, setLocationState] = useState(() => ({
+    pathname: typeof window !== 'undefined' ? window.location.pathname : '/',
+    hash: typeof window !== 'undefined' ? window.location.hash : '',
+  }));
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -19,12 +25,35 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    const syncPathname = () => setPathname(window.location.pathname);
-    window.addEventListener('popstate', syncPathname);
-    return () => window.removeEventListener('popstate', syncPathname);
+    const syncLocation = () => {
+      setLocationState({
+        pathname: window.location.pathname,
+        hash: window.location.hash,
+      });
+    };
+
+    window.addEventListener('popstate', syncLocation);
+    window.addEventListener('hashchange', syncLocation);
+    return () => {
+      window.removeEventListener('popstate', syncLocation);
+      window.removeEventListener('hashchange', syncLocation);
+    };
   }, []);
 
-  const route = useMemo(() => getAppRoute(pathname), [pathname]);
+  const route = useMemo(
+    () => getAppRoute(locationState.pathname, locationState.hash),
+    [locationState.pathname, locationState.hash]
+  );
+
+  const renderContent = () => {
+    if (route === '/services') {
+      return <ServicesPage />;
+    }
+    if (isLegalRoute(route)) {
+      return <LegalPage currentRoute={route} />;
+    }
+    return <HomePage />;
+  };
 
   return (
     <main className="min-h-screen w-full bg-background text-neutral-300 selection:bg-white/20 relative">
@@ -35,17 +64,47 @@ export default function App() {
       {!loading && (
         <div>
           <Header currentRoute={route} />
-          {route === '/services' ? <ServicesPage /> : <HomePage />}
+          {renderContent()}
 
-          <footer className="py-12 text-center text-neutral-600 text-sm">
+          <footer className="py-12 text-center text-neutral-600 text-sm border-t border-neutral-900/60 mt-12">
             <p>&copy; {new Date().getFullYear()} Louisse Dominique Bertillo. All rights reserved.</p>
-            <div className="mt-3 flex items-center justify-center gap-4 text-xs">
-              <a href="#privacy" className="hover:text-neutral-400 transition-colors">Privacy Policy</a>
+            <div className="mt-3 flex flex-wrap items-center justify-center gap-3 md:gap-4 text-xs">
+              <button
+                type="button"
+                onClick={() => pushRoute('/privacy')}
+                className="hover:text-neutral-300 transition-colors cursor-pointer"
+              >
+                Privacy Policy
+              </button>
               <span>•</span>
-              <a href="#terms" className="hover:text-neutral-400 transition-colors">Terms of Service</a>
+              <button
+                type="button"
+                onClick={() => pushRoute('/terms')}
+                className="hover:text-neutral-300 transition-colors cursor-pointer"
+              >
+                Terms &amp; Conditions
+              </button>
+              <span>•</span>
+              <button
+                type="button"
+                onClick={() => pushRoute('/cookies')}
+                className="hover:text-neutral-300 transition-colors cursor-pointer"
+              >
+                Cookie Policy
+              </button>
+              <span>•</span>
+              <button
+                type="button"
+                onClick={openCookiePreferences}
+                className="hover:text-neutral-300 transition-colors cursor-pointer text-neutral-500 underline"
+              >
+                Cookie Preferences
+              </button>
             </div>
           </footer>
+
           <AIChatWidget />
+          <CookieConsentBanner />
         </div>
       )}
     </main>

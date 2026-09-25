@@ -7,6 +7,7 @@ import { profile } from '../data/profile';
 import { containerVariants, itemVariants } from '../motion/variants';
 import { scrollToSection } from '../utils/routing';
 import { ArrowDown } from 'lucide-react';
+import { sound } from '../utils/sound';
 
 export const Hero: React.FC = () => {
   const scrollToProjects = () => {
@@ -48,15 +49,53 @@ export const Hero: React.FC = () => {
           </motion.div>
 
           <motion.div variants={itemVariants} className="pt-8 flex flex-wrap gap-4">
-            <Button onClick={scrollToProjects} variant="primary">
+            <Button
+              onClick={() => {
+                sound.playClick();
+                scrollToProjects();
+              }}
+              variant="primary"
+            >
               View Work
             </Button>
-            <Button onClick={scrollToContact} variant="secondary">
+            <Button
+              onClick={() => {
+                sound.playPop();
+                scrollToContact();
+              }}
+              variant="secondary"
+            >
               Contact
             </Button>
-            <Button href="/resume.pdf" download="Louisse_Dominique_Bertillo_Resume.pdf" variant="secondary">
+            <Button
+              href="/resume.pdf"
+              download="Louisse_Dominique_Bertillo_Resume.pdf"
+              variant="secondary"
+              onClick={() => sound.playClick()}
+            >
               Download Resume
             </Button>
+          </motion.div>
+
+          {/* Client Trust Strip */}
+          <motion.div variants={itemVariants} className="pt-8 border-t border-neutral-900/80">
+            <p className="text-[11px] font-mono uppercase tracking-widest text-neutral-500 mb-3">
+              Trusted by high-growth brands &amp; platforms
+            </p>
+            <div className="flex flex-wrap items-center gap-4 md:gap-8 text-neutral-400 text-xs">
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-neutral-950/60 border border-neutral-800/60">
+                <span className="font-semibold text-white tracking-wider">ISSY</span>
+                <span className="text-neutral-500 font-mono text-[11px]">• E-Commerce &amp; AI</span>
+              </div>
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-neutral-950/60 border border-neutral-800/60">
+                <span className="font-semibold text-white tracking-wider">MERIDIAN AUCTIONS</span>
+                <span className="text-neutral-500 font-mono text-[11px]">• Germany Full Stack</span>
+              </div>
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-neutral-950/60 border border-neutral-800/60">
+                <span className="font-semibold text-white tracking-wider">LA FLEUR</span>
+                <span className="text-neutral-500 font-mono text-[11px]">• Commercial Web</span>
+              </div>
+            </div>
           </motion.div>
         </motion.div>
       </Container>

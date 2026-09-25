@@ -10,7 +10,7 @@ export const featured = [
   {
     company: "Fruit Jam",
     role: "Creator & Lead Developer",
-    description: "Built and launched a browser game that scaled quickly through real-time gameplay, high request volume, and fast player adoption.",
+    description: "Built and launched an interactive viral campaign browser game for ISSY Cosmetics that scaled quickly to 3,400 players in 3 days under high real-time traffic.",
     stat: "3.4k Players in 3 Days",
     link: "https://issyfruitjam.com/",
     status: "Launched Project"

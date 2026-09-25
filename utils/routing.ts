@@ -1,11 +1,37 @@
-export type AppRoute = '/' | '/services';
+export type AppRoute = '/' | '/services' | '/privacy' | '/terms' | '/cookies';
 
-export function getAppRoute(pathname: string): AppRoute {
-  return pathname === '/services' ? '/services' : '/';
+export function getAppRoute(pathname: string, hash: string = ''): AppRoute {
+  const cleanPath = pathname.toLowerCase().replace(/\/+$/, '') || '/';
+  const cleanHash = hash.toLowerCase().replace(/^#/, '');
+
+  if (cleanPath === '/services') {
+    return '/services';
+  }
+  if (cleanPath === '/privacy' || cleanPath === '/privacy-policy' || cleanHash === 'privacy' || cleanHash === 'privacy-policy') {
+    return '/privacy';
+  }
+  if (
+    cleanPath === '/terms' ||
+    cleanPath === '/terms-and-conditions' ||
+    cleanPath === '/terms-of-service' ||
+    cleanHash === 'terms' ||
+    cleanHash === 'terms-and-conditions' ||
+    cleanHash === 'terms-of-service'
+  ) {
+    return '/terms';
+  }
+  if (cleanPath === '/cookies' || cleanPath === '/cookie-policy' || cleanHash === 'cookies' || cleanHash === 'cookie-policy') {
+    return '/cookies';
+  }
+  return '/';
 }
 
 export function isServicesRoute(pathname: string): boolean {
   return getAppRoute(pathname) === '/services';
+}
+
+export function isLegalRoute(route: AppRoute): boolean {
+  return route === '/privacy' || route === '/terms' || route === '/cookies';
 }
 
 export function normalizeSectionHash(value: string): string {
