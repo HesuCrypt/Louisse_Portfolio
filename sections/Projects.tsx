@@ -75,7 +75,7 @@ export const Projects: React.FC = () => {
               <p className="text-xs font-mono uppercase tracking-widest text-neutral-500 mb-2">Portfolio Directory</p>
               <H2 className="mb-0">Selected Projects</H2>
             </div>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex overflow-x-auto pb-1.5 sm:pb-0 -mx-1 px-1 sm:mx-0 sm:px-0 sm:flex-wrap gap-2 scrollbar-none">
               {filterOptions.map((option) => (
                 <button
                   key={option}
@@ -84,7 +84,7 @@ export const Projects: React.FC = () => {
                     sound.playClick();
                     setActiveFilter(option);
                   }}
-                  className={`px-3.5 py-1.5 rounded-full border text-xs font-mono transition-colors cursor-pointer ${
+                  className={`px-3.5 py-1.5 rounded-full border text-xs font-mono transition-colors cursor-pointer shrink-0 ${
                     activeFilter === option
                       ? 'border-white text-black bg-white font-medium'
                       : 'border-neutral-800 text-neutral-400 hover:text-white hover:border-neutral-700 bg-neutral-900/30'
@@ -164,7 +164,7 @@ export const Projects: React.FC = () => {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
               transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
-              className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl border border-neutral-800 bg-neutral-950 p-6 md:p-8 shadow-2xl text-neutral-200 z-10 space-y-6"
+              className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl border border-neutral-800 bg-neutral-950 p-5 sm:p-6 md:p-8 shadow-2xl text-neutral-200 z-10 space-y-6"
             >
               {/* Header */}
               <div className="flex items-start justify-between gap-4 border-b border-neutral-800 pb-5">
@@ -249,8 +249,8 @@ export const Projects: React.FC = () => {
               </div>
 
               {/* Action Buttons */}
-              <div className="pt-4 border-t border-neutral-800 flex flex-wrap items-center justify-between gap-3">
-                <div className="flex items-center gap-3">
+              <div className="pt-4 border-t border-neutral-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="flex flex-wrap items-center gap-2.5 sm:gap-3">
                   {activeModalProject.live && (
                     <a
                       href={activeModalProject.live}

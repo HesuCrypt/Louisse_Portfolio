@@ -48,13 +48,14 @@ export const Hero: React.FC = () => {
             </Body>
           </motion.div>
 
-          <motion.div variants={itemVariants} className="pt-8 flex flex-wrap gap-4">
+          <motion.div variants={itemVariants} className="pt-6 md:pt-8 flex flex-col sm:flex-row sm:flex-wrap gap-3 md:gap-4">
             <Button
               onClick={() => {
                 sound.playClick();
                 scrollToProjects();
               }}
               variant="primary"
+              className="w-full sm:w-auto justify-center"
             >
               View Work
             </Button>
@@ -64,6 +65,7 @@ export const Hero: React.FC = () => {
                 scrollToContact();
               }}
               variant="secondary"
+              className="w-full sm:w-auto justify-center"
             >
               Contact
             </Button>
@@ -72,6 +74,7 @@ export const Hero: React.FC = () => {
               download="Louisse_Dominique_Bertillo_Resume.pdf"
               variant="secondary"
               onClick={() => sound.playClick()}
+              className="w-full sm:w-auto justify-center"
             >
               Download Resume
             </Button>

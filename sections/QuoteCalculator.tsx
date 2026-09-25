@@ -119,7 +119,7 @@ Can you walk me through the next steps and how Louisse would kick off this proje
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
             {/* Left Column: Scope Selectors */}
-            <div className="lg:col-span-7 space-y-8 p-6 md:p-8 rounded-2xl bg-neutral-950/60 border border-neutral-800">
+            <div className="lg:col-span-7 space-y-8 p-4 sm:p-6 md:p-8 rounded-2xl bg-neutral-950/60 border border-neutral-800">
               {/* Step 1: Base Tier Selection */}
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
@@ -265,7 +265,7 @@ Can you walk me through the next steps and how Louisse would kick off this proje
 
             {/* Right Column: Live Calculation Summary Card */}
             <div className="lg:col-span-5 sticky top-24 space-y-6">
-              <div className="p-6 md:p-8 rounded-2xl bg-neutral-900/40 border border-neutral-800/90 backdrop-blur-xl shadow-2xl space-y-6">
+              <div className="p-4 sm:p-6 md:p-8 rounded-2xl bg-neutral-900/40 border border-neutral-800/90 backdrop-blur-xl shadow-2xl space-y-6">
                 <div className="flex items-center justify-between pb-4 border-b border-neutral-800">
                   <span className="text-xs font-mono uppercase tracking-wider text-neutral-400">Scope Breakdown</span>
                   <span className="text-xs text-neutral-500 font-mono">Transparent Fixed Rates</span>

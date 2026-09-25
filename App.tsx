@@ -66,7 +66,7 @@ export default function App() {
           <Header currentRoute={route} />
           {renderContent()}
 
-          <footer className="py-12 text-center text-neutral-600 text-sm border-t border-neutral-900/60 mt-12">
+          <footer className="py-12 px-4 text-center text-neutral-600 text-sm border-t border-neutral-900/60 mt-12">
             <p className="text-neutral-400 text-xs mb-1.5 font-medium">
               Louisse Dominique Bertillo (Louisse Baja) &middot; Full-Stack Web Developer &amp; AI Implementation
             </p>

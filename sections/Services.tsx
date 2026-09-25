@@ -43,7 +43,7 @@ export const Services: React.FC = () => {
 
           <motion.div
             variants={itemVariants}
-            className="mb-14 relative overflow-hidden rounded-2xl border border-neutral-700/60 bg-gradient-to-r from-neutral-900/90 via-neutral-900/50 to-neutral-950 p-6 md:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 shadow-2xl backdrop-blur-md"
+            className="mb-14 relative overflow-hidden rounded-2xl border border-neutral-700/60 bg-gradient-to-r from-neutral-900/90 via-neutral-900/50 to-neutral-950 p-5 md:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 shadow-2xl backdrop-blur-md"
           >
             <div className="flex items-start gap-4">
               <div className="rounded-xl border border-white/20 bg-white/10 p-3 text-white shrink-0 mt-0.5 shadow-inner">
@@ -127,7 +127,7 @@ export const Services: React.FC = () => {
                     <motion.article
                       whileHover={{ scale: 1.015 }}
                       transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-                      className={`h-full flex flex-col rounded-2xl border bg-neutral-900/50 backdrop-blur-sm p-6 transition-all duration-300 hover:border-neutral-500 hover:shadow-xl hover:shadow-black/20 ${
+                      className={`h-full flex flex-col rounded-2xl border bg-neutral-900/50 backdrop-blur-sm p-5 sm:p-6 transition-all duration-300 hover:border-neutral-500 hover:shadow-xl hover:shadow-black/20 ${
                         card.popular
                           ? 'border-white/40 shadow-xl shadow-white/5 xl:scale-[1.02] z-10 ring-1 ring-white/20 bg-neutral-900/70'
                           : 'border-neutral-800'
@@ -233,7 +233,7 @@ export const Services: React.FC = () => {
 
             return (
               <motion.div variants={itemVariants} className="mb-16">
-                <div className="relative rounded-2xl border border-neutral-700/80 bg-gradient-to-br from-neutral-900/90 via-neutral-900/50 to-neutral-950 p-6 md:p-8 lg:p-10 shadow-2xl backdrop-blur-md overflow-hidden">
+                <div className="relative rounded-2xl border border-neutral-700/80 bg-gradient-to-br from-neutral-900/90 via-neutral-900/50 to-neutral-950 p-5 sm:p-6 md:p-8 lg:p-10 shadow-2xl backdrop-blur-md overflow-hidden">
                   {/* Ambient accent background glow */}
                   <div className="pointer-events-none absolute -right-24 -top-24 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl" />
                   <div className="pointer-events-none absolute -left-24 -bottom-24 w-96 h-96 bg-cyan-500/5 rounded-full blur-3xl" />
@@ -303,7 +303,7 @@ export const Services: React.FC = () => {
                     </div>
 
                     {/* Right Column: Inclusions Grid */}
-                    <div className="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-6 bg-neutral-950/50 border border-neutral-800/80 rounded-xl p-6">
+                    <div className="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-6 bg-neutral-950/50 border border-neutral-800/80 rounded-xl p-4 sm:p-6">
                       {/* Architecture */}
                       <div>
                         <p className="text-xs font-semibold text-white uppercase tracking-wider mb-4 pb-2 border-b border-neutral-800 flex items-center justify-between">
@@ -364,6 +364,9 @@ export const Services: React.FC = () => {
                 <span>Talk to AI to compare</span>
               </button>
             </div>
+            <div className="block md:hidden px-4 py-2 border-b border-neutral-800/60 bg-neutral-900/20 text-[10px] font-mono text-neutral-400">
+              ← Swipe horizontally to compare tiers →
+            </div>
             <div className="overflow-x-auto">
               <table className="w-full min-w-[760px] text-left text-sm">
                 <thead>
@@ -418,6 +421,9 @@ export const Services: React.FC = () => {
               </div>
             </div>
 
+            <div className="block md:hidden px-4 py-2 border-b border-neutral-800/60 bg-neutral-900/20 text-[10px] font-mono text-neutral-400">
+              ← Swipe horizontally to see all add-on details →
+            </div>
             <div className="overflow-x-auto">
               <table className="w-full min-w-[700px] text-left text-sm">
                 <thead>

@@ -209,7 +209,7 @@ export const AIChatWidget: React.FC = () => {
           </div>
 
           {/* Messages */}
-          <div ref={messagesContainerRef} className="h-80 overflow-y-auto p-4 space-y-3">
+          <div ref={messagesContainerRef} className="h-[50vh] sm:h-80 max-h-[380px] overflow-y-auto p-3.5 sm:p-4 space-y-3">
             {messages.map((message, index) => (
               <div
                 key={`${message.role}-${index}`}

@@ -97,7 +97,7 @@ export const ProjectContact: React.FC = () => {
           <motion.form
             variants={itemVariants}
             onSubmit={handleSubmit}
-            className="mb-12 rounded-2xl border border-neutral-800 bg-neutral-950/40 p-6 md:p-8"
+            className="mb-12 rounded-2xl border border-neutral-800 bg-neutral-950/40 p-4 sm:p-6 md:p-8"
           >
             <p className="text-white text-sm mb-5">Project Intake Form</p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -193,7 +193,7 @@ export const ProjectContact: React.FC = () => {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="inline-flex items-center justify-center rounded-full bg-white text-black px-6 py-3 text-sm font-medium hover:bg-neutral-200 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
+                className="w-full sm:w-auto inline-flex items-center justify-center rounded-full bg-white text-black px-6 py-3 text-sm font-medium hover:bg-neutral-200 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
               >
                 {isSubmitting ? 'Sending…' : 'Book Free Consultation'}
               </button>
@@ -205,7 +205,7 @@ export const ProjectContact: React.FC = () => {
             )}
           </motion.form>
 
-          <motion.div variants={itemVariants} className="mb-12 rounded-2xl border border-neutral-800 bg-neutral-950/30 p-6 md:p-8">
+          <motion.div variants={itemVariants} className="mb-12 rounded-2xl border border-neutral-800 bg-neutral-950/30 p-4 sm:p-6 md:p-8">
             <p className="text-sm font-medium text-white mb-4">Quick FAQ</p>
             <div className="space-y-4 text-sm">
               <div>
@@ -230,7 +230,7 @@ export const ProjectContact: React.FC = () => {
                 href={social.url}
                 target={social.url.startsWith('mailto') ? undefined : '_blank'}
                 rel={social.url.startsWith('mailto') ? undefined : 'noreferrer'}
-                className="group flex items-center justify-between p-6 border border-neutral-900 bg-surface/30 hover:bg-neutral-900 transition-colors rounded-sm"
+                className="group flex items-center justify-between p-4 sm:p-6 border border-neutral-900 bg-surface/30 hover:bg-neutral-900 transition-colors rounded-sm"
               >
                 <div className="flex items-center gap-4">
                   <social.icon className="text-neutral-400 group-hover:text-white transition-colors" size={24} aria-hidden="true" />

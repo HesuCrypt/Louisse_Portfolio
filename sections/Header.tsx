@@ -193,22 +193,69 @@ export const Header: React.FC<HeaderProps> = ({ currentRoute }) => {
         <AnimatePresence>
           {isOpen && (
             <motion.div
-              initial={{ opacity: 0, y: -10 }}
+              initial={{ opacity: 0, y: -16 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.2 }}
-              className="absolute inset-0 top-0 h-screen w-full bg-background flex flex-col items-center justify-center space-y-8 md:hidden p-4"
+              exit={{ opacity: 0, y: -16 }}
+              transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+              className="fixed inset-0 z-50 h-screen w-full bg-neutral-950/98 backdrop-blur-2xl flex flex-col justify-between md:hidden p-6 pt-24 pb-8 overflow-y-auto"
             >
-              {navItems.map((item) => (
+              {/* Top brand header inside menu */}
+              <div className="flex items-center justify-between absolute top-0 left-0 right-0 h-20 px-6 border-b border-neutral-900">
+                <span className="font-semibold text-white tracking-tight text-lg">Louisse.</span>
                 <button
-                  key={item.name}
                   type="button"
-                  onClick={() => handleNav(item)}
-                  className="text-3xl font-light text-white hover:text-neutral-400 transition-colors"
+                  onClick={() => setIsOpen(false)}
+                  className="p-2 text-neutral-400 hover:text-white rounded-lg border border-neutral-800"
+                  aria-label="Close menu"
                 >
-                  {item.name}
+                  <X size={20} />
                 </button>
-              ))}
+              </div>
+
+              {/* Navigation Items List */}
+              <div className="space-y-2 my-auto">
+                <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-neutral-400 px-3 mb-2">Navigation</p>
+                {navItems.map((item, idx) => (
+                  <motion.button
+                    key={item.name}
+                    type="button"
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: idx * 0.04, duration: 0.2 }}
+                    onClick={() => handleNav(item)}
+                    className="w-full flex items-center justify-between py-3.5 px-4 rounded-xl border border-neutral-900 bg-neutral-900/40 text-left text-lg font-medium text-white active:bg-neutral-800 transition-colors"
+                  >
+                    <span>{item.name}</span>
+                    {item.name === 'Services' && (
+                      <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-white text-neutral-950 font-semibold shadow-sm">
+                        Rates
+                      </span>
+                    )}
+                  </motion.button>
+                ))}
+              </div>
+
+              {/* Bottom Actions: Quote CTA & Socials */}
+              <div className="space-y-4 pt-6 border-t border-neutral-900">
+                <button
+                  type="button"
+                  onClick={handleQuoteClick}
+                  className="w-full flex items-center justify-center gap-2 py-3.5 px-4 rounded-xl bg-white text-black font-semibold text-sm hover:bg-neutral-200 transition-colors shadow-lg active:scale-[0.98]"
+                >
+                  <span>Get a Free Project Quote</span>
+                  <ArrowUpRight size={15} />
+                </button>
+
+                <div className="flex items-center justify-between text-xs text-neutral-400 pt-2 font-mono">
+                  <span>Manila &middot; Remote Worldwide</span>
+                  <a
+                    href="mailto:louissebertillo2004@gmail.com"
+                    className="text-neutral-400 hover:text-white underline"
+                  >
+                    Email Direct
+                  </a>
+                </div>
+              </div>
             </motion.div>
           )}
         </AnimatePresence>
