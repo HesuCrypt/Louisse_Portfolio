@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { AnimatePresence } from 'framer-motion';
+import { Analytics } from '@vercel/analytics/react';
 import { HomePage } from './pages/HomePage';
 import { ServicesPage } from './pages/ServicesPage';
 import { LegalPage } from './pages/LegalPage';
@@ -113,6 +114,7 @@ export default function App() {
           <CookieConsentBanner />
         </div>
       )}
+      <Analytics />
     </main>
   );
 }
