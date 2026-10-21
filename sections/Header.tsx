@@ -1,14 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Container } from '../ui/Container';
-import { Menu, X, Volume2, VolumeX, ArrowUpRight } from 'lucide-react';
+import { Menu, X, ArrowUpRight } from 'lucide-react';
 import { AppRoute, buildHomeSectionPath, pushRoute, scrollToSection, scrollToTop } from '../utils/routing';
-import { sound } from '../utils/sound';
 
 const navItems = [
   { name: 'About', sectionId: 'about' },
+  { name: 'Work', sectionId: 'projects' },
   { name: 'Experience', sectionId: 'experience' },
-  { name: 'Work', sectionId: 'featured' },
   { name: 'Contact', sectionId: 'contact' },
   { name: 'Services', path: '/services' },
 ] as const;
@@ -20,11 +19,6 @@ interface HeaderProps {
 export const Header: React.FC<HeaderProps> = ({ currentRoute }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [soundActive, setSoundActive] = useState(() => sound.isEnabled());
-
-  useEffect(() => {
-    return sound.subscribe((active) => setSoundActive(active));
-  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -58,7 +52,6 @@ export const Header: React.FC<HeaderProps> = ({ currentRoute }) => {
   }, [currentRoute]);
 
   const handleNav = (item: (typeof navItems)[number]) => {
-    sound.playClick();
     setIsOpen(false);
 
     if ('path' in item) {
@@ -75,7 +68,6 @@ export const Header: React.FC<HeaderProps> = ({ currentRoute }) => {
   };
 
   const handleLogoClick = () => {
-    sound.playClick();
     setIsOpen(false);
 
     if (currentRoute === '/') {
@@ -87,7 +79,6 @@ export const Header: React.FC<HeaderProps> = ({ currentRoute }) => {
   };
 
   const handleQuoteClick = () => {
-    sound.playPop();
     setIsOpen(false);
     if (currentRoute === '/services') {
       pushRoute('/#contact');
@@ -111,7 +102,18 @@ export const Header: React.FC<HeaderProps> = ({ currentRoute }) => {
           onClick={handleLogoClick}
           className="flex items-center gap-3 hover:opacity-80 transition-opacity z-50 relative focus:outline-none cursor-pointer"
         >
-          <img src="/logo.png" alt="Louisse Dominique Bertillo" className="h-9 w-auto object-contain rounded-sm" />
+          <picture className="flex items-center justify-center shrink-0">
+            <source srcSet="/logo.webp" type="image/webp" />
+            <img
+              src="/logo.png"
+              alt="Louisse Dominique Bertillo"
+              width={36}
+              height={36}
+              loading="eager"
+              decoding="async"
+              className="h-9 w-9 object-contain rounded-md"
+            />
+          </picture>
           <span className="text-xl font-medium tracking-tight text-white">Louisse.</span>
         </button>
 
@@ -141,21 +143,6 @@ export const Header: React.FC<HeaderProps> = ({ currentRoute }) => {
 
           <div className="h-4 w-px bg-neutral-800" />
 
-          {/* Sound Synthesizer Opt-in Toggle */}
-          <button
-            type="button"
-            onClick={() => {
-              const active = sound.toggle();
-              setSoundActive(active);
-            }}
-            className="p-2 rounded-lg text-neutral-400 hover:text-white hover:bg-neutral-900 border border-neutral-800/60 hover:border-neutral-700 transition-colors cursor-pointer flex items-center gap-1.5 text-xs font-mono"
-            title={soundActive ? 'Mute Procedural Web Audio FX' : 'Enable Procedural Web Audio FX'}
-            aria-label="Toggle procedural sound synthesizer"
-          >
-            {soundActive ? <Volume2 size={15} className="text-emerald-400" /> : <VolumeX size={15} />}
-            <span className="text-[10px] hidden lg:inline text-neutral-400">{soundActive ? 'Audio ON' : 'Audio OFF'}</span>
-          </button>
-
           {/* Direct Conversion CTA */}
           <button
             type="button"
@@ -169,17 +156,6 @@ export const Header: React.FC<HeaderProps> = ({ currentRoute }) => {
 
         {/* Mobile Menu Toggle */}
         <div className="flex md:hidden items-center gap-3">
-          <button
-            type="button"
-            onClick={() => {
-              const active = sound.toggle();
-              setSoundActive(active);
-            }}
-            className="p-2 rounded-lg text-neutral-400 hover:text-white border border-neutral-800"
-            aria-label="Toggle procedural sound synthesizer"
-          >
-            {soundActive ? <Volume2 size={16} className="text-emerald-400" /> : <VolumeX size={16} />}
-          </button>
           <button
             className="text-white z-50 relative p-2 focus:outline-none"
             onClick={() => setIsOpen(!isOpen)}

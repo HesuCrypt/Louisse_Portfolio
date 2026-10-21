@@ -364,14 +364,15 @@ export const Services: React.FC = () => {
                 <span>Talk to AI to compare</span>
               </button>
             </div>
-            <div className="block md:hidden px-4 py-2 border-b border-neutral-800/60 bg-neutral-900/20 text-[10px] font-mono text-neutral-400">
-              ← Swipe horizontally to compare tiers →
+            <div className="block md:hidden px-4 py-2 border-b border-neutral-800/60 bg-neutral-900/40 text-xs font-mono text-neutral-300 flex items-center justify-between">
+              <span>Feature comparison</span>
+              <span className="text-neutral-400">← Scroll for tiers →</span>
             </div>
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto relative">
               <table className="w-full min-w-[760px] text-left text-sm">
                 <thead>
-                  <tr className="border-b border-neutral-800 text-neutral-500 text-xs uppercase tracking-wider bg-neutral-900/30">
-                    <th className="px-4 py-3 md:px-6 font-medium">Feature</th>
+                  <tr className="border-b border-neutral-800 text-neutral-400 text-xs uppercase tracking-wider bg-neutral-900/30">
+                    <th className="px-4 py-3 md:px-6 font-medium sticky left-0 bg-neutral-950 z-10 shadow-[4px_0_12px_rgba(0,0,0,0.7)]">Feature</th>
                     <th className="px-3 py-3 font-medium whitespace-nowrap">₱10k</th>
                     <th className="px-3 py-3 font-medium whitespace-nowrap">₱30k</th>
                     <th className="px-3 py-3 font-medium whitespace-nowrap">₱45k</th>
@@ -382,7 +383,7 @@ export const Services: React.FC = () => {
                 <tbody className="text-neutral-300">
                   {comparisonRows.map((row) => (
                     <tr key={row.feature} className="border-b border-neutral-800/80 last:border-0 hover:bg-neutral-900/20 transition-colors">
-                      <td className="px-4 py-3 md:px-6 text-neutral-400 font-medium">{row.feature}</td>
+                      <td className="px-4 py-3 md:px-6 text-white font-medium sticky left-0 bg-neutral-950 z-10 shadow-[4px_0_12px_rgba(0,0,0,0.7)]">{row.feature}</td>
                       <td className="px-3 py-3 text-neutral-300">{row.portfolio}</td>
                       <td className="px-3 py-3 text-neutral-300">{row.starter}</td>
                       <td className="px-3 py-3 text-neutral-300 font-medium">{row.business}</td>
@@ -421,30 +422,50 @@ export const Services: React.FC = () => {
               </div>
             </div>
 
-            <div className="block md:hidden px-4 py-2 border-b border-neutral-800/60 bg-neutral-900/20 text-[10px] font-mono text-neutral-400">
-              ← Swipe horizontally to see all add-on details →
+            {/* Mobile View: Native Stacked Cards */}
+            <div className="md:hidden divide-y divide-neutral-800/80 p-4 space-y-4">
+              {addOnItems.map((item) => (
+                <div key={item.name} className="pt-4 first:pt-0 space-y-2">
+                  <div className="flex items-start justify-between gap-3">
+                    <span className="text-white font-medium text-sm">{item.name}</span>
+                    <span className="text-white font-semibold text-xs font-mono shrink-0 px-2.5 py-1 rounded-lg bg-neutral-900 border border-neutral-800">
+                      {item.investmentPhp}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-mono px-2 py-0.5 rounded bg-neutral-900/60 border border-neutral-800 text-neutral-400">
+                      Timeline: {item.timeline}
+                    </span>
+                  </div>
+                  <p className="text-xs text-neutral-300 leading-relaxed">
+                    {item.description}
+                  </p>
+                </div>
+              ))}
             </div>
-            <div className="overflow-x-auto">
-              <table className="w-full min-w-[700px] text-left text-sm">
+
+            {/* Desktop View: Full Table */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full text-left text-sm">
                 <thead>
-                  <tr className="border-b border-neutral-800 text-neutral-500 text-xs uppercase tracking-wider bg-neutral-900/30">
-                    <th className="px-4 py-3 md:px-6 font-medium">Add-On Service</th>
+                  <tr className="border-b border-neutral-800 text-neutral-400 text-xs uppercase tracking-wider bg-neutral-900/30">
+                    <th className="px-6 py-3 font-medium">Add-On Service</th>
                     <th className="px-3 py-3 font-medium whitespace-nowrap">Investment (PHP)</th>
                     <th className="px-3 py-3 font-medium whitespace-nowrap">Timeline Impact</th>
-                    <th className="px-4 py-3 pr-4 md:pr-6 font-medium">Description</th>
+                    <th className="px-6 py-3 font-medium">Description</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-neutral-800/60">
                   {addOnItems.map((item) => (
                     <tr key={item.name} className="hover:bg-neutral-900/20 transition-colors">
-                      <td className="px-4 py-3.5 md:px-6 text-white font-medium whitespace-nowrap">{item.name}</td>
+                      <td className="px-6 py-3.5 text-white font-medium whitespace-nowrap">{item.name}</td>
                       <td className="px-3 py-3.5 text-neutral-200 font-semibold whitespace-nowrap">{item.investmentPhp}</td>
                       <td className="px-3 py-3.5 whitespace-nowrap">
                         <span className="inline-block px-2 py-0.5 rounded text-xs bg-neutral-900 border border-neutral-800 text-neutral-300">
                           {item.timeline}
                         </span>
                       </td>
-                      <td className="px-4 py-3.5 pr-4 md:pr-6 text-neutral-400 text-xs md:text-sm leading-relaxed">
+                      <td className="px-6 py-3.5 text-neutral-300 text-sm leading-relaxed">
                         {item.description}
                       </td>
                     </tr>

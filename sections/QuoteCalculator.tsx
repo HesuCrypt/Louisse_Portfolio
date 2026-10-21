@@ -5,7 +5,6 @@ import { servicePackages } from '../data/services';
 import { useLocalizedCurrency } from '../hooks/useLocalizedCurrency';
 import { openAIChat } from '../ui/AIChatWidget';
 import { scrollToSection, pushRoute } from '../utils/routing';
-import { sound } from '../utils/sound';
 import { Calculator, Check, Plus, Minus, ArrowUpRight, Bot, ShieldCheck } from 'lucide-react';
 
 export const QuoteCalculator: React.FC = () => {
@@ -53,7 +52,6 @@ export const QuoteCalculator: React.FC = () => {
   };
 
   const handleToggleAddOn = (name: string) => {
-    sound.playPop();
     setSelectedAddOns((prev) => ({
       ...prev,
       [name]: !prev[name],
@@ -61,7 +59,6 @@ export const QuoteCalculator: React.FC = () => {
   };
 
   const handleInquire = () => {
-    sound.playSuccess();
     if (typeof window !== 'undefined') {
       const scopeSummary = `${activePackage.title} (${formatPhpPrice(totalInvestment)}) with ${extraPages} extra pages and add-ons: ${
         Object.entries(selectedAddOns)
@@ -84,7 +81,6 @@ export const QuoteCalculator: React.FC = () => {
   };
 
   const handleAskAI = () => {
-    sound.playPop();
     const activeAddonsList = Object.entries(selectedAddOns)
       .filter(([, v]) => v)
       .map(([k]) => k)
@@ -134,22 +130,21 @@ Can you walk me through the next steps and how Louisse would kick off this proje
                         key={pkg.id}
                         type="button"
                         onClick={() => {
-                          sound.playClick();
                           setSelectedTierId(pkg.id);
                         }}
-                        className={`p-3.5 rounded-xl border text-left transition-all cursor-pointer relative ${
+                        className={`p-4 rounded-xl border text-left transition-all cursor-pointer relative ${
                           isSelected
                             ? 'border-white bg-neutral-900/90 shadow-md text-white'
                             : 'border-neutral-800/80 bg-neutral-900/20 text-neutral-400 hover:border-neutral-700 hover:text-neutral-200'
                         }`}
                       >
                         {pkg.popular && (
-                          <span className="absolute top-2 right-2 text-[9px] font-mono uppercase px-1.5 py-0.5 rounded bg-white text-black font-semibold">
+                          <span className="absolute top-2.5 right-2.5 text-xs font-mono uppercase px-2 py-0.5 rounded bg-white text-black font-semibold">
                             Popular
                           </span>
                         )}
-                        <div className="font-medium text-sm text-white mb-1 pr-12">{pkg.title}</div>
-                        <div className="text-xs text-neutral-500 mb-2 truncate">{pkg.scopeLine}</div>
+                        <div className="font-medium text-sm text-white mb-1 pr-14">{pkg.title}</div>
+                        <div className="text-xs text-neutral-400 mb-2 truncate">{pkg.scopeLine}</div>
                         <div className="text-sm text-emerald-400 font-semibold">
                           {renderPrice(pkg.basePricePhp)}
                         </div>
@@ -164,32 +159,30 @@ Can you walk me through the next steps and how Louisse would kick off this proje
                 <div className="flex items-center justify-between">
                   <div>
                     <span className="text-xs font-mono uppercase tracking-wider text-neutral-400 block">2. Additional Pages</span>
-                    <span className="text-xs text-neutral-500">+{formatPhpPrice(5000)} per extra custom page</span>
+                    <span className="text-xs text-neutral-400">+{formatPhpPrice(5000)} per extra custom page</span>
                   </div>
-                  <div className="flex items-center gap-3 bg-neutral-900 border border-neutral-800 rounded-lg p-1">
+                  <div className="flex items-center gap-2 bg-neutral-900 border border-neutral-800 rounded-lg p-1">
                     <button
                       type="button"
                       disabled={extraPages === 0}
                       onClick={() => {
-                        sound.playClick();
                         setExtraPages((p) => Math.max(0, p - 1));
                       }}
-                      className="p-1.5 rounded hover:bg-neutral-800 text-neutral-300 disabled:opacity-30 disabled:hover:bg-transparent cursor-pointer"
+                      className="p-2 rounded-md hover:bg-neutral-800 text-neutral-200 disabled:opacity-30 disabled:hover:bg-transparent cursor-pointer min-w-[36px] min-h-[36px] flex items-center justify-center transition-colors"
                       aria-label="Decrease extra pages"
                     >
                       <Minus size={14} />
                     </button>
-                    <span className="font-mono text-sm font-semibold text-white px-2 min-w-[24px] text-center">
+                    <span className="font-mono text-sm font-semibold text-white px-2 min-w-[28px] text-center">
                       {extraPages}
                     </span>
                     <button
                       type="button"
                       disabled={extraPages >= 10}
                       onClick={() => {
-                        sound.playClick();
                         setExtraPages((p) => Math.min(10, p + 1));
                       }}
-                      className="p-1.5 rounded hover:bg-neutral-800 text-neutral-300 disabled:opacity-30 disabled:hover:bg-transparent cursor-pointer"
+                      className="p-2 rounded-md hover:bg-neutral-800 text-neutral-200 disabled:opacity-30 disabled:hover:bg-transparent cursor-pointer min-w-[36px] min-h-[36px] flex items-center justify-center transition-colors"
                       aria-label="Increase extra pages"
                     >
                       <Plus size={14} />
@@ -260,6 +253,29 @@ Can you walk me through the next steps and how Louisse would kick off this proje
                     );
                   })}
                 </div>
+              </div>
+
+              {/* Mobile In-Flow Summary Card */}
+              <div className="lg:hidden p-4 rounded-xl bg-neutral-900/60 border border-neutral-800 space-y-3 mt-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <span className="text-xs font-mono uppercase tracking-wider text-neutral-400 block">Configured Estimate</span>
+                    <span className="text-xs text-neutral-300">{activePackage.title}</span>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-xl font-mono font-bold text-white tracking-tight">
+                      {renderPrice(totalInvestment)}
+                    </div>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleInquire}
+                  className="w-full py-3 px-4 rounded-xl bg-white text-black font-semibold text-xs hover:bg-neutral-200 transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-md"
+                >
+                  <span>Lock In Scope &amp; Book Project</span>
+                  <ArrowUpRight size={15} />
+                </button>
               </div>
             </div>
 

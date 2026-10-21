@@ -148,18 +148,19 @@ export const GeneralContact: React.FC = () => {
           >
             <p className="text-white text-sm mb-5 uppercase tracking-[0.24em]">General Inquiry</p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <label className="text-sm text-neutral-400">
+              <label className="text-sm font-medium text-neutral-300">
                 Name
                 <input
                   required
                   name="name"
                   autoComplete="name"
+                  placeholder="Your name or company"
                   value={formData.name}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, name: e.target.value })}
-                  className="mt-2 w-full rounded-lg border border-neutral-800 bg-neutral-900 px-3 py-3 text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:border-neutral-500"
+                  className="mt-2 w-full rounded-xl border border-neutral-800 bg-neutral-900 px-3.5 py-3 text-white placeholder-neutral-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:border-neutral-500"
                 />
               </label>
-              <label className="text-sm text-neutral-400">
+              <label className="text-sm font-medium text-neutral-300">
                 Email
                 <input
                   required
@@ -167,12 +168,13 @@ export const GeneralContact: React.FC = () => {
                   name="email"
                   autoComplete="email"
                   spellCheck={false}
+                  placeholder="you@company.com"
                   value={formData.email}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, email: e.target.value })}
-                  className="mt-2 w-full rounded-lg border border-neutral-800 bg-neutral-900 px-3 py-3 text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:border-neutral-500"
+                  className="mt-2 w-full rounded-xl border border-neutral-800 bg-neutral-900 px-3.5 py-3 text-white placeholder-neutral-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:border-neutral-500"
                 />
               </label>
-              <div className="text-sm text-neutral-400 md:col-span-2">
+              <div className="text-sm font-medium text-neutral-300 md:col-span-2">
                 <span className="block">Inquiry Type</span>
                 <input type="hidden" name="inquiryType" value={formData.inquiryType} />
                 <div ref={dropdownRef} className="relative mt-2">
@@ -275,7 +277,7 @@ export const GeneralContact: React.FC = () => {
                   ) : null}
                 </div>
               </div>
-              <label className="text-sm text-neutral-400 md:col-span-2">
+              <label className="text-sm font-medium text-neutral-300 md:col-span-2">
                 Message
                 <textarea
                   required
@@ -284,7 +286,7 @@ export const GeneralContact: React.FC = () => {
                   value={formData.message}
                   onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setFormData({ ...formData, message: e.target.value })}
                   placeholder="Tell me a bit about the role, project, or opportunity…"
-                  className="mt-2 w-full rounded-lg border border-neutral-800 bg-neutral-900 px-3 py-3 text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:border-neutral-500"
+                  className="mt-2 w-full rounded-xl border border-neutral-800 bg-neutral-900 px-3.5 py-3 text-white placeholder-neutral-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:border-neutral-500"
                 />
               </label>
             </div>

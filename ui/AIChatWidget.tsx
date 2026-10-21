@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { MessageCircle, X, SendHorizontal, Sparkles, Bot } from 'lucide-react';
-import { sound } from '../utils/sound';
 
 type ChatMessage = {
   role: 'user' | 'assistant';
@@ -35,7 +34,6 @@ export const AIChatWidget: React.FC = () => {
   useEffect(() => {
     const handleOpenChat = (event: Event) => {
       const customEvent = event as CustomEvent<{ prompt?: string }>;
-      sound.playPop();
       setIsOpen(true);
       if (customEvent?.detail?.prompt) {
         setInput(customEvent.detail.prompt);
@@ -67,7 +65,6 @@ export const AIChatWidget: React.FC = () => {
     const textToSend = (overrideText ?? input).trim();
     if (!textToSend || isLoading) return;
 
-    sound.playClick();
     const nextMessages: ChatMessage[] = [...messages, { role: 'user', content: textToSend }];
     setMessages(nextMessages);
     setInput('');
@@ -166,7 +163,7 @@ export const AIChatWidget: React.FC = () => {
   return (
     <div
       className={`fixed right-4 md:right-6 z-[60] transition-all duration-300 ${
-        hasCookieBanner ? 'bottom-24 md:bottom-6' : 'bottom-6'
+        hasCookieBanner ? (isOpen ? 'bottom-4 md:bottom-6' : 'hidden md:block bottom-6') : 'bottom-6'
       }`}
     >
       {!isOpen ? (
@@ -175,7 +172,7 @@ export const AIChatWidget: React.FC = () => {
             sound.playPop();
             setIsOpen(true);
           }}
-          className="inline-flex items-center gap-2 rounded-full border border-neutral-800 bg-neutral-900/90 backdrop-blur-md px-4 py-2.5 text-xs text-white shadow-xl hover:border-neutral-600 hover:bg-neutral-800 transition-all cursor-pointer group"
+          className="inline-flex items-center gap-2 rounded-full border border-neutral-800 bg-neutral-900/95 backdrop-blur-md px-4 py-2.5 text-xs text-white shadow-xl hover:border-neutral-600 hover:bg-neutral-800 transition-all cursor-pointer group"
           aria-label="Open AI chat assistant"
         >
           <MessageCircle size={15} className="text-neutral-400 group-hover:text-white transition-colors" />
@@ -198,7 +195,6 @@ export const AIChatWidget: React.FC = () => {
             </div>
             <button
               onClick={() => {
-                sound.playClick();
                 setIsOpen(false);
               }}
               className="text-neutral-400 hover:text-white transition-colors cursor-pointer p-1"

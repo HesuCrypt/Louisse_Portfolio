@@ -53,10 +53,7 @@ export const About: React.FC = () => {
                     {/* Integrated Photo Caption Pill */}
                     <div className="absolute bottom-4 left-4 right-4 p-3.5 rounded-xl bg-neutral-950/80 backdrop-blur-md border border-white/10 flex items-center justify-between text-xs">
                       <div>
-                        <div className="flex items-center gap-2">
-                          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                          <span className="font-medium text-white tracking-wide">Louisse Dominique Bertillo</span>
-                        </div>
+                        <div className="font-medium text-white tracking-wide">Louisse Dominique Bertillo</div>
                         <p className="text-[11px] text-neutral-400 mt-0.5 font-mono">
                           Lead IT &amp; AI Implementation @ ISSY
                         </p>
@@ -69,24 +66,24 @@ export const About: React.FC = () => {
 
               {/* Quick Metrics Underneath */}
               <div className="grid grid-cols-3 gap-3">
-                <div className="p-3.5 rounded-xl bg-neutral-900/30 border border-neutral-800 text-center">
-                  <div className="text-xl font-bold text-white font-mono">+170%</div>
-                  <div className="text-[11px] text-neutral-400 mt-1 leading-tight">E-Com Sales Lift</div>
+                <div className="p-3.5 rounded-xl bg-neutral-900/30 border border-neutral-800/80 text-center">
+                  <div className="text-xl md:text-2xl font-bold text-white font-mono">+170%</div>
+                  <div className="text-xs text-neutral-400 mt-1 leading-tight font-medium">E-Com Sales Lift</div>
                 </div>
-                <div className="p-3.5 rounded-xl bg-neutral-900/30 border border-neutral-800 text-center">
-                  <div className="text-xl font-bold text-white font-mono">3.4k</div>
-                  <div className="text-[11px] text-neutral-400 mt-1 leading-tight">Peak Game Players</div>
+                <div className="p-3.5 rounded-xl bg-neutral-900/30 border border-neutral-800/80 text-center">
+                  <div className="text-xl md:text-2xl font-bold text-white font-mono">3.4k</div>
+                  <div className="text-xs text-neutral-400 mt-1 leading-tight font-medium">Peak Game Players</div>
                 </div>
-                <div className="p-3.5 rounded-xl bg-neutral-900/30 border border-neutral-800 text-center">
-                  <div className="text-xl font-bold text-white font-mono">5+ Yrs</div>
-                  <div className="text-[11px] text-neutral-400 mt-1 leading-tight">Shipping Web Apps</div>
+                <div className="p-3.5 rounded-xl bg-neutral-900/30 border border-neutral-800/80 text-center">
+                  <div className="text-xl md:text-2xl font-bold text-white font-mono">5+ Yrs</div>
+                  <div className="text-xs text-neutral-400 mt-1 leading-tight font-medium">Shipping Web Apps</div>
                 </div>
               </div>
             </div>
 
             {/* Right Column: Bio Narrative & Quick Credentials */}
             <div className="lg:col-span-7 space-y-8">
-              <div className="space-y-5 text-neutral-300">
+              <div className="space-y-5 text-neutral-200">
                 {profile.about.description.split('\n\n').map((paragraph, index) => (
                   <Body key={index} className="text-base md:text-lg leading-relaxed text-neutral-300">
                     {paragraph}
@@ -95,41 +92,41 @@ export const About: React.FC = () => {
               </div>
 
               {/* Credentials & Role Metadata Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t border-neutral-800/80">
-                <div className="p-4 rounded-xl bg-neutral-900/20 border border-neutral-800/70 space-y-1">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-4 border-t border-neutral-800/80">
+                <div className="p-3.5 rounded-xl bg-neutral-900/20 border border-neutral-800/60 space-y-1">
                   <div className="flex items-center gap-2 text-xs text-neutral-400 font-mono">
-                    <Briefcase size={14} className="text-neutral-300" />
+                    <Briefcase size={13} className="text-neutral-400" />
                     <span>Current Focus</span>
                   </div>
-                  <div className="text-sm font-medium text-white">Lead IT - Web &amp; AI Implementation</div>
+                  <div className="text-sm font-semibold text-white">Lead IT - Web &amp; AI Implementation</div>
                   <div className="text-xs text-neutral-400">ISSY Cosmetics</div>
                 </div>
 
-                <div className="p-4 rounded-xl bg-neutral-900/20 border border-neutral-800/70 space-y-1">
+                <div className="p-3.5 rounded-xl bg-neutral-900/20 border border-neutral-800/60 space-y-1">
                   <div className="flex items-center gap-2 text-xs text-neutral-400 font-mono">
-                    <MapPin size={14} className="text-neutral-300" />
+                    <MapPin size={13} className="text-neutral-400" />
                     <span>Location &amp; Work Model</span>
                   </div>
-                  <div className="text-sm font-medium text-white">Manila, Philippines</div>
+                  <div className="text-sm font-semibold text-white">Manila, Philippines</div>
                   <div className="text-xs text-neutral-400">Available Globally (Remote / Async)</div>
                 </div>
 
-                <div className="p-4 rounded-xl bg-neutral-900/20 border border-neutral-800/70 space-y-1">
+                <div className="p-3.5 rounded-xl bg-neutral-900/20 border border-neutral-800/60 space-y-1">
                   <div className="flex items-center gap-2 text-xs text-neutral-400 font-mono">
-                    <Code2 size={14} className="text-neutral-300" />
+                    <Code2 size={13} className="text-neutral-400" />
                     <span>Primary Stack</span>
                   </div>
-                  <div className="text-sm font-medium text-white">React, Next.js, TypeScript</div>
+                  <div className="text-sm font-semibold text-white">React, Next.js, TypeScript</div>
                   <div className="text-xs text-neutral-400">Tailwind, Node, MySQL, Supabase</div>
                 </div>
 
-                <div className="p-4 rounded-xl bg-neutral-900/20 border border-neutral-800/70 space-y-1">
+                <div className="p-3.5 rounded-xl bg-neutral-900/20 border border-neutral-800/60 space-y-1">
                   <div className="flex items-center gap-2 text-xs text-neutral-400 font-mono">
-                    <Sparkles size={14} className="text-neutral-300" />
+                    <Sparkles size={13} className="text-neutral-400" />
                     <span>AI &amp; Automation</span>
                   </div>
-                  <div className="text-sm font-medium text-white">n8n, Claude AI &amp; OpenAI</div>
-                  <div className="text-xs text-neutral-400">Custom Agents &amp; Customer Support</div>
+                  <div className="text-sm font-semibold text-white">n8n, Claude AI &amp; OpenAI</div>
+                  <div className="text-xs text-neutral-400">Custom Agents &amp; Automated Workflows</div>
                 </div>
               </div>
 

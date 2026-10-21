@@ -18,8 +18,11 @@ export const Featured: React.FC = () => {
           viewport={{ once: true, margin: "-10%" }}
         >
           <motion.div variants={itemVariants} className="mb-12 flex flex-col md:flex-row md:items-baseline md:justify-between gap-4">
-            <H2 className="mb-0">Featured Work</H2>
-            <span className="text-neutral-500 text-sm">Selected platforms, launches, and systems work</span>
+            <div>
+              <p className="text-xs font-mono uppercase tracking-widest text-neutral-400 mb-2">Case Studies</p>
+              <H2 className="mb-0">Featured Work</H2>
+            </div>
+            <span className="text-neutral-400 text-xs md:text-sm">Selected platforms, launches, and systems work</span>
           </motion.div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
@@ -27,7 +30,7 @@ export const Featured: React.FC = () => {
               <motion.div 
                 key={index}
                 variants={itemVariants}
-                className="group relative p-6 md:p-10 border border-neutral-800 bg-neutral-900/20 hover:bg-neutral-900/40 transition-all duration-500 rounded-sm overflow-hidden flex flex-col"
+                className="group relative p-6 md:p-8 lg:p-10 border border-neutral-800 bg-neutral-900/20 hover:bg-neutral-900/40 transition-all duration-500 rounded-2xl overflow-hidden flex flex-col"
               >
                 {/* Live Indicator - Flow on Mobile, Absolute on Desktop */}
                 <div className="flex md:absolute md:top-8 md:right-8 items-center gap-2.5 mb-6 md:mb-0">
@@ -35,7 +38,7 @@ export const Featured: React.FC = () => {
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
                     <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-white"></span>
                   </span>
-                  <span className="text-[10px] md:text-xs font-mono text-neutral-300 tracking-wider uppercase font-medium">
+                  <span className="text-xs font-mono text-neutral-300 tracking-wider uppercase font-medium">
                     {item.status}
                   </span>
                 </div>
@@ -43,8 +46,8 @@ export const Featured: React.FC = () => {
                 <div className="flex-1 flex flex-col justify-between space-y-8">
                   <div>
                     <H3 className="text-2xl md:text-3xl mb-2">{item.company}</H3>
-                    <Label className="text-neutral-500 mb-6 block">{item.role}</Label>
-                    <Body className="text-neutral-400 max-w-md text-sm md:text-base">
+                    <Label className="text-neutral-400 mb-5 block">{item.role}</Label>
+                    <Body className="text-neutral-300 max-w-md text-sm md:text-base leading-relaxed">
                       {item.description}
                     </Body>
                   </div>

@@ -4,9 +4,14 @@ export const transitions = {
     stiffness: 80,
     damping: 25
   },
+  modalSpring: {
+    type: "spring",
+    stiffness: 320,
+    damping: 26
+  },
   ease: {
-    duration: 1.2,
-    ease: [0.22, 1, 0.36, 1], // Custom cubic-bezier for a "luxurious" settle
+    duration: 0.65,
+    ease: [0.22, 1, 0.36, 1], // Custom cubic-bezier for a luxurious, responsive settle
   }
 };
 
@@ -15,8 +20,8 @@ export const containerVariants = {
   visible: {
     opacity: 1,
     transition: {
-      staggerChildren: 0.15,
-      delayChildren: 0.1
+      staggerChildren: 0.08,
+      delayChildren: 0.04
     }
   }
 };
@@ -24,7 +29,7 @@ export const containerVariants = {
 export const itemVariants = {
   hidden: { 
     opacity: 0, 
-    y: 30 // Increased distance for a more dramatic rise
+    y: 18
   },
   visible: { 
     opacity: 1, 
@@ -37,6 +42,20 @@ export const fadeVariants = {
   hidden: { opacity: 0 },
   visible: { 
     opacity: 1,
-    transition: { duration: 0.8, ease: "easeOut" }
+    transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] }
+  }
+};
+
+export const pageVariants = {
+  initial: { opacity: 0, y: 10 },
+  animate: { 
+    opacity: 1, 
+    y: 0,
+    transition: { duration: 0.35, ease: [0.22, 1, 0.36, 1] }
+  },
+  exit: { 
+    opacity: 0, 
+    y: -8,
+    transition: { duration: 0.2, ease: "easeInOut" }
   }
 };

@@ -145,16 +145,13 @@ export const Experience: React.FC = () => {
                                 )}
 
                                 {/* Focus Description */}
-                                <p className="text-sm text-neutral-400 leading-relaxed pt-1">
+                                <p className="text-xs md:text-sm text-neutral-400 leading-relaxed pt-1">
                                   {roleItem.focus}
                                 </p>
 
                                 {/* Roadmap / Milestones */}
                                 {roleItem.roadmap && roleItem.roadmap.length > 0 && (
-                                  <div className="pt-2">
-                                    <span className="text-neutral-500 block mb-2 uppercase text-[10px] font-mono tracking-wider">
-                                      Key Initiatives &amp; Impact
-                                    </span>
+                                  <div className="pt-1.5">
                                     <ul className="space-y-1.5">
                                       {roleItem.roadmap.map((item, idx) => (
                                         <li key={idx} className="flex items-start gap-2 text-xs text-neutral-300">
@@ -165,41 +162,6 @@ export const Experience: React.FC = () => {
                                     </ul>
                                   </div>
                                 )}
-
-                                {/* Connected ISSY Projects & Work */}
-                                {roleItem.connectedWorks && roleItem.connectedWorks.length > 0 && (
-                                  <div className="pt-3">
-                                    <span className="text-neutral-500 block mb-2 uppercase text-[10px] font-mono tracking-wider">
-                                      Connected Campaign Launches &amp; Platforms
-                                    </span>
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                                      {roleItem.connectedWorks.map((work, wIdx) => (
-                                        <div
-                                          key={wIdx}
-                                          className="p-3 rounded-md border border-neutral-800/80 bg-neutral-900/40 hover:bg-neutral-900/70 hover:border-neutral-700 transition-all flex flex-col justify-between space-y-1.5"
-                                        >
-                                          <div className="flex items-center justify-between gap-2">
-                                            <span className="text-white text-xs font-medium">{work.title}</span>
-                                            {work.link && (
-                                              <a
-                                                href={work.link}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="text-neutral-400 hover:text-white transition-colors"
-                                                title={`Open ${work.title}`}
-                                              >
-                                                <ArrowUpRight className="w-3.5 h-3.5" />
-                                              </a>
-                                            )}
-                                          </div>
-                                          <p className="text-[11px] text-neutral-400 leading-normal">
-                                            {work.description}
-                                          </p>
-                                        </div>
-                                      ))}
-                                    </div>
-                                  </div>
-                                )}
                               </div>
                             );
                           })}
@@ -207,34 +169,34 @@ export const Experience: React.FC = () => {
                       </div>
                     ) : (
                       /* Single-Role Job Layout (e.g. La Fleur, Meridian Auctions, Prime Philippines) */
-                      <div className="space-y-4">
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-neutral-400 pt-1">
-                          <div>
-                            <span className="text-neutral-600 block mb-1 uppercase text-[10px] tracking-wider">
+                      <div className="space-y-5">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-neutral-300 pt-1">
+                          <div className="p-3.5 rounded-xl bg-neutral-900/30 border border-neutral-800/60">
+                            <span className="text-neutral-400 block mb-1 uppercase text-xs font-mono tracking-wider">
                               Focus
                             </span>
-                            {job.focus}
+                            <span className="text-neutral-200 leading-relaxed text-xs md:text-sm">{job.focus}</span>
                           </div>
                           {job.highlight && (
-                            <div>
-                              <span className="text-neutral-600 block mb-1 uppercase text-[10px] tracking-wider">
-                                Highlight
+                            <div className="p-3.5 rounded-xl bg-neutral-900/30 border border-neutral-800/60">
+                              <span className="text-neutral-400 block mb-1 uppercase text-xs font-mono tracking-wider">
+                                Key Achievement
                               </span>
-                              <span className="text-white">{job.highlight}</span>
+                              <span className="text-white font-medium text-xs md:text-sm leading-relaxed block">{job.highlight}</span>
                             </div>
                           )}
                         </div>
 
                         {job.roadmap && job.roadmap.length > 0 && (
                           <div className="pt-2">
-                            <span className="text-neutral-600 block mb-2 uppercase text-[10px] tracking-wider">
-                              Deliverables
+                            <span className="text-neutral-400 block mb-2 uppercase text-xs font-mono tracking-wider">
+                              Deliverables &amp; Impact
                             </span>
                             <ul className="space-y-2">
                               {job.roadmap.map((item, itemIndex) => (
-                                <li key={itemIndex} className="relative pl-6 text-xs text-neutral-300">
+                                <li key={itemIndex} className="relative pl-5 text-xs md:text-sm text-neutral-300 leading-relaxed">
                                   <span
-                                    className="absolute left-0 top-[0.4rem] h-1.5 w-1.5 rounded-full bg-neutral-500"
+                                    className="absolute left-0 top-[0.45rem] h-1.5 w-1.5 rounded-full bg-neutral-400"
                                     aria-hidden="true"
                                   />
                                   <span>{item}</span>

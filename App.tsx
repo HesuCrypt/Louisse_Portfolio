@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion, useScroll, useSpring } from 'framer-motion';
 import { HomePage } from './pages/HomePage';
 import { ServicesPage } from './pages/ServicesPage';
 import { LegalPage } from './pages/LegalPage';
@@ -9,6 +9,7 @@ import { AIChatWidget } from './ui/AIChatWidget';
 import { CookieConsentBanner } from './ui/CookieConsentBanner';
 import { getAppRoute, isLegalRoute, pushRoute } from './utils/routing';
 import { openCookiePreferences } from './utils/cookies';
+import { pageVariants } from './motion/variants';
 
 export default function App() {
   const [loading, setLoading] = useState(true);
@@ -16,6 +17,13 @@ export default function App() {
     pathname: typeof window !== 'undefined' ? window.location.pathname : '/',
     hash: typeof window !== 'undefined' ? window.location.hash : '',
   }));
+
+  const { scrollYProgress } = useScroll();
+  const scaleX = useSpring(scrollYProgress, {
+    stiffness: 180,
+    damping: 30,
+    restDelta: 0.001
+  });
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -57,6 +65,12 @@ export default function App() {
 
   return (
     <main className="min-h-screen w-full bg-background text-neutral-300 selection:bg-white/20 relative">
+      {/* Sleek top scroll reading progress bar */}
+      <motion.div
+        className="fixed top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-neutral-600 via-white to-neutral-400 origin-left z-[60] pointer-events-none"
+        style={{ scaleX }}
+      />
+
       <AnimatePresence mode="wait">
         {loading && <LoadingScreen key="loader" />}
       </AnimatePresence>
@@ -64,7 +78,17 @@ export default function App() {
       {!loading && (
         <div>
           <Header currentRoute={route} />
-          {renderContent()}
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={route}
+              variants={pageVariants}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+            >
+              {renderContent()}
+            </motion.div>
+          </AnimatePresence>
 
           <footer className="py-12 px-4 text-center text-neutral-600 text-sm border-t border-neutral-900/60 mt-12">
             <p className="text-neutral-400 text-xs mb-1.5 font-medium">

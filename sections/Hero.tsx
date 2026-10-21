@@ -7,7 +7,6 @@ import { profile } from '../data/profile';
 import { containerVariants, itemVariants } from '../motion/variants';
 import { scrollToSection } from '../utils/routing';
 import { ArrowDown } from 'lucide-react';
-import { sound } from '../utils/sound';
 
 export const Hero: React.FC = () => {
   const scrollToProjects = () => {
@@ -48,32 +47,27 @@ export const Hero: React.FC = () => {
             </Body>
           </motion.div>
 
-          <motion.div variants={itemVariants} className="pt-6 md:pt-8 flex flex-col sm:flex-row sm:flex-wrap gap-3 md:gap-4">
-            <Button
-              onClick={() => {
-                sound.playClick();
-                scrollToProjects();
-              }}
-              variant="primary"
-              className="w-full sm:w-auto justify-center"
-            >
-              View Work
-            </Button>
-            <Button
-              onClick={() => {
-                sound.playPop();
-                scrollToContact();
-              }}
-              variant="secondary"
-              className="w-full sm:w-auto justify-center"
-            >
-              Contact
-            </Button>
+          <motion.div variants={itemVariants} className="pt-6 md:pt-8 flex flex-col sm:flex-row sm:items-center gap-3 md:gap-4">
+            <div className="grid grid-cols-2 sm:flex sm:items-center gap-3">
+              <Button
+                onClick={scrollToProjects}
+                variant="primary"
+                className="justify-center"
+              >
+                View Work
+              </Button>
+              <Button
+                onClick={scrollToContact}
+                variant="secondary"
+                className="justify-center"
+              >
+                Contact
+              </Button>
+            </div>
             <Button
               href="/resume.pdf"
               download="Louisse_Dominique_Bertillo_Resume.pdf"
               variant="secondary"
-              onClick={() => sound.playClick()}
               className="w-full sm:w-auto justify-center"
             >
               Download Resume
@@ -82,21 +76,21 @@ export const Hero: React.FC = () => {
 
           {/* Client Trust Strip */}
           <motion.div variants={itemVariants} className="pt-8 border-t border-neutral-900/80">
-            <p className="text-[11px] font-mono uppercase tracking-widest text-neutral-500 mb-3">
+            <p className="text-xs font-mono uppercase tracking-widest text-neutral-400 mb-3">
               Trusted by high-growth brands &amp; platforms
             </p>
-            <div className="flex flex-wrap items-center gap-4 md:gap-8 text-neutral-400 text-xs">
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-neutral-950/60 border border-neutral-800/60">
+            <div className="grid grid-cols-1 sm:flex sm:flex-wrap items-stretch sm:items-center gap-2.5 sm:gap-3 md:gap-4 text-xs">
+              <div className="flex items-center justify-between sm:justify-start gap-2.5 px-3.5 py-2 rounded-xl bg-neutral-950/70 border border-neutral-800/80">
                 <span className="font-semibold text-white tracking-wider">ISSY</span>
-                <span className="text-neutral-500 font-mono text-[11px]">• E-Commerce &amp; AI</span>
+                <span className="text-neutral-400 font-mono text-xs">• E-Commerce &amp; AI</span>
               </div>
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-neutral-950/60 border border-neutral-800/60">
+              <div className="flex items-center justify-between sm:justify-start gap-2.5 px-3.5 py-2 rounded-xl bg-neutral-950/70 border border-neutral-800/80">
                 <span className="font-semibold text-white tracking-wider">MERIDIAN AUCTIONS</span>
-                <span className="text-neutral-500 font-mono text-[11px]">• Germany Full Stack</span>
+                <span className="text-neutral-400 font-mono text-xs">• Germany Full Stack</span>
               </div>
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-neutral-950/60 border border-neutral-800/60">
+              <div className="flex items-center justify-between sm:justify-start gap-2.5 px-3.5 py-2 rounded-xl bg-neutral-950/70 border border-neutral-800/80">
                 <span className="font-semibold text-white tracking-wider">LA FLEUR</span>
-                <span className="text-neutral-500 font-mono text-[11px]">• Commercial Web</span>
+                <span className="text-neutral-400 font-mono text-xs">• Commercial Web</span>
               </div>
             </div>
           </motion.div>
