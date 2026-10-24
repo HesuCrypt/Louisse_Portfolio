@@ -33,8 +33,6 @@ export const skills: SkillCategory[] = [
       "Zapier",
       "Claude",
       "Trae",
-      "Trae Workflows",
-      "Trae Automation",
       "Prompt Engineering",
       "Workflow Automation",
       "AI-Assisted Operations",

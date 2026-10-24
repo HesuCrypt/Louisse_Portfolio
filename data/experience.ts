@@ -36,21 +36,21 @@ export const experience: Job[] = [
     location: "Philippines",
     website: "https://issycosmetics.com/",
     type: "Full-time",
-    highlight: "Increased Online Sales by 170% & Spearheaded Company-Wide AI Adoption",
-    connectedSummary: "Continuous progression across three senior technical roles—spearheading enterprise AI pipelines, modern Shopify architecture, internal workflow automations, and high-traffic campaign applications.",
+    highlight: "Lifted online sales 170% and led company-wide AI adoption",
+    connectedSummary: "Three connected roles at one company — from building the Shopify storefront, to running site operations, to leading AI implementation across the business.",
     roles: [
       {
         role: "Lead IT - Web Developer & AI Implementation",
         type: "Full-time",
         period: "July 22, 2026 - Present",
         tag: "Current Role",
-        highlight: "Spearheaded company-wide AI adoption and automation systems using LLMs, n8n, Claude AI, and custom AI tools.",
-        focus: "Lead IT operations, web development, and company-wide AI implementation. I evaluate internal processes to identify manual bottlenecks and implement custom AI solutions and automated workflows. My work involves integrating AI tools (Claude, OpenAI, Trae) and multi-step automation pipelines (n8n) into core operations, developing AI assistants for customer support and sales analytics, and maintaining high-performance e-commerce digital experiences.",
+        highlight: "Leading company-wide AI adoption — LLM tooling, n8n pipelines, and custom internal agents.",
+        focus: "I run IT operations, web development, and company-wide AI implementation. That means mapping how teams actually work, finding where manual steps are costing time, and replacing them with custom AI tools and multi-step automations. Alongside that I keep the live storefront fast and build the AI assistants used for support and sales analytics.",
         roadmap: [
-          "Deploy custom AI agents and LLMs across internal departments to streamline operations and decision-making.",
-          "Implement AI-driven analytics for real-time sales tracking, customer insights, and automated inventory forecasting.",
-          "Build intelligent customer support automation systems to decrease response times and elevate user experience.",
-          "Maintain and enhance live web infrastructure, focusing on performance, scalability, and UX optimization."
+          "Roll out custom AI agents and LLM tools across departments to speed up daily operations.",
+          "Build AI-driven analytics for real-time sales tracking, customer insight, and inventory forecasting.",
+          "Automate customer support to cut response times without losing the human tone.",
+          "Keep the live web infrastructure fast, scalable, and current."
         ]
       },
       {
@@ -58,13 +58,13 @@ export const experience: Job[] = [
         type: "Full-time",
         period: "May 2026 - July 2026",
         tag: "Promoted",
-        highlight: "Designed and deployed automation systems with n8n, Claude AI, and Trae to streamline internal operations, customer support, and decision workflows.",
-        focus: "Analyzed internal business operations to identify bottlenecks and transform manual processes into streamlined, automated workflows. By leveraging integration platforms such as n8n, designed and deployed scalable multi-step pipelines that connect office systems. Integrated AI tools such as Claude and Trae to automate data extraction and decision support, while building customer service automation systems that reduce response times and support company growth.",
+        highlight: "Built n8n, Claude, and Trae automations that replaced manual work across operations, support, and reporting.",
+        focus: "I audited internal operations to find the real bottlenecks, then turned those manual steps into automated workflows. Using n8n, I built multi-step pipelines that connect the office systems people used to update by hand. Claude and Trae took over data extraction and decision support, and support automation shortened response times while the company kept growing.",
         roadmap: [
-          "Launch a loyalty program that connects the online store with offline retail experiences.",
-          "Deploy an AI assistant for sales analytics, store tracking, and restocking insights to support faster decisions.",
-          "Build sales automation across departments to reduce manual workflows and improve lead handling.",
-          "Maintain and upgrade the live website with performance, UX, and conversion improvements."
+          "Launch a loyalty program linking the online store with in-person retail.",
+          "Deploy an AI assistant for sales analytics and restocking insight, so decisions arrive sooner.",
+          "Automate sales handoffs across departments to cut manual work and speed up lead handling.",
+          "Keep the live site improving on performance, UX, and conversion."
         ]
       },
       {
@@ -72,28 +72,28 @@ export const experience: Job[] = [
         type: "Full-time",
         period: "September 2025 - May 2026",
         tag: "Initial Role",
-        highlight: "Increased online sales by 170%",
-        focus: "Developed and maintained the live e-commerce website on Shopify. Engineered custom modular sections, performance optimizations, and responsive experiences across desktop and mobile. Built interactive web campaign experiences and internal tools supporting day-to-day operations.",
+        highlight: "Lifted online sales by 170%",
+        focus: "Built and maintained the live Shopify storefront — custom modular sections, performance tuning, and responsive layouts across desktop and mobile. I also shipped the interactive campaign pages and the internal tools the team leaned on day to day.",
         roadmap: [
-          "Develop interactive web game experiences (including Fruit Jam) to support viral campaigns and customer engagement.",
-          "Create an office-wide room booking system to streamline scheduling and resource allocation.",
-          "Maintain and upgrade the live website with performance, UX, and conversion improvements."
+          "Ship interactive web games — including Fruit Jam — to drive campaign reach.",
+          "Build an office-wide room booking system to replace manual scheduling.",
+          "Continue performance and conversion work on the live storefront."
         ],
         connectedWorks: [
           {
             title: "ISSY Fruit Jam",
             link: "https://issyfruitjam.com/",
-            description: "Viral interactive campaign game scaling to 3,400 players in 3 days with 120k+ real-time requests."
+            description: "Viral campaign game — 3,400 players and 120k+ real-time requests in three days."
           },
           {
             title: "Live E-Commerce Storefront",
             link: "https://issycosmetics.com/",
-            description: "Custom modular Shopify sections, speed tuning, and conversion optimization driving a 170% sales surge."
+            description: "Custom Shopify sections, speed tuning, and conversion work behind a 170% sales lift."
           },
           {
             title: "3D Interactive Farming Game",
             link: "https://issy-farm.vercel.app/",
-            description: "Interactive 3D WebGL experience built with React & Three.js for interactive customer campaigns."
+            description: "A 3D WebGL experience built with React and Three.js for interactive customer campaigns."
           }
         ]
       }
@@ -103,11 +103,11 @@ export const experience: Job[] = [
     company: "La Fleur",
     role: "Freelance Web Developer",
     type: "Project-based",
-    period: "April 2026 - 1 month project",
+    period: "April 2026 · 1 Month",
     location: "Philippines",
     website: "https://lafleurph.com/",
-    highlight: "Delivered a launch-ready florist website before the Mother’s Day season, including extra improvements and a map feature while staying within budget.",
-    focus: "Built and launched a brand-aligned website under a tight deadline, translating design and theme requirements into a polished, functional experience. Handled client requests end to end, added practical improvements beyond scope where it added value, and kept long-term maintenance costs minimal."
+    highlight: "Delivered a launch-ready florist site before the Mother's Day season — adding a map feature and other extras without going over budget.",
+    focus: "Built and launched a brand-aligned storefront under a tight deadline, translating the client's design direction into something polished and genuinely usable. I handled every request end to end, added improvements beyond scope where they clearly helped, and kept long-term maintenance costs low."
   },
   {
     company: "Meridian Auctions",
@@ -116,12 +116,12 @@ export const experience: Job[] = [
     period: "3-Month Project",
     location: "Germany",
     website: "https://www.meridianauctions.com/",
-    highlight: "Stabilized full-stack auction platform & secured real-time transactions",
-    focus: "Improved and stabilized the auction platform by taking over an inherited codebase, addressing technical debt, strengthening security fundamentals, and upgrading the overall UI and user experience while fixing critical issues across the stack.",
+    highlight: "Stabilized a full-stack auction platform and secured real-time transactions",
+    focus: "Took over an inherited codebase and stabilized it — clearing technical debt, resolving critical bugs across the stack, tightening security fundamentals, and rebuilding the key UI flows that users touched most.",
     roadmap: [
-      "Audit the existing codebase and resolve inherited bugs, regressions, and instability issues.",
-      "Harden security by improving access control, input validation, and dependency hygiene.",
-      "Redesign and rebuild key UI flows to improve clarity, usability, and visual consistency."
+      "Audit the existing codebase and clear inherited bugs, regressions, and instability.",
+      "Harden security through access control, input validation, and dependency hygiene.",
+      "Redesign and rebuild key UI flows for clarity, usability, and visual consistency."
     ]
   },
   {
@@ -130,7 +130,7 @@ export const experience: Job[] = [
     type: "Internship",
     period: "March 2025 - June 2025",
     location: "Philippines",
-    highlight: "Designed & engineered internal real estate interfaces",
-    focus: "Designed intuitive wireframes and prototypes in Figma and Framer, and developed responsive web components using React.js and Tailwind CSS for internal real estate management platforms."
+    highlight: "Designed and built internal real estate interfaces",
+    focus: "Designed wireframes and prototypes in Figma and Framer, then built the responsive React and Tailwind components behind internal real estate management platforms."
   }
 ];

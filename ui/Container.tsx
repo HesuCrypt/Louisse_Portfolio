@@ -6,10 +6,12 @@ interface ContainerProps {
   id?: string;
 }
 
-export const Container: React.FC<ContainerProps> = ({ children, className = "", id }) => {
-  return (
-    <div id={id} className={`max-w-6xl mx-auto px-6 md:px-12 w-full ${className}`}>
-      {children}
-    </div>
-  );
-};
+/**
+ * Content column. The fixed index rail offset is applied once at the app root,
+ * so this stays a plain centred measure.
+ */
+export const Container: React.FC<ContainerProps> = ({ children, className = '', id }) => (
+  <div id={id} className={`mx-auto w-full max-w-[1440px] px-5 sm:px-8 lg:px-12 ${className}`}>
+    {children}
+  </div>
+);

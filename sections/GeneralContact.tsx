@@ -11,7 +11,8 @@ import {
   isValidInquiryOption,
 } from '../utils/generalContactDropdown';
 import { Container } from '../ui/Container';
-import { Body, H2 } from '../ui/Text';
+import { SectionHeader } from '../ui/SectionHeader';
+import { Body } from '../ui/Text';
 
 const inquiryOptions = [
   'Job Opportunity',
@@ -20,6 +21,11 @@ const inquiryOptions = [
   'Contract Role',
   'General Question',
 ] as const;
+
+const fieldStyles =
+  'mt-2 w-full rounded-none border border-line-mid bg-ink px-3.5 py-3 font-sans text-[0.9375rem] text-fg placeholder-fg-faint transition-colors focus-visible:border-paper focus-visible:outline-none';
+
+const fieldLabelStyles = 'font-mono text-2xs tracking-wider2 text-fg-dim uppercase';
 
 export const GeneralContact: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -120,226 +126,260 @@ export const GeneralContact: React.FC = () => {
   const selectedInquiryLabel = formData.inquiryType || 'Select inquiry type';
 
   return (
-    <section id="contact" className="py-24 md:py-40">
+    <section id="contact" className="scroll-mt-[var(--topbar-h)] py-16 md:py-24">
       <Container>
         <motion.div
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: '-10%' }}
-          className="max-w-5xl mx-auto"
         >
-          <motion.div variants={itemVariants} className="mb-8">
-            <p className="text-[11px] uppercase tracking-[0.24em] text-neutral-500 mb-4">Contact</p>
-            <H2>Let&apos;s Work Together</H2>
-          </motion.div>
+          <SectionHeader
+            index="08"
+            label="Contact"
+            title="Let's work together"
+            meta="Response under 24h"
+          />
 
-          <motion.div variants={itemVariants} className="mb-12">
-            <Body className="text-xl md:text-2xl text-neutral-300 max-w-2xl">
-              Reach out for job opportunities, contract roles, collaborations, freelance work, or general inquiries.
-              I&apos;ll get back to you as soon as I can.
-            </Body>
-          </motion.div>
+          <div className="mt-10 grid grid-cols-1 gap-10 lg:grid-cols-12 lg:gap-14">
+            {/* Left: intro + direct channels */}
+            <motion.div variants={itemVariants} className="lg:col-span-4">
+              <Body className="text-base md:text-[1.0625rem]">
+                Open to job opportunities, contract roles, collaborations, and freelance projects.
+                Every message lands in my inbox — not a ticket queue.
+              </Body>
 
-          <motion.form
-            variants={itemVariants}
-            onSubmit={handleSubmit}
-            className="mb-12 rounded-2xl border border-neutral-800 bg-neutral-950/40 p-6 md:p-8"
-          >
-            <p className="text-white text-sm mb-5 uppercase tracking-[0.24em]">General Inquiry</p>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <label className="text-sm font-medium text-neutral-300">
-                Name
-                <input
-                  required
-                  name="name"
-                  autoComplete="name"
-                  placeholder="Your name or company"
-                  value={formData.name}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, name: e.target.value })}
-                  className="mt-2 w-full rounded-xl border border-neutral-800 bg-neutral-900 px-3.5 py-3 text-white placeholder-neutral-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:border-neutral-500"
-                />
-              </label>
-              <label className="text-sm font-medium text-neutral-300">
-                Email
-                <input
-                  required
-                  type="email"
-                  name="email"
-                  autoComplete="email"
-                  spellCheck={false}
-                  placeholder="you@company.com"
-                  value={formData.email}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, email: e.target.value })}
-                  className="mt-2 w-full rounded-xl border border-neutral-800 bg-neutral-900 px-3.5 py-3 text-white placeholder-neutral-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:border-neutral-500"
-                />
-              </label>
-              <div className="text-sm font-medium text-neutral-300 md:col-span-2">
-                <span className="block">Inquiry Type</span>
-                <input type="hidden" name="inquiryType" value={formData.inquiryType} />
-                <div ref={dropdownRef} className="relative mt-2">
-                  <button
-                    type="button"
-                    aria-haspopup="listbox"
-                    aria-expanded={isDropdownOpen}
-                    aria-controls="general-inquiry-options"
-                    className="flex w-full items-center justify-between rounded-xl border border-neutral-800 bg-neutral-950 px-4 py-3 text-left text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:border-neutral-500"
-                    onClick={() => setIsDropdownOpen((current: boolean) => !current)}
-                    onKeyDown={(event: React.KeyboardEvent<HTMLButtonElement>) => {
-                      if (event.key === 'ArrowDown') {
-                        event.preventDefault();
-                        setIsDropdownOpen(true);
-                        setHighlightedIndex((current: number) => getNextInquiryIndex(current, inquiryOptions));
-                      }
-
-                      if (event.key === 'ArrowUp') {
-                        event.preventDefault();
-                        setIsDropdownOpen(true);
-                        setHighlightedIndex((current: number) => getPreviousInquiryIndex(current, inquiryOptions));
-                      }
-
-                      if (event.key === 'Enter' || event.key === ' ') {
-                        event.preventDefault();
-                        setIsDropdownOpen((current: boolean) => !current);
-                      }
-
-                      if (event.key === 'Escape') {
-                        setIsDropdownOpen(false);
-                      }
-                    }}
+              <div className="mt-8 border-t border-line">
+                {socials.map((social) => (
+                  <a
+                    key={social.name}
+                    href={social.url}
+                    target={social.url.startsWith('mailto') ? undefined : '_blank'}
+                    rel={social.url.startsWith('mailto') ? undefined : 'noreferrer'}
+                    className="group flex items-center justify-between gap-4 border-b border-line py-4 transition-colors hover:text-fg"
                   >
-                    <span className={formData.inquiryType ? 'text-white' : 'text-neutral-500'}>
-                      {selectedInquiryLabel}
+                    <span className="flex items-center gap-3">
+                      <social.icon size={16} className="text-fg-dim group-hover:text-fg" aria-hidden="true" />
+                      <span className="font-sans text-[13px] text-fg-muted group-hover:text-fg">
+                        {social.name}
+                      </span>
                     </span>
-                    <ChevronDown
-                      size={16}
-                      aria-hidden="true"
-                      className={`transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`}
-                    />
-                  </button>
+                    <span className="font-mono text-2xs tracking-wider2 text-fg-faint uppercase">
+                      {social.label}
+                    </span>
+                  </a>
+                ))}
+              </div>
 
-                  {isDropdownOpen ? (
-                    <div className="absolute left-0 right-0 z-20 mt-2 rounded-2xl border border-neutral-800 bg-black/95 p-2 shadow-2xl backdrop-blur">
-                      <p className="px-3 pb-2 pt-1 text-[10px] uppercase tracking-[0.24em] text-neutral-500">
-                        Select Inquiry Type
-                      </p>
-                      <ul id="general-inquiry-options" role="listbox" aria-label="Inquiry Type" className="space-y-1">
-                        {inquiryOptions.map((option, index) => (
-                          <li key={option}>
-                            <button
-                              ref={(element: HTMLButtonElement | null) => {
-                                optionRefs.current[index] = element;
-                              }}
-                              type="button"
-                              role="option"
-                              aria-selected={formData.inquiryType === option}
-                              className={`flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 ${
-                                highlightedIndex === index || formData.inquiryType === option
-                                  ? 'bg-neutral-900 text-white'
-                                  : 'text-neutral-400 hover:bg-neutral-950 hover:text-white'
-                              }`}
-                              onClick={() => selectInquiryType(option, index)}
-                              onMouseEnter={() => setHighlightedIndex(index)}
-                              onKeyDown={(event: React.KeyboardEvent<HTMLButtonElement>) => {
-                                if (event.key === 'ArrowDown') {
-                                  event.preventDefault();
-                                  setHighlightedIndex((current: number) => getNextInquiryIndex(current, inquiryOptions));
-                                }
-
-                                if (event.key === 'ArrowUp') {
-                                  event.preventDefault();
-                                  setHighlightedIndex((current: number) => getPreviousInquiryIndex(current, inquiryOptions));
-                                }
-
-                                if (event.key === 'Home') {
-                                  event.preventDefault();
-                                  setHighlightedIndex(0);
-                                }
-
-                                if (event.key === 'End') {
-                                  event.preventDefault();
-                                  setHighlightedIndex(inquiryOptions.length - 1);
-                                }
-
-                                if (event.key === 'Escape') {
-                                  event.preventDefault();
-                                  setIsDropdownOpen(false);
-                                }
-                              }}
-                            >
-                              <span className="h-1.5 w-1.5 rounded-full bg-neutral-500" aria-hidden="true" />
-                              {option}
-                            </button>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  ) : null}
+              <div className="mt-8 grid grid-cols-1 gap-px border border-line bg-line">
+                <div id="privacy" className="bg-ink p-5">
+                  <span className="font-mono text-2xs tracking-label text-fg-dim uppercase">
+                    Privacy Policy
+                  </span>
+                  <p className="mt-2 text-[0.8125rem] leading-relaxed text-fg-muted">
+                    I only use your inquiry details to reply and manage communication related to your message.
+                  </p>
+                </div>
+                <div id="terms" className="bg-ink p-5">
+                  <span className="font-mono text-2xs tracking-label text-fg-dim uppercase">
+                    Terms of Service
+                  </span>
+                  <p className="mt-2 text-[0.8125rem] leading-relaxed text-fg-muted">
+                    Scope, timeline, and deliverables are confirmed before any paid project work begins.
+                  </p>
                 </div>
               </div>
-              <label className="text-sm font-medium text-neutral-300 md:col-span-2">
-                Message
-                <textarea
-                  required
-                  name="message"
-                  rows={5}
-                  value={formData.message}
-                  onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setFormData({ ...formData, message: e.target.value })}
-                  placeholder="Tell me a bit about the role, project, or opportunity…"
-                  className="mt-2 w-full rounded-xl border border-neutral-800 bg-neutral-900 px-3.5 py-3 text-white placeholder-neutral-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:border-neutral-500"
-                />
-              </label>
-            </div>
-            <div className="mt-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-              <p className="text-xs text-neutral-500">
-                By sending this message, you agree to the Privacy Policy and Terms below.
-              </p>
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="inline-flex items-center justify-center rounded-full bg-white text-black px-6 py-3 text-sm font-medium hover:bg-neutral-200 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
-              >
-                {isSubmitting ? 'Sending…' : 'Send Message'}
-              </button>
-            </div>
-            {submitFeedback && (
-              <p className="mt-3 text-xs text-neutral-200" aria-live="polite">
-                {submitFeedback}
-              </p>
-            )}
-          </motion.form>
+            </motion.div>
 
-          <motion.div variants={itemVariants} className="grid gap-6 md:grid-cols-3">
-            {socials.map((social, index) => (
-              <a
-                key={index}
-                href={social.url}
-                target={social.url.startsWith('mailto') ? undefined : '_blank'}
-                rel={social.url.startsWith('mailto') ? undefined : 'noreferrer'}
-                className="group flex items-center justify-between p-6 border border-neutral-900 bg-surface/30 hover:bg-neutral-900 transition-colors rounded-sm"
-              >
-                <div className="flex items-center gap-4">
-                  <social.icon className="text-neutral-400 group-hover:text-white transition-colors" size={24} aria-hidden="true" />
-                  <div>
-                    <span className="block text-white font-medium">{social.name}</span>
-                    <span className="text-xs text-neutral-500 uppercase tracking-wider">{social.label}</span>
+            {/* Right: form */}
+            <motion.form
+              variants={itemVariants}
+              onSubmit={handleSubmit}
+              className="border border-line-mid bg-panel p-5 md:p-8 lg:col-span-8"
+            >
+              <div className="flex items-baseline justify-between gap-4 border-b border-line pb-4">
+                <span className="font-mono text-2xs tracking-label text-fg-dim uppercase">
+                  General Inquiry
+                </span>
+                <span className="font-mono text-2xs tracking-wider2 text-fg-faint uppercase">
+                  08 / Contact
+                </span>
+              </div>
+
+              <div className="mt-6 grid grid-cols-1 gap-5 md:grid-cols-2">
+                <label className={fieldLabelStyles}>
+                  Name
+                  <input
+                    required
+                    name="name"
+                    autoComplete="name"
+                    placeholder="Your name or company"
+                    value={formData.name}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, name: e.target.value })}
+                    className={fieldStyles}
+                  />
+                </label>
+                <label className={fieldLabelStyles}>
+                  Email
+                  <input
+                    required
+                    type="email"
+                    name="email"
+                    autoComplete="email"
+                    spellCheck={false}
+                    placeholder="you@company.com"
+                    value={formData.email}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, email: e.target.value })}
+                    className={fieldStyles}
+                  />
+                </label>
+
+                <div className={`${fieldLabelStyles} md:col-span-2`}>
+                  <span className="block">Inquiry Type</span>
+                  <input type="hidden" name="inquiryType" value={formData.inquiryType} />
+                  <div ref={dropdownRef} className="relative mt-2">
+                    <button
+                      type="button"
+                      aria-haspopup="listbox"
+                      aria-expanded={isDropdownOpen}
+                      aria-controls="general-inquiry-options"
+                      className="flex w-full items-center justify-between border border-line-mid bg-ink px-4 py-3 text-left font-sans text-[0.9375rem] text-fg transition-colors focus-visible:border-paper focus-visible:outline-none"
+                      onClick={() => setIsDropdownOpen((current: boolean) => !current)}
+                      onKeyDown={(event: React.KeyboardEvent<HTMLButtonElement>) => {
+                        if (event.key === 'ArrowDown') {
+                          event.preventDefault();
+                          setIsDropdownOpen(true);
+                          setHighlightedIndex((current: number) => getNextInquiryIndex(current, inquiryOptions));
+                        }
+
+                        if (event.key === 'ArrowUp') {
+                          event.preventDefault();
+                          setIsDropdownOpen(true);
+                          setHighlightedIndex((current: number) => getPreviousInquiryIndex(current, inquiryOptions));
+                        }
+
+                        if (event.key === 'Enter' || event.key === ' ') {
+                          event.preventDefault();
+                          setIsDropdownOpen((current: boolean) => !current);
+                        }
+
+                        if (event.key === 'Escape') {
+                          setIsDropdownOpen(false);
+                        }
+                      }}
+                    >
+                      <span className={formData.inquiryType ? 'text-fg' : 'text-fg-faint'}>
+                        {selectedInquiryLabel}
+                      </span>
+                      <ChevronDown
+                        size={16}
+                        aria-hidden="true"
+                        className={`text-fg-dim transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`}
+                      />
+                    </button>
+
+                    {isDropdownOpen ? (
+                      <div className="absolute left-0 right-0 z-20 mt-px border border-line-strong bg-ink">
+                        <p className="border-b border-line px-3.5 py-2 font-mono text-2xs tracking-wider2 text-fg-faint uppercase">
+                          Select Inquiry Type
+                        </p>
+                        <ul id="general-inquiry-options" role="listbox" aria-label="Inquiry Type">
+                          {inquiryOptions.map((option, index) => (
+                            <li key={option} className="border-b border-line last:border-b-0">
+                              <button
+                                ref={(element: HTMLButtonElement | null) => {
+                                  optionRefs.current[index] = element;
+                                }}
+                                type="button"
+                                role="option"
+                                aria-selected={formData.inquiryType === option}
+                                className={`flex w-full items-center gap-3 px-3.5 py-3 text-left font-mono text-xs tracking-wider2 uppercase transition-colors focus-visible:outline-none ${
+                                  highlightedIndex === index || formData.inquiryType === option
+                                    ? 'bg-paper text-ink'
+                                    : 'text-fg-dim hover:bg-panel-2 hover:text-fg'
+                                }`}
+                                onClick={() => selectInquiryType(option, index)}
+                                onMouseEnter={() => setHighlightedIndex(index)}
+                                onKeyDown={(event: React.KeyboardEvent<HTMLButtonElement>) => {
+                                  if (event.key === 'ArrowDown') {
+                                    event.preventDefault();
+                                    setHighlightedIndex((current: number) => getNextInquiryIndex(current, inquiryOptions));
+                                  }
+
+                                  if (event.key === 'ArrowUp') {
+                                    event.preventDefault();
+                                    setHighlightedIndex((current: number) => getPreviousInquiryIndex(current, inquiryOptions));
+                                  }
+
+                                  if (event.key === 'Home') {
+                                    event.preventDefault();
+                                    setHighlightedIndex(0);
+                                  }
+
+                                  if (event.key === 'End') {
+                                    event.preventDefault();
+                                    setHighlightedIndex(inquiryOptions.length - 1);
+                                  }
+
+                                  if (event.key === 'Escape') {
+                                    event.preventDefault();
+                                    setIsDropdownOpen(false);
+                                  }
+                                }}
+                              >
+                                <span
+                                  className={`h-1.5 w-1.5 shrink-0 ${
+                                    highlightedIndex === index || formData.inquiryType === option
+                                      ? 'bg-ink'
+                                      : 'bg-line-strong'
+                                  }`}
+                                  aria-hidden="true"
+                                />
+                                {option}
+                              </button>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    ) : null}
                   </div>
                 </div>
-                <ArrowUpRight className="text-neutral-700 group-hover:text-white transition-colors" size={20} aria-hidden="true" />
-              </a>
-            ))}
-          </motion.div>
 
-          <motion.div variants={itemVariants} className="mt-10 grid grid-cols-1 md:grid-cols-2 gap-4 text-xs text-neutral-500">
-            <div id="privacy" className="rounded-xl border border-neutral-800 p-4">
-              <p className="text-white text-sm mb-2">Privacy Policy</p>
-              <p>I only use your inquiry details to reply and manage communication related to your message.</p>
-            </div>
-            <div id="terms" className="rounded-xl border border-neutral-800 p-4">
-              <p className="text-white text-sm mb-2">Terms of Service</p>
-              <p>Scope, timeline, and deliverables are confirmed before any paid project work begins.</p>
-            </div>
-          </motion.div>
+                <label className={`${fieldLabelStyles} md:col-span-2`}>
+                  Message
+                  <textarea
+                    required
+                    name="message"
+                    rows={5}
+                    value={formData.message}
+                    onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setFormData({ ...formData, message: e.target.value })}
+                    placeholder="Tell me a bit about the role, project, or opportunity…"
+                    className={`${fieldStyles} resize-y`}
+                  />
+                </label>
+              </div>
+
+              <div className="mt-7 flex flex-col gap-4 border-t border-line pt-6 sm:flex-row sm:items-center sm:justify-between">
+                <p className="max-w-[46ch] font-mono text-2xs leading-relaxed text-fg-faint uppercase">
+                  By sending this message you agree to the Privacy Policy and Terms.
+                </p>
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="inline-flex shrink-0 items-center justify-center gap-2 border border-paper bg-paper px-5 py-3 font-mono text-[11px] tracking-wider2 text-ink uppercase transition-colors duration-200 hover:bg-ink hover:text-paper disabled:opacity-60"
+                >
+                  <span>{isSubmitting ? 'Sending…' : 'Send Message'}</span>
+                  <ArrowUpRight size={13} />
+                </button>
+              </div>
+
+              {submitFeedback ? (
+                <p className="mt-4 font-mono text-2xs tracking-wider2 text-fg-muted uppercase" aria-live="polite">
+                  {submitFeedback}
+                </p>
+              ) : null}
+            </motion.form>
+          </div>
         </motion.div>
       </Container>
     </section>

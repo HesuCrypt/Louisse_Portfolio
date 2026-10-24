@@ -1,10 +1,9 @@
 import React from 'react';
 import { Container } from './Container';
 
-export const Divider: React.FC = () => {
-  return (
-    <Container>
-      <hr className="border-t border-neutral-900/80 my-2" />
-    </Container>
-  );
-};
+/** Full-bleed hairline used to separate stacked page blocks. */
+export const Divider: React.FC = () => (
+  <Container>
+    <hr className="my-2 border-t border-line" />
+  </Container>
+);

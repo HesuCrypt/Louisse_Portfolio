@@ -1,55 +1,229 @@
-/* Core variables */
+/* ==========================================================================
+   Louisse Dominique Bertillo — Monochrome "Engineered Grid" design system
+   Strictly black & white. No hues, no gradients, no glows, no decorative blur.
+   Hierarchy comes from scale, weight, hairlines and inversion only.
+   ========================================================================== */
+
 :root {
-  --bg-default: #050505;
-  --bg-surface: #0a0a0a;
-  --text-primary: #e5e5e5;
+  /* Core surfaces */
+  --ink: #000000;
+  --paper: #ffffff;
+  --panel: #0a0a0a;
+  --panel-2: #101010;
+
+  /* Hairlines */
+  --line: #1c1c1c;
+  --line-2: #2c2c2c;
+  --line-3: #3d3d3d;
+
+  /* Foreground ramp */
+  --fg: #ffffff;
+  --fg-muted: #b8b8b8;
+  --fg-dim: #7a7a7a;
+  --fg-faint: #555555;
+
+  /* Layout metrics */
+  --rail-w: 0px;
+  --topbar-h: 56px;
+  --strip-h: 34px;
 }
 
-/* Glass theme overrides */
-[data-theme="glass"] {
-  --bg-default: rgba(255, 255, 255, 0.05);
-  --bg-surface: rgba(255, 255, 255, 0.1);
-  --backdrop-blur: blur(12px);
+/* Desktop gains the pinned section index rail and a taller bar.
+   Breakpoint matches Tailwind's xl (1280px) so CSS and utilities never disagree. */
+@media (min-width: 1280px) {
+  :root {
+    --rail-w: 84px;
+    --topbar-h: 64px;
+    --strip-h: 0px;
+  }
 }
 
-body {
-  background-color: var(--bg-default);
-  color: var(--text-primary);
-  font-family: 'Inter', sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+* {
+  box-sizing: border-box;
 }
 
-[data-theme="glass"] body {
-  backdrop-filter: var(--backdrop-blur);
-}
-
-/* Surface elements (cards, sections) */
-.surface {
-  background-color: var(--bg-surface);
-  border-radius: 0.5rem;
-  padding: 1rem;
-}
-
-/* Smooth scrolling */
 html {
+  -webkit-text-size-adjust: 100%;
   scroll-behavior: smooth;
 }
 
-/* Custom sleek dark scrollbar */
+body {
+  margin: 0;
+  background-color: var(--ink);
+  color: var(--fg);
+  font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  font-synthesis-weight: none;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+::selection {
+  background-color: var(--paper);
+  color: var(--ink);
+}
+
+/* Square, monochrome scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 10px;
+  height: 10px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #050505;
+  background: var(--ink);
+  border-left: 1px solid var(--line);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #262626;
-  border-radius: 4px;
+  background: var(--line-3);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #404040;
+  background: var(--fg-dim);
+}
+
+:focus-visible {
+  outline: 1px solid var(--paper);
+  outline-offset: 2px;
+}
+
+/* --------------------------------------------------------------------------
+   Utilities
+   -------------------------------------------------------------------------- */
+
+/* Engineered measurement grid */
+.bg-grid {
+  background-image:
+    linear-gradient(to right, var(--line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--line) 1px, transparent 1px);
+  background-size: 72px 72px;
+}
+
+.bg-grid-sm {
+  background-image:
+    linear-gradient(to right, var(--line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--line) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* Fade the grid out toward the bottom edge so it reads as a fading blueprint */
+.mask-fade-b {
+  -webkit-mask-image: linear-gradient(to bottom, #000 40%, transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 40%, transparent 100%);
+}
+
+/* Fade the tickers into the page edges instead of cutting them off hard */
+.mask-fade-x {
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 6%, #000 94%, transparent);
+  mask-image: linear-gradient(to right, transparent, #000 6%, #000 94%, transparent);
+}
+
+/* Dotted leader line — the signature "spec sheet" row separator */
+.row-leader {
+  flex: 1 1 auto;
+  min-width: 12px;
+  border-bottom: 1px dotted var(--line-3);
+  transform: translateY(-0.28em);
+}
+
+.rail-offset {
+  padding-left: var(--rail-w);
+}
+
+.tnum {
+  font-variant-numeric: tabular-nums;
+}
+
+.no-scrollbar {
+  scrollbar-width: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* --------------------------------------------------------------------------
+   Motion primitives
+   -------------------------------------------------------------------------- */
+
+/* Seamless ticker. The track holds its list twice and travels exactly -50%,
+   so the loop seam lands outside the viewport and never reads as a jump. */
+@keyframes marquee-x {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation-name: marquee-x;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  will-change: transform;
+}
+
+.marquee:hover .marquee-track {
+  animation-play-state: paused;
+}
+
+/* Barely-perceptible drift on the hero measurement grid. It exists only so the
+   fold never reads as a still image. */
+@keyframes grid-drift {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: 72px 0;
+  }
+}
+
+.grid-drift {
+  animation: grid-drift 14s linear infinite;
+}
+
+/* Hairline that wipes in along the bottom edge of a hovered cell */
+.sweep::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 1px;
+  background: var(--paper);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.sweep:hover::after,
+.sweep:focus-visible::after {
+  transform: scaleX(1);
+}
+
+/* --------------------------------------------------------------------------
+   Motion preferences
+   -------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  /* A 0.01ms marquee would snap to its end position and stay there, so the
+     continuous transforms are switched off outright instead. */
+  .marquee-track,
+  .grid-drift {
+    animation: none !important;
+  }
 }

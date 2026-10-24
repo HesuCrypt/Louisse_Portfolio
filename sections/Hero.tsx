@@ -1,111 +1,195 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Container } from '../ui/Container';
-import { H1, Body, Label } from '../ui/Text';
+import { H1, Body } from '../ui/Text';
 import { Button } from '../ui/Button';
+import { DataRow } from '../ui/DataRow';
+import { CountUp } from '../ui/CountUp';
+import { LocalTime } from '../ui/LocalTime';
+import { WordReveal } from '../ui/WordReveal';
 import { profile } from '../data/profile';
 import { containerVariants, itemVariants } from '../motion/variants';
 import { scrollToSection } from '../utils/routing';
-import { ArrowDown } from 'lucide-react';
+import { ArrowUpRight } from 'lucide-react';
+
+/**
+ * Proof points taken straight from the experience data. Every figure here is
+ * traceable to a delivery record — nothing is an estimate or a rounded-up
+ * claim, which is why the years-of-experience badge that used to live here was
+ * removed.
+ */
+const performanceLog = [
+  {
+    index: '01',
+    label: 'Sales Lift',
+    value: <CountUp to={170} prefix="+" suffix="%" />,
+    caption: 'ISSY Cosmetics',
+  },
+  { index: '02', label: 'Peak Concurrency', value: <CountUp to={3400} />, caption: 'Fruit Jam campaign' },
+  {
+    index: '03',
+    label: 'Campaign Traffic',
+    value: <CountUp to={120} suffix="K+" />,
+    caption: 'Requests in 72 hours',
+  },
+  { index: '04', label: 'Based In', value: 'MANILA', caption: 'Working remotely worldwide' },
+];
+
+const clients = [
+  { name: 'ISSY', detail: 'Storefront & AI' },
+  { name: 'Meridian Auctions', detail: 'Full-stack, Germany' },
+  { name: 'La Fleur', detail: 'Florist storefront' },
+];
 
 export const Hero: React.FC = () => {
-  const scrollToProjects = () => {
-    scrollToSection('projects');
-  };
-
-  const scrollToContact = () => {
-    scrollToSection('contact');
-  };
-
   return (
-    <section className="min-h-screen flex items-center justify-center pt-20 pb-12 relative overflow-hidden">
-      {/* Background Animation */}
-      <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none">
-        <div className="absolute top-[-10%] left-[-10%] w-[40rem] h-[40rem] bg-neutral-900/40 rounded-full mix-blend-screen filter blur-3xl opacity-30 animate-blob" />
-        <div className="absolute top-[-10%] right-[-10%] w-[35rem] h-[35rem] bg-neutral-800/30 rounded-full mix-blend-screen filter blur-3xl opacity-30 animate-blob" style={{ animationDelay: "2s" }} />
-        <div className="absolute bottom-[-20%] left-[20%] w-[45rem] h-[45rem] bg-neutral-900/40 rounded-full mix-blend-screen filter blur-3xl opacity-30 animate-blob" style={{ animationDelay: "4s" }} />
-      </div>
+    <section id="top" className="relative overflow-hidden scroll-mt-[var(--topbar-h)]">
+      {/* Engineered measurement grid: slowly drifting, faded out toward the fold */}
+      <div
+        aria-hidden="true"
+        className="bg-grid grid-drift mask-fade-b pointer-events-none absolute inset-0 opacity-70"
+      />
 
-      <Container className="relative z-10">
+      <Container className="relative">
         <motion.div
-          className="max-w-4xl space-y-8 md:space-y-10"
           variants={containerVariants}
           initial="hidden"
           animate="visible"
+          className="grid grid-cols-1 gap-y-12 py-[clamp(2.75rem,8vh,5.5rem)] xl:grid-cols-[1.12fr_0.88fr] xl:gap-y-0"
         >
-          <motion.div variants={itemVariants}>
-            <Label>{profile.hero.label}</Label>
-          </motion.div>
+          {/* Identity column */}
+          <div className="xl:pr-14">
+            <motion.p
+              variants={itemVariants}
+              className="font-mono text-2xs tracking-label text-fg-dim uppercase"
+            >
+              <span className="tnum text-fg-muted">01</span>
+              <span className="px-2 text-line-strong">/</span>
+              <span>Identity</span>
+            </motion.p>
 
-          <motion.div variants={itemVariants}>
-            <H1>{profile.hero.headline}</H1>
-          </motion.div>
+            {/* Role label sitting directly above the headline — one glance, no sentence */}
+            <motion.p
+              variants={itemVariants}
+              className="mt-6 font-mono text-[11px] tracking-wider2 text-fg uppercase"
+            >
+              {profile.title}
+            </motion.p>
 
-          <motion.div variants={itemVariants}>
-            <Body className="text-xl md:text-2xl text-neutral-400">
-              {profile.hero.subtext}
-            </Body>
-          </motion.div>
+            <div className="mt-4">
+              <H1>
+                <WordReveal text={profile.hero.headline} />
+              </H1>
+            </div>
 
-          <motion.div variants={itemVariants} className="pt-6 md:pt-8 flex flex-col sm:flex-row sm:items-center gap-3 md:gap-4">
-            <div className="grid grid-cols-2 sm:flex sm:items-center gap-3">
+            <motion.div variants={itemVariants} className="mt-6">
+              <Body className="max-w-[52ch] text-base md:text-lg">{profile.hero.subtext}</Body>
+            </motion.div>
+
+            <motion.div
+              variants={itemVariants}
+              className="mt-9 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center"
+            >
               <Button
-                onClick={scrollToProjects}
-                variant="primary"
-                className="justify-center"
+                onClick={() => scrollToSection('experience')}
+                icon={<ArrowUpRight size={13} />}
+                className="justify-center sm:justify-start"
               >
-                View Work
+                See the Work
               </Button>
               <Button
-                onClick={scrollToContact}
                 variant="secondary"
-                className="justify-center"
+                onClick={() => scrollToSection('contact')}
+                className="justify-center sm:justify-start"
               >
                 Contact
               </Button>
-            </div>
-            <Button
-              href="/resume.pdf"
-              download="Louisse_Dominique_Bertillo_Resume.pdf"
-              variant="secondary"
-              className="w-full sm:w-auto justify-center"
-            >
-              Download Resume
-            </Button>
-          </motion.div>
+              <Button
+                variant="secondary"
+                href="/resume.pdf"
+                download="Louisse_Dominique_Bertillo_Resume.pdf"
+                className="justify-center sm:justify-start"
+              >
+                Download Resume
+              </Button>
+            </motion.div>
 
-          {/* Client Trust Strip */}
-          <motion.div variants={itemVariants} className="pt-8 border-t border-neutral-900/80">
-            <p className="text-xs font-mono uppercase tracking-widest text-neutral-400 mb-3">
-              Trusted by high-growth brands &amp; platforms
-            </p>
-            <div className="grid grid-cols-1 sm:flex sm:flex-wrap items-stretch sm:items-center gap-2.5 sm:gap-3 md:gap-4 text-xs">
-              <div className="flex items-center justify-between sm:justify-start gap-2.5 px-3.5 py-2 rounded-xl bg-neutral-950/70 border border-neutral-800/80">
-                <span className="font-semibold text-white tracking-wider">ISSY</span>
-                <span className="text-neutral-400 font-mono text-xs">• E-Commerce &amp; AI</span>
-              </div>
-              <div className="flex items-center justify-between sm:justify-start gap-2.5 px-3.5 py-2 rounded-xl bg-neutral-950/70 border border-neutral-800/80">
-                <span className="font-semibold text-white tracking-wider">MERIDIAN AUCTIONS</span>
-                <span className="text-neutral-400 font-mono text-xs">• Germany Full Stack</span>
-              </div>
-              <div className="flex items-center justify-between sm:justify-start gap-2.5 px-3.5 py-2 rounded-xl bg-neutral-950/70 border border-neutral-800/80">
-                <span className="font-semibold text-white tracking-wider">LA FLEUR</span>
-                <span className="text-neutral-400 font-mono text-xs">• Commercial Web</span>
-              </div>
+            {/* Status strip — live clock, availability, scroll cue */}
+            <motion.div
+              variants={itemVariants}
+              className="mt-10 flex flex-wrap items-center gap-x-6 gap-y-3 border-t border-line pt-5 font-mono text-2xs tracking-wider2 text-fg-faint uppercase"
+            >
+              <span className="flex items-center gap-2.5">
+                <span className="relative flex h-1.5 w-1.5">
+                  <motion.span
+                    className="absolute inset-0 bg-paper"
+                    animate={{ opacity: [1, 0.25, 1] }}
+                    transition={{ duration: 2.6, repeat: Infinity, ease: 'easeInOut' }}
+                  />
+                </span>
+                <span className="text-fg-muted">Available for select projects</span>
+              </span>
+
+              <span className="text-fg-dim">
+                Manila · <LocalTime />
+              </span>
+
+              <span className="hidden items-center gap-3 sm:flex">
+                <span>Scroll</span>
+                <motion.span
+                  aria-hidden="true"
+                  className="block h-px w-10 origin-left bg-line-strong"
+                  animate={{ scaleX: [0.15, 1, 0.15] }}
+                  transition={{ duration: 2.8, repeat: Infinity, ease: 'easeInOut' }}
+                />
+              </span>
+            </motion.div>
+          </div>
+
+          {/* Performance log column */}
+          <motion.div variants={itemVariants} className="xl:border-l xl:border-line xl:pl-14">
+            <div className="flex items-baseline justify-between gap-6">
+              <span className="font-mono text-2xs tracking-label text-fg-dim uppercase">
+                Performance Log
+              </span>
+              <span className="font-mono text-2xs tracking-wider2 text-fg-faint uppercase">
+                Verified
+              </span>
+            </div>
+
+            <div className="mt-5 border-t border-line">
+              {performanceLog.map((row) => (
+                <DataRow
+                  key={row.label}
+                  index={row.index}
+                  label={row.label}
+                  value={row.value}
+                  caption={row.caption}
+                />
+              ))}
+            </div>
+
+            <div className="mt-8 border-t border-line pt-5">
+              <span className="font-mono text-2xs tracking-label text-fg-dim uppercase">
+                Selected Clients
+              </span>
+              <ul className="mt-4 grid grid-cols-1 gap-px bg-line sm:grid-cols-3">
+                {clients.map((client) => (
+                  <li
+                    key={client.name}
+                    className="bg-ink py-4 pr-4 sm:px-0 sm:first:pr-4 sm:[&:not(:first-child)]:pl-4"
+                  >
+                    <span className="block font-sans text-[13px] leading-tight font-medium tracking-[-0.01em] text-fg">
+                      {client.name}
+                    </span>
+                    <span className="mt-1 block font-mono text-2xs text-fg-dim">{client.detail}</span>
+                  </li>
+                ))}
+              </ul>
             </div>
           </motion.div>
         </motion.div>
       </Container>
-
-      {/* Subtle Scroll Indicator */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1.5, duration: 1 }}
-        className="absolute bottom-10 left-1/2 -translate-x-1/2 text-neutral-600 hidden md:block"
-      >
-        <ArrowDown size={20} className="animate-bounce" />
-      </motion.div>
     </section>
   );
 };

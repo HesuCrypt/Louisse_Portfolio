@@ -1,5 +1,4 @@
 import React from 'react';
-import { motion } from 'framer-motion';
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary' | 'link';
@@ -9,54 +8,56 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   icon?: React.ReactNode;
 }
 
-export const Button: React.FC<ButtonProps> = ({ 
-  variant = 'primary', 
-  href, 
+/**
+ * Square, monospaced action. Interaction is expressed purely by inverting
+ * black and white — no scale, shadow or glow, which keeps the grid crisp.
+ */
+const baseStyles =
+  'inline-flex items-center justify-center gap-2 rounded-none font-mono text-[11px] uppercase tracking-wider2 transition-colors duration-200 whitespace-nowrap shrink-0';
+
+const variantStyles = {
+  primary: 'border border-paper bg-paper px-5 py-3 text-ink hover:bg-ink hover:text-paper',
+  secondary:
+    'border border-line-mid bg-transparent px-5 py-3 text-fg hover:border-paper hover:bg-paper hover:text-ink',
+  link: 'border-0 px-0 py-0 text-fg-dim hover:text-fg underline-offset-4 hover:underline',
+};
+
+export const Button: React.FC<ButtonProps> = ({
+  variant = 'primary',
+  href,
   download,
-  children, 
-  className = "",
+  children,
+  className = '',
   icon,
-  ...props 
+  ...props
 }) => {
-  const baseStyles = "inline-flex items-center gap-2 px-6 py-3 text-sm font-medium tracking-wide transition-all duration-300 rounded-full focus:outline-none focus:ring-2 focus:ring-neutral-700 focus:ring-offset-2 focus:ring-offset-black whitespace-nowrap shrink-0";
-  
-  const variants = {
-    primary: "bg-white text-black hover:bg-neutral-200 border border-transparent",
-    secondary: "bg-transparent text-white border border-neutral-800 hover:border-neutral-600 hover:bg-neutral-900",
-    link: "px-0 py-0 text-neutral-400 hover:text-white underline-offset-4 hover:underline rounded-none"
-  };
+  const classes = `${baseStyles} ${variantStyles[variant]} ${className}`;
 
   const content = (
     <>
-      {children}
-      {icon && <span className="text-current opacity-70">{icon}</span>}
+      <span>{children}</span>
+      {icon ? <span className="opacity-80">{icon}</span> : null}
     </>
   );
 
   if (href) {
+    const isExternal = href.startsWith('http');
     return (
-      <motion.a 
+      <a
         href={href}
         download={download}
-        className={`${baseStyles} ${variants[variant]} ${className}`}
-        whileHover={{ scale: variant === 'link' ? 1 : 1.02 }}
-        whileTap={{ scale: 0.98 }}
-        target={href.startsWith('http') ? '_blank' : undefined}
-        rel={href.startsWith('http') ? 'noopener noreferrer' : undefined}
+        className={classes}
+        target={isExternal ? '_blank' : undefined}
+        rel={isExternal ? 'noopener noreferrer' : undefined}
       >
         {content}
-      </motion.a>
+      </a>
     );
   }
 
   return (
-    <motion.button 
-      className={`${baseStyles} ${variants[variant]} ${className}`}
-      whileHover={{ scale: 1.02 }}
-      whileTap={{ scale: 0.98 }}
-      {...props}
-    >
+    <button type="button" className={classes} {...props}>
       {content}
-    </motion.button>
+    </button>
   );
 };

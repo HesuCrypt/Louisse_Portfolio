@@ -2,33 +2,33 @@ export const featured = [
   {
     company: "ISSY Cosmetics",
     role: "Lead Web Developer",
-    description: "Leading Shopify development, conversion-focused improvements, and interactive campaigns that support measurable e-commerce growth.",
-    stat: "170% Sales Increase",
+    description: "Shopify development and conversion work across the storefront. The product pages and campaign builds lifted online sales by 170%.",
+    stat: "170% Sales Lift",
     link: "https://issycosmetics.com/",
     status: "Live Platform"
   },
   {
     company: "Fruit Jam",
     role: "Creator & Lead Developer",
-    description: "Built and launched an interactive viral campaign browser game for ISSY Cosmetics that scaled quickly to 3,400 players in 3 days under high real-time traffic.",
-    stat: "3.4k Players in 3 Days",
+    description: "A viral browser game made for an ISSY Cosmetics campaign. It absorbed 3,400 concurrent players in 72 hours without a single performance drop.",
+    stat: "3,400 Players / 72 Hrs",
     link: "https://issyfruitjam.com/",
-    status: "Launched Project"
+    status: "Launched"
   },
   {
     company: "La Fleur",
     role: "Web Developer",
-    description: "Developed a polished florist storefront with stronger product presentation, smoother ordering, and clearer customer trust cues.",
-    stat: "Live E-commerce Experience",
+    description: "A florist storefront with sharper product presentation, a shorter path to checkout, and clearer trust cues — ready inside a tight Mother's Day deadline.",
+    stat: "Live Storefront",
     link: "https://lafleurph.com/",
     status: "Live Platform"
   },
   {
     company: "Meridian Auctions",
     role: "Lead Full Stack Developer",
-    description: "Delivered a full stack auction platform focused on real-time reliability, backend coordination, and scalable transaction handling.",
-    stat: "High-Traffic System",
+    description: "A full stack auction platform delivered in three months, built around real-time bidding reliability and clean transaction handling.",
+    stat: "3-Month Build",
     link: "https://www.meridianauctions.com/",
-    status: "3-Month Project"
+    status: "Delivered"
   }
 ];

@@ -20,6 +20,9 @@ const legalTabs = [
   { name: 'Cookie Policy', route: '/cookies' as const, icon: Cookie },
 ];
 
+const chipStyles =
+  'inline-flex cursor-pointer items-center gap-2 border border-line-mid px-3 py-2 font-mono text-2xs tracking-wider2 text-fg-dim uppercase transition-colors hover:border-line-strong hover:text-fg';
+
 export const LegalLayout: React.FC<LegalLayoutProps> = ({
   currentRoute,
   title,
@@ -34,89 +37,88 @@ export const LegalLayout: React.FC<LegalLayoutProps> = ({
   };
 
   return (
-    <div className="pt-28 pb-24 min-h-screen">
+    <div className="py-16 md:py-24">
       <Container>
-        {/* Navigation & Header Controls */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+        {/* Utility row */}
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <button
             type="button"
             onClick={() => pushRoute('/')}
-            className="inline-flex items-center gap-2 text-sm text-neutral-400 hover:text-white transition-colors group cursor-pointer w-fit"
+            className="group inline-flex w-fit cursor-pointer items-center gap-2 font-mono text-2xs tracking-wider2 text-fg-dim uppercase transition-colors hover:text-fg"
           >
-            <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
+            <ArrowLeft size={14} aria-hidden="true" />
             <span>Back to Portfolio</span>
           </button>
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2">
             <button
               type="button"
               onClick={openCookiePreferences}
-              className="inline-flex items-center gap-2 text-xs px-3 py-1.5 rounded-full border border-neutral-800 bg-neutral-900/60 text-neutral-300 hover:text-white hover:border-neutral-700 transition-all cursor-pointer"
+              className={chipStyles}
               title="Open Cookie Consent Manager"
             >
-              <Settings className="w-3.5 h-3.5 text-neutral-400" />
+              <Settings size={13} aria-hidden="true" />
               <span>Cookie Preferences</span>
             </button>
 
             <button
               type="button"
               onClick={handlePrint}
-              className="inline-flex items-center gap-2 text-xs px-3 py-1.5 rounded-full border border-neutral-800 bg-neutral-900/60 text-neutral-300 hover:text-white hover:border-neutral-700 transition-all cursor-pointer print:hidden"
+              className={`${chipStyles} print:hidden`}
               title="Print or Save as PDF"
             >
-              <Printer className="w-3.5 h-3.5 text-neutral-400" />
+              <Printer size={13} aria-hidden="true" />
               <span>Print</span>
             </button>
           </div>
         </div>
 
-        {/* Hero Header */}
+        {/* Hero header */}
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}
-          className="mb-8"
+          className="mt-10 border-t border-line pt-6 md:mt-14 md:pt-8"
         >
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-neutral-900 border border-neutral-800 text-xs text-neutral-400 mb-4 font-mono">
+          <p className="font-mono text-2xs tracking-label text-fg-dim uppercase">
             <span>Legal Compliance</span>
-            <span className="text-neutral-600">•</span>
-            <span>Effective: {lastUpdated}</span>
-          </div>
-          <H1 className="mb-4">{title}</H1>
-          <Body className="text-neutral-400 text-base md:text-lg max-w-3xl">
-            {subtitle}
-          </Body>
+            <span className="px-2 text-line-strong">/</span>
+            <span className="tnum text-fg-muted">Effective {lastUpdated}</span>
+          </p>
+          <H1 className="mt-5">{title}</H1>
+          <Body className="mt-5 max-w-[62ch]">{subtitle}</Body>
         </motion.div>
 
-        {/* Tab Navigation */}
-        <div className="flex flex-wrap gap-2 border-b border-neutral-800/80 pb-4 mb-10 print:hidden">
+        {/* Tab navigation */}
+        <div className="mt-10 flex flex-wrap gap-2 border-b border-line pb-4 print:hidden">
           {legalTabs.map((tab) => {
             const Icon = tab.icon;
             const isActive = currentRoute === tab.route;
+
             return (
               <button
                 key={tab.route}
                 type="button"
                 onClick={() => pushRoute(tab.route)}
-                className={`inline-flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all cursor-pointer ${
+                className={`inline-flex cursor-pointer items-center gap-2 border px-4 py-2 font-mono text-2xs tracking-wider2 uppercase transition-colors ${
                   isActive
-                    ? 'bg-neutral-800 text-white shadow-sm border border-neutral-700'
-                    : 'bg-neutral-900/40 text-neutral-400 hover:text-neutral-200 hover:bg-neutral-900 border border-transparent'
+                    ? 'border-paper bg-paper text-ink'
+                    : 'border-line-mid text-fg-dim hover:border-line-strong hover:text-fg'
                 }`}
               >
-                <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-neutral-500'}`} />
+                <Icon size={13} aria-hidden="true" />
                 <span>{tab.name}</span>
               </button>
             );
           })}
         </div>
 
-        {/* Content Article */}
+        {/* Content */}
         <motion.article
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.1 }}
-          className="legal-content prose prose-invert max-w-4xl text-neutral-300 leading-relaxed text-sm md:text-base selection:bg-white/20"
+          className="legal-content mt-12 max-w-[80ch]"
         >
           {children}
         </motion.article>

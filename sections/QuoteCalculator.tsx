@@ -7,6 +7,9 @@ import { openAIChat } from '../ui/AIChatWidget';
 import { scrollToSection, pushRoute } from '../utils/routing';
 import { Calculator, Check, Plus, Minus, ArrowUpRight, Bot, ShieldCheck } from 'lucide-react';
 
+/** Mono micro-label, shared across every step heading in the builder. */
+const stepLabel = 'font-mono text-2xs tracking-label text-fg-dim uppercase';
+
 export const QuoteCalculator: React.FC = () => {
   const { formatPhpPrice, formatEstimatedPrice, showEstimate } = useLocalizedCurrency();
   const [selectedTierId, setSelectedTierId] = useState<string>('business-website');
@@ -46,7 +49,7 @@ export const QuoteCalculator: React.FC = () => {
     return (
       <span className="font-mono">
         {php}
-        {est && <span className="text-neutral-400 text-xs ml-1 font-normal">(~{est})</span>}
+        {est && <span className="ml-1 font-mono text-2xs font-normal text-fg-dim">(~{est})</span>}
       </span>
     );
   };
@@ -98,31 +101,36 @@ Can you walk me through the next steps and how Louisse would kick off this proje
   };
 
   return (
-    <section id="calculator" className="py-20 md:py-28 scroll-mt-20 border-t border-neutral-900">
+    <section id="calculator" className="scroll-mt-[var(--topbar-h)] border-t border-line py-16 md:py-24">
       <Container>
-        <div className="max-w-5xl mx-auto space-y-12">
+        <div className="mx-auto max-w-5xl space-y-12">
           {/* Section Header */}
-          <div className="text-center space-y-4">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-mono text-emerald-400 bg-emerald-950/40 border border-emerald-800/60">
-              <Calculator size={13} />
-              <span>Real-Time Scope Estimator</span>
-            </div>
-            <H2 className="text-3xl md:text-5xl font-light">Custom Quote &amp; Scope Builder</H2>
-            <Body className="text-neutral-400 max-w-2xl mx-auto text-sm md:text-base">
-              Configure your requirements, select specific enhancements, and view a transparent, real-time estimate for your project.
+          <div>
+            <p className="font-mono text-2xs tracking-label text-fg-dim uppercase">
+              <span className="flex items-center gap-2">
+                <Calculator size={13} aria-hidden="true" />
+                <span>Real-Time Scope Estimator</span>
+              </span>
+            </p>
+            <H2 className="mt-4">Custom Quote &amp; Scope Builder</H2>
+            <Body className="mt-4 text-[0.9375rem]">
+              Configure your requirements, select specific enhancements, and view a transparent, real-time estimate for
+              your project.
             </Body>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-12">
             {/* Left Column: Scope Selectors */}
-            <div className="lg:col-span-7 space-y-8 p-4 sm:p-6 md:p-8 rounded-2xl bg-neutral-950/60 border border-neutral-800">
+            <div className="space-y-8 border border-line-mid bg-panel p-4 sm:p-6 md:p-8 lg:col-span-7">
               {/* Step 1: Base Tier Selection */}
               <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-mono uppercase tracking-wider text-neutral-400">1. Select Core Tier</span>
-                  <span className="text-xs text-neutral-500 font-mono truncate max-w-[200px]">{activePackage.scopeLine}</span>
+                <div className="flex flex-wrap items-baseline justify-between gap-3">
+                  <span className={stepLabel}>1. Select Core Tier</span>
+                  <span className="max-w-[240px] truncate font-mono text-2xs text-fg-faint">
+                    {activePackage.scopeLine}
+                  </span>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
                   {servicePackages.map((pkg) => {
                     const isSelected = selectedTierId === pkg.id;
                     return (
@@ -132,20 +140,22 @@ Can you walk me through the next steps and how Louisse would kick off this proje
                         onClick={() => {
                           setSelectedTierId(pkg.id);
                         }}
-                        className={`p-4 rounded-xl border text-left transition-all cursor-pointer relative ${
+                        className={`relative cursor-pointer border p-4 text-left transition-colors duration-200 ${
                           isSelected
-                            ? 'border-white bg-neutral-900/90 shadow-md text-white'
-                            : 'border-neutral-800/80 bg-neutral-900/20 text-neutral-400 hover:border-neutral-700 hover:text-neutral-200'
+                            ? 'border-paper bg-panel-2'
+                            : 'border-line-mid bg-ink hover:border-line-strong hover:bg-panel'
                         }`}
                       >
                         {pkg.popular && (
-                          <span className="absolute top-2.5 right-2.5 text-xs font-mono uppercase px-2 py-0.5 rounded bg-white text-black font-semibold">
+                          <span className="absolute top-2.5 right-2.5 border border-paper bg-paper px-2 py-0.5 font-mono text-2xs tracking-wider2 text-ink uppercase">
                             Popular
                           </span>
                         )}
-                        <div className="font-medium text-sm text-white mb-1 pr-14">{pkg.title}</div>
-                        <div className="text-xs text-neutral-400 mb-2 truncate">{pkg.scopeLine}</div>
-                        <div className="text-sm text-emerald-400 font-semibold">
+                        <div className="pr-14 font-sans text-sm font-medium tracking-[-0.01em] text-fg">
+                          {pkg.title}
+                        </div>
+                        <div className="mt-1 truncate font-mono text-2xs text-fg-dim">{pkg.scopeLine}</div>
+                        <div className="tnum mt-2 font-mono text-sm font-medium text-fg">
                           {renderPrice(pkg.basePricePhp)}
                         </div>
                       </button>
@@ -155,25 +165,27 @@ Can you walk me through the next steps and how Louisse would kick off this proje
               </div>
 
               {/* Step 2: Extra Custom Pages Counter */}
-              <div className="pt-6 border-t border-neutral-900 space-y-3">
-                <div className="flex items-center justify-between">
+              <div className="space-y-3 border-t border-line pt-6">
+                <div className="flex flex-wrap items-center justify-between gap-3">
                   <div>
-                    <span className="text-xs font-mono uppercase tracking-wider text-neutral-400 block">2. Additional Pages</span>
-                    <span className="text-xs text-neutral-400">+{formatPhpPrice(5000)} per extra custom page</span>
+                    <span className={`${stepLabel} block`}>2. Additional Pages</span>
+                    <span className="mt-1 block font-mono text-2xs text-fg-dim">
+                      +{formatPhpPrice(5000)} per extra custom page
+                    </span>
                   </div>
-                  <div className="flex items-center gap-2 bg-neutral-900 border border-neutral-800 rounded-lg p-1">
+                  <div className="flex items-center border border-line-mid">
                     <button
                       type="button"
                       disabled={extraPages === 0}
                       onClick={() => {
                         setExtraPages((p) => Math.max(0, p - 1));
                       }}
-                      className="p-2 rounded-md hover:bg-neutral-800 text-neutral-200 disabled:opacity-30 disabled:hover:bg-transparent cursor-pointer min-w-[36px] min-h-[36px] flex items-center justify-center transition-colors"
+                      className="grid h-9 w-9 cursor-pointer place-items-center text-fg-muted transition-colors hover:bg-paper hover:text-ink disabled:cursor-not-allowed disabled:text-fg-faint disabled:hover:bg-transparent disabled:hover:text-fg-faint"
                       aria-label="Decrease extra pages"
                     >
                       <Minus size={14} />
                     </button>
-                    <span className="font-mono text-sm font-semibold text-white px-2 min-w-[28px] text-center">
+                    <span className="tnum min-w-[2.75rem] border-x border-line-mid py-2 text-center font-mono text-sm text-fg">
                       {extraPages}
                     </span>
                     <button
@@ -182,7 +194,7 @@ Can you walk me through the next steps and how Louisse would kick off this proje
                       onClick={() => {
                         setExtraPages((p) => Math.min(10, p + 1));
                       }}
-                      className="p-2 rounded-md hover:bg-neutral-800 text-neutral-200 disabled:opacity-30 disabled:hover:bg-transparent cursor-pointer min-w-[36px] min-h-[36px] flex items-center justify-center transition-colors"
+                      className="grid h-9 w-9 cursor-pointer place-items-center text-fg-muted transition-colors hover:bg-paper hover:text-ink disabled:cursor-not-allowed disabled:text-fg-faint disabled:hover:bg-transparent disabled:hover:text-fg-faint"
                       aria-label="Increase extra pages"
                     >
                       <Plus size={14} />
@@ -192,10 +204,8 @@ Can you walk me through the next steps and how Louisse would kick off this proje
               </div>
 
               {/* Step 3: Add-On Toggles */}
-              <div className="pt-6 border-t border-neutral-900 space-y-3">
-                <span className="text-xs font-mono uppercase tracking-wider text-neutral-400 block">
-                  3. Select High-Impact Add-Ons
-                </span>
+              <div className="space-y-3 border-t border-line pt-6">
+                <span className={`${stepLabel} block`}>3. Select High-Impact Add-Ons</span>
                 <div className="space-y-2">
                   {[
                     {
@@ -229,26 +239,27 @@ Can you walk me through the next steps and how Louisse would kick off this proje
                       <div
                         key={addon.name}
                         onClick={() => handleToggleAddOn(addon.name)}
-                        className={`p-3 rounded-xl border flex items-start justify-between gap-3 cursor-pointer transition-all ${
+                        className={`flex cursor-pointer items-start justify-between gap-3 border p-3 transition-colors duration-200 ${
                           isChecked
-                            ? 'border-emerald-500/60 bg-emerald-950/20 text-white'
-                            : 'border-neutral-900 bg-neutral-900/30 text-neutral-400 hover:border-neutral-800 hover:text-neutral-300'
+                            ? 'border-paper bg-panel-2'
+                            : 'border-line bg-ink hover:border-line-strong hover:bg-panel'
                         }`}
                       >
                         <div className="space-y-0.5">
-                          <div className="flex items-center gap-2">
-                            <span className="text-sm font-medium text-white">{addon.name}</span>
-                            <span className="text-xs text-emerald-400">+{renderPrice(addon.price)}</span>
+                          <div className="flex flex-wrap items-center gap-2">
+                            <span className="text-sm font-medium text-fg">{addon.name}</span>
+                            <span className="tnum font-mono text-2xs text-fg-dim">+{renderPrice(addon.price)}</span>
                           </div>
-                          <p className="text-xs text-neutral-500 leading-relaxed">{addon.desc}</p>
+                          <p className="font-mono text-2xs leading-relaxed text-fg-faint">{addon.desc}</p>
                         </div>
-                        <div
-                          className={`w-5 h-5 rounded flex items-center justify-center flex-shrink-0 mt-0.5 border transition-colors ${
-                            isChecked ? 'bg-emerald-500 border-emerald-500 text-black' : 'border-neutral-700 bg-neutral-950'
+                        <span
+                          className={`mt-0.5 grid h-5 w-5 shrink-0 place-items-center border transition-colors ${
+                            isChecked ? 'border-paper bg-paper text-ink' : 'border-line-strong bg-ink text-transparent'
                           }`}
+                          aria-hidden="true"
                         >
-                          {isChecked && <Check size={12} strokeWidth={3} />}
-                        </div>
+                          <Check size={12} strokeWidth={3} />
+                        </span>
                       </div>
                     );
                   })}
@@ -256,22 +267,20 @@ Can you walk me through the next steps and how Louisse would kick off this proje
               </div>
 
               {/* Mobile In-Flow Summary Card */}
-              <div className="lg:hidden p-4 rounded-xl bg-neutral-900/60 border border-neutral-800 space-y-3 mt-6">
-                <div className="flex items-center justify-between">
+              <div className="mt-6 space-y-3 border border-line-mid bg-panel-2 p-4 lg:hidden">
+                <div className="flex flex-wrap items-start justify-between gap-3">
                   <div>
-                    <span className="text-xs font-mono uppercase tracking-wider text-neutral-400 block">Configured Estimate</span>
-                    <span className="text-xs text-neutral-300">{activePackage.title}</span>
+                    <span className={`${stepLabel} block`}>Configured Estimate</span>
+                    <span className="mt-1 block text-[0.8125rem] text-fg-muted">{activePackage.title}</span>
                   </div>
-                  <div className="text-right">
-                    <div className="text-xl font-mono font-bold text-white tracking-tight">
-                      {renderPrice(totalInvestment)}
-                    </div>
+                  <div className="tnum text-right font-mono text-xl font-medium text-fg">
+                    {renderPrice(totalInvestment)}
                   </div>
                 </div>
                 <button
                   type="button"
                   onClick={handleInquire}
-                  className="w-full py-3 px-4 rounded-xl bg-white text-black font-semibold text-xs hover:bg-neutral-200 transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-md"
+                  className="flex w-full cursor-pointer items-center justify-center gap-2 border border-paper bg-paper px-4 py-3 font-mono text-[11px] tracking-wider2 text-ink uppercase transition-colors duration-200 hover:bg-ink hover:text-paper"
                 >
                   <span>Lock In Scope &amp; Book Project</span>
                   <ArrowUpRight size={15} />
@@ -280,24 +289,24 @@ Can you walk me through the next steps and how Louisse would kick off this proje
             </div>
 
             {/* Right Column: Live Calculation Summary Card */}
-            <div className="lg:col-span-5 sticky top-24 space-y-6">
-              <div className="p-4 sm:p-6 md:p-8 rounded-2xl bg-neutral-900/40 border border-neutral-800/90 backdrop-blur-xl shadow-2xl space-y-6">
-                <div className="flex items-center justify-between pb-4 border-b border-neutral-800">
-                  <span className="text-xs font-mono uppercase tracking-wider text-neutral-400">Scope Breakdown</span>
-                  <span className="text-xs text-neutral-500 font-mono">Transparent Fixed Rates</span>
+            <div className="space-y-6 lg:sticky lg:top-24 lg:col-span-5">
+              <div className="space-y-6 border border-line-mid bg-panel p-4 sm:p-6 md:p-8">
+                <div className="flex flex-wrap items-baseline justify-between gap-3 border-b border-line pb-4">
+                  <span className={stepLabel}>Scope Breakdown</span>
+                  <span className="font-mono text-2xs text-fg-faint">Transparent Fixed Rates</span>
                 </div>
 
                 {/* Line Items */}
-                <div className="space-y-3 text-sm">
-                  <div className="flex justify-between items-center text-neutral-300">
-                    <span>{activePackage.title}</span>
-                    <span className="text-white">{renderPrice(basePrice)}</span>
+                <div className="space-y-3 text-[0.8125rem]">
+                  <div className="flex items-baseline justify-between gap-3">
+                    <span className="text-fg-muted">{activePackage.title}</span>
+                    <span className="tnum shrink-0 font-mono text-fg">{renderPrice(basePrice)}</span>
                   </div>
 
                   {extraPages > 0 && (
-                    <div className="flex justify-between items-center text-neutral-400">
-                      <span>{extraPages} Extra Custom Pages</span>
-                      <span className="text-emerald-400">+{renderPrice(extraPagesCost)}</span>
+                    <div className="flex items-baseline justify-between gap-3">
+                      <span className="text-fg-dim">{extraPages} Extra Custom Pages</span>
+                      <span className="tnum shrink-0 font-mono text-fg">+{renderPrice(extraPagesCost)}</span>
                     </div>
                   )}
 
@@ -311,45 +320,49 @@ Can you walk me through the next steps and how Louisse would kick off this proje
                           ? 15000
                           : 10000;
                       return (
-                        <div key={name} className="flex justify-between items-center text-neutral-400 text-xs">
-                          <span className="truncate pr-2">• {name}</span>
-                          <span className="text-emerald-400 flex-shrink-0">+{renderPrice(cost)}</span>
+                        <div key={name} className="flex items-baseline justify-between gap-3">
+                          <span className="truncate pr-2 font-mono text-2xs text-fg-dim">{name}</span>
+                          <span className="tnum shrink-0 font-mono text-fg">+{renderPrice(cost)}</span>
                         </div>
                       );
                     })}
                 </div>
 
                 {/* Total Cost Highlight */}
-                <div className="pt-6 border-t border-neutral-800 space-y-3">
-                  <div className="flex items-baseline justify-between">
+                <div className="space-y-4 border-t border-line pt-6">
+                  <div className="flex items-baseline justify-between gap-4">
                     <div>
-                      <span className="text-xs font-mono uppercase tracking-wider text-neutral-400 block">Total Investment</span>
-                      <span className="text-[11px] text-neutral-500">{activePackage.scopeLine}</span>
+                      <span className={`${stepLabel} block`}>Total Investment</span>
+                      <span className="mt-1 block font-mono text-2xs text-fg-faint">{activePackage.scopeLine}</span>
                     </div>
-                    <div className="text-right">
-                      <div className="text-2xl md:text-3xl font-mono font-bold text-white tracking-tight">
-                        {renderPrice(totalInvestment)}
-                      </div>
+                    <div className="tnum text-right font-mono text-2xl font-medium text-fg md:text-3xl">
+                      {renderPrice(totalInvestment)}
                     </div>
                   </div>
 
                   {/* Payment Milestone Split */}
-                  <div className="grid grid-cols-2 gap-2 pt-2 text-xs">
-                    <div className="p-2.5 rounded-lg bg-neutral-950/70 border border-neutral-800/80">
-                      <span className="text-neutral-500 block text-[10px] font-mono uppercase">50% Mobilization Deposit</span>
-                      <span className="font-medium text-neutral-200">{renderPrice(deposit)}</span>
+                  <div className="grid grid-cols-2 gap-px border border-line bg-line">
+                    <div className="bg-ink p-2.5">
+                      <span className="block font-mono text-2xs tracking-wider2 text-fg-dim uppercase">
+                        50% Mobilization Deposit
+                      </span>
+                      <span className="tnum mt-1 block font-mono text-xs text-fg">{renderPrice(deposit)}</span>
                     </div>
-                    <div className="p-2.5 rounded-lg bg-neutral-950/70 border border-neutral-800/80">
-                      <span className="text-neutral-500 block text-[10px] font-mono uppercase">50% Final Delivery</span>
-                      <span className="font-medium text-neutral-200">{renderPrice(finalBalance)}</span>
+                    <div className="bg-ink p-2.5">
+                      <span className="block font-mono text-2xs tracking-wider2 text-fg-dim uppercase">
+                        50% Final Delivery
+                      </span>
+                      <span className="tnum mt-1 block font-mono text-xs text-fg">{renderPrice(finalBalance)}</span>
                     </div>
                   </div>
                 </div>
 
                 {/* Guarantees */}
-                <div className="p-3 rounded-xl bg-neutral-950/50 border border-neutral-800/60 flex items-center gap-2.5 text-xs text-neutral-400">
-                  <ShieldCheck size={16} className="text-emerald-400 flex-shrink-0" />
-                  <span>Includes 30-Day Post-Launch Bug Warranty &amp; Full Code Ownership.</span>
+                <div className="flex items-start gap-2.5 border border-line-mid bg-ink p-3">
+                  <ShieldCheck size={16} className="mt-0.5 shrink-0 text-fg" aria-hidden="true" />
+                  <span className="text-[0.8125rem] leading-relaxed text-fg-muted">
+                    Includes 30-Day Post-Launch Bug Warranty &amp; Full Code Ownership.
+                  </span>
                 </div>
 
                 {/* Action Buttons */}
@@ -357,7 +370,7 @@ Can you walk me through the next steps and how Louisse would kick off this proje
                   <button
                     type="button"
                     onClick={handleInquire}
-                    className="w-full py-3 px-4 rounded-xl bg-white text-black font-semibold text-sm hover:bg-neutral-200 transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-md"
+                    className="flex w-full cursor-pointer items-center justify-center gap-2 border border-paper bg-paper px-4 py-3 font-mono text-[11px] tracking-wider2 text-ink uppercase transition-colors duration-200 hover:bg-ink hover:text-paper"
                   >
                     <span>Lock In Scope &amp; Book Project</span>
                     <ArrowUpRight size={16} />
@@ -366,9 +379,9 @@ Can you walk me through the next steps and how Louisse would kick off this proje
                   <button
                     type="button"
                     onClick={handleAskAI}
-                    className="w-full py-2.5 px-4 rounded-xl bg-neutral-900 border border-neutral-800 text-neutral-300 font-medium text-xs hover:border-neutral-700 hover:text-white transition-colors flex items-center justify-center gap-2 cursor-pointer"
+                    className="flex w-full cursor-pointer items-center justify-center gap-2 border border-line-mid px-4 py-2.5 font-mono text-[11px] tracking-wider2 text-fg-dim uppercase transition-colors duration-200 hover:border-line-strong hover:text-fg"
                   >
-                    <Bot size={14} className="text-emerald-400" />
+                    <Bot size={14} aria-hidden="true" />
                     <span>Ask AI About This Scope</span>
                   </button>
                 </div>

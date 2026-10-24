@@ -1,156 +1,123 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Container } from '../ui/Container';
-import { H2, Body, Label } from '../ui/Text';
+import { SectionHeader } from '../ui/SectionHeader';
+import { Body } from '../ui/Text';
+import { Button } from '../ui/Button';
+import { DataRow } from '../ui/DataRow';
 import { profile } from '../data/profile';
+import { sectionMeta } from '../data/sections';
 import { containerVariants, itemVariants } from '../motion/variants';
 import { scrollToSection, pushRoute } from '../utils/routing';
-import { MapPin, Briefcase, Sparkles, ArrowUpRight, Code2 } from 'lucide-react';
+import { ArrowUpRight } from 'lucide-react';
+
+const credentials = [
+  { label: 'Current Focus', value: 'Lead IT — Web & AI', caption: 'ISSY Cosmetics' },
+  { label: 'Primary Stack', value: 'React · Next.js · TS', caption: 'Tailwind, Node, MySQL, Supabase' },
+  { label: 'AI & Automation', value: 'n8n · Claude · ADK', caption: 'Custom agents & pipelines' },
+  { label: 'Location', value: 'Manila, PH', caption: 'Remote / async worldwide' },
+];
 
 export const About: React.FC = () => {
+  const { index: sectionIndex, label } = sectionMeta('about');
+
   return (
-    <section id="about" className="py-24 md:py-32 scroll-mt-20 relative overflow-hidden">
+    <section id="about" className="scroll-mt-[var(--topbar-h)] py-16 md:py-24">
       <Container>
         <motion.div
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: '-10%' }}
-          className="space-y-12"
         >
-          {/* Header */}
-          <motion.div variants={itemVariants} className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-            <div>
-              <Label className="text-neutral-400">About Me</Label>
-              <H2 className="mb-0">{profile.about.title}</H2>
-            </div>
-            <div className="flex items-center gap-2 text-xs font-mono text-neutral-400 bg-neutral-900/60 border border-neutral-800 px-3.5 py-1.5 rounded-full w-fit">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span>Available for Select Client Projects</span>
-            </div>
-          </motion.div>
+          <SectionHeader
+            index={sectionIndex}
+            label={label}
+            title={profile.about.title}
+            meta="Manila · Remote Worldwide"
+            description="The short version: I build the website, the systems behind it, and the automation that keeps it running."
+          />
 
-          {/* Main Grid: Portrait on Left, Narrative & Credentials on Right */}
-          <motion.div variants={itemVariants} className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-start">
-            {/* Left Column: Portrait Card & Key Metrics */}
-            <div className="lg:col-span-5 space-y-6">
-              {/* Photo Frame */}
-              <div className="relative group">
-                {/* Subtle ambient blur behind the card */}
-                <div className="absolute -inset-1 bg-gradient-to-tr from-neutral-700/20 via-neutral-500/10 to-transparent rounded-2xl blur-xl opacity-60 group-hover:opacity-100 transition duration-700 pointer-events-none" />
-
-                <div className="relative rounded-2xl overflow-hidden border border-neutral-800 bg-neutral-900/40 shadow-2xl">
-                  {/* Portrait Image */}
-                  <div className="relative aspect-[4/5] w-full overflow-hidden bg-neutral-950">
-                    <img
-                      src="/louisse-portrait.jpg"
-                      alt="Louisse Dominique Bertillo – Web Developer & AI Specialist"
-                      className="w-full h-full object-cover object-center transition-all duration-700 ease-out group-hover:scale-105"
-                      loading="lazy"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-neutral-950 via-neutral-950/25 to-transparent opacity-85 pointer-events-none" />
-
-                    {/* Integrated Photo Caption Pill */}
-                    <div className="absolute bottom-4 left-4 right-4 p-3.5 rounded-xl bg-neutral-950/80 backdrop-blur-md border border-white/10 flex items-center justify-between text-xs">
-                      <div>
-                        <div className="font-medium text-white tracking-wide">Louisse Dominique Bertillo</div>
-                        <p className="text-[11px] text-neutral-400 mt-0.5 font-mono">
-                          Lead IT &amp; AI Implementation @ ISSY
-                        </p>
-                      </div>
-                      <span className="text-[11px] text-neutral-400 font-mono">Manila, PH</span>
-                    </div>
-                  </div>
+          <div className="mt-10 grid grid-cols-1 gap-10 lg:grid-cols-12 lg:gap-14">
+            {/* Portrait */}
+            <motion.div variants={itemVariants} className="lg:col-span-5">
+              <div className="border border-line-mid">
+                <div className="relative aspect-[4/5] w-full overflow-hidden bg-panel">
+                  <img
+                    src="/louisse-portrait.jpg"
+                    alt="Louisse Dominique Bertillo — Web Developer & AI Implementation"
+                    className="h-full w-full object-cover object-center grayscale contrast-[1.05]"
+                    loading="lazy"
+                  />
+                </div>
+                <div className="flex items-baseline justify-between gap-4 border-t border-line px-4 py-3">
+                  <span className="font-mono text-2xs tracking-wider2 text-fg-muted uppercase">
+                    Louisse Dominique Bertillo
+                  </span>
+                  <span className="font-mono text-2xs tracking-wider2 text-fg-faint uppercase">
+                    Manila · Remote
+                  </span>
                 </div>
               </div>
 
-              {/* Quick Metrics Underneath */}
-              <div className="grid grid-cols-3 gap-3">
-                <div className="p-3.5 rounded-xl bg-neutral-900/30 border border-neutral-800/80 text-center">
-                  <div className="text-xl md:text-2xl font-bold text-white font-mono">+170%</div>
-                  <div className="text-xs text-neutral-400 mt-1 leading-tight font-medium">E-Com Sales Lift</div>
-                </div>
-                <div className="p-3.5 rounded-xl bg-neutral-900/30 border border-neutral-800/80 text-center">
-                  <div className="text-xl md:text-2xl font-bold text-white font-mono">3.4k</div>
-                  <div className="text-xs text-neutral-400 mt-1 leading-tight font-medium">Peak Game Players</div>
-                </div>
-                <div className="p-3.5 rounded-xl bg-neutral-900/30 border border-neutral-800/80 text-center">
-                  <div className="text-xl md:text-2xl font-bold text-white font-mono">5+ Yrs</div>
-                  <div className="text-xs text-neutral-400 mt-1 leading-tight font-medium">Shipping Web Apps</div>
-                </div>
+              <div className="mt-6 border-t border-line">
+                {credentials.map((row, index) => (
+                  <DataRow
+                    key={row.label}
+                    index={String(index + 1).padStart(2, '0')}
+                    label={row.label}
+                    value={row.value}
+                    caption={row.caption}
+                  />
+                ))}
               </div>
-            </div>
+            </motion.div>
 
-            {/* Right Column: Bio Narrative & Quick Credentials */}
-            <div className="lg:col-span-7 space-y-8">
-              <div className="space-y-5 text-neutral-200">
-                {profile.about.description.split('\n\n').map((paragraph, index) => (
-                  <Body key={index} className="text-base md:text-lg leading-relaxed text-neutral-300">
+            {/* Narrative */}
+            <motion.div variants={itemVariants} className="flex flex-col lg:col-span-7 lg:border-l lg:border-line lg:pl-14">
+              <div className="space-y-5">
+                {profile.about.description.split('\n\n').map((paragraph) => (
+                  <Body key={paragraph.slice(0, 24)} className="text-base md:text-[1.0625rem]">
                     {paragraph}
                   </Body>
                 ))}
               </div>
 
-              {/* Credentials & Role Metadata Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-4 border-t border-neutral-800/80">
-                <div className="p-3.5 rounded-xl bg-neutral-900/20 border border-neutral-800/60 space-y-1">
-                  <div className="flex items-center gap-2 text-xs text-neutral-400 font-mono">
-                    <Briefcase size={13} className="text-neutral-400" />
-                    <span>Current Focus</span>
-                  </div>
-                  <div className="text-sm font-semibold text-white">Lead IT - Web &amp; AI Implementation</div>
-                  <div className="text-xs text-neutral-400">ISSY Cosmetics</div>
+              <div className="mt-10 grid grid-cols-1 gap-px border border-line bg-line sm:grid-cols-2">
+                <div className="bg-ink p-6">
+                  <span className="font-mono text-2xs tracking-label text-fg-dim uppercase">
+                    How I Work
+                  </span>
+                  <p className="mt-3 text-[0.8125rem] leading-relaxed text-fg-muted">
+                    Fixed scope, clear milestones, and a staging link you can review before anything
+                    goes live. You always know what is being built and when it ships.
+                  </p>
                 </div>
-
-                <div className="p-3.5 rounded-xl bg-neutral-900/20 border border-neutral-800/60 space-y-1">
-                  <div className="flex items-center gap-2 text-xs text-neutral-400 font-mono">
-                    <MapPin size={13} className="text-neutral-400" />
-                    <span>Location &amp; Work Model</span>
-                  </div>
-                  <div className="text-sm font-semibold text-white">Manila, Philippines</div>
-                  <div className="text-xs text-neutral-400">Available Globally (Remote / Async)</div>
-                </div>
-
-                <div className="p-3.5 rounded-xl bg-neutral-900/20 border border-neutral-800/60 space-y-1">
-                  <div className="flex items-center gap-2 text-xs text-neutral-400 font-mono">
-                    <Code2 size={13} className="text-neutral-400" />
-                    <span>Primary Stack</span>
-                  </div>
-                  <div className="text-sm font-semibold text-white">React, Next.js, TypeScript</div>
-                  <div className="text-xs text-neutral-400">Tailwind, Node, MySQL, Supabase</div>
-                </div>
-
-                <div className="p-3.5 rounded-xl bg-neutral-900/20 border border-neutral-800/60 space-y-1">
-                  <div className="flex items-center gap-2 text-xs text-neutral-400 font-mono">
-                    <Sparkles size={13} className="text-neutral-400" />
-                    <span>AI &amp; Automation</span>
-                  </div>
-                  <div className="text-sm font-semibold text-white">n8n, Claude AI &amp; OpenAI</div>
-                  <div className="text-xs text-neutral-400">Custom Agents &amp; Automated Workflows</div>
+                <div className="bg-ink p-6">
+                  <span className="font-mono text-2xs tracking-label text-fg-dim uppercase">
+                    What I Optimize For
+                  </span>
+                  <p className="mt-3 text-[0.8125rem] leading-relaxed text-fg-muted">
+                    Load speed, conversion, and the operational cost of maintaining the thing after
+                    launch — not just how it looks on day one.
+                  </p>
                 </div>
               </div>
 
-              {/* Action Buttons */}
-              <div className="flex flex-wrap items-center gap-3 pt-2">
-                <button
-                  type="button"
-                  onClick={() => scrollToSection('contact')}
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-white text-black font-medium text-sm hover:bg-neutral-200 transition-colors cursor-pointer"
-                >
-                  <span>Start a Conversation</span>
-                  <ArrowUpRight size={15} />
-                </button>
-                <button
-                  type="button"
+              <div className="mt-10 flex flex-wrap gap-2">
+                <Button onClick={() => scrollToSection('contact')} icon={<ArrowUpRight size={13} />}>
+                  Start a Conversation
+                </Button>
+                <Button
+                  variant="secondary"
                   onClick={() => pushRoute('/services')}
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-neutral-900 text-neutral-200 border border-neutral-800 text-sm hover:border-neutral-700 hover:text-white transition-colors cursor-pointer"
+                  icon={<ArrowUpRight size={13} />}
                 >
-                  <span>View Services &amp; Pricing</span>
-                  <ArrowUpRight size={15} />
-                </button>
+                  Services &amp; Rates
+                </Button>
               </div>
-            </div>
-          </motion.div>
+            </motion.div>
+          </div>
         </motion.div>
       </Container>
     </section>

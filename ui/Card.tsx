@@ -1,22 +1,24 @@
 import React from 'react';
-import { motion } from 'framer-motion';
 
 interface CardProps {
   children: React.ReactNode;
   className?: string;
   onClick?: () => void;
+  /** Adds pointer affordance and a hairline lift on hover. */
+  interactive?: boolean;
 }
 
-export const Card: React.FC<CardProps> = ({ children, className = "", onClick }) => {
-  return (
-    <motion.div 
-      onClick={onClick}
-      className={`group relative p-6 md:p-8 border border-neutral-800 bg-neutral-900/30 hover:bg-neutral-900/50 hover:border-neutral-600 hover:shadow-[0_16px_36px_-12px_rgba(255,255,255,0.06)] rounded-2xl transition-colors duration-300 ${className}`}
-      whileHover={{ y: -4 }}
-      whileTap={{ scale: 0.99 }}
-      transition={{ type: "spring", stiffness: 320, damping: 24 }}
-    >
-      {children}
-    </motion.div>
-  );
-};
+/**
+ * A hairline panel. No default padding — callers own their spacing so the
+ * grid rhythm stays measurable instead of guessed.
+ */
+export const Card: React.FC<CardProps> = ({ children, className = '', onClick, interactive = false }) => (
+  <div
+    onClick={onClick}
+    className={`relative rounded-none border border-line-mid bg-panel transition-colors duration-200 ${
+      interactive ? 'cursor-pointer hover:border-line-strong hover:bg-panel-2' : ''
+    } ${className}`}
+  >
+    {children}
+  </div>
+);

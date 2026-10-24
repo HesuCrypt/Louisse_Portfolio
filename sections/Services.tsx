@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { ArrowUpRight, Bot, Check, MessageSquare, Sparkles } from 'lucide-react';
+import { ArrowUpRight, Bot, MessageSquare } from 'lucide-react';
 import { featured } from '../data/featured';
 import {
   addOnItems,
@@ -15,16 +15,34 @@ import { openAIChat } from '../ui/AIChatWidget';
 import { Button } from '../ui/Button';
 import { QuoteCalculator } from './QuoteCalculator';
 import { Container } from '../ui/Container';
-import { Body, H2 } from '../ui/Text';
+import { SectionHeader } from '../ui/SectionHeader';
+import { Body, H3 } from '../ui/Text';
+
+/** Micro-label used to title the sub-blocks that sit between the big tables. */
+const blockLabel = 'font-mono text-2xs tracking-label text-fg-dim uppercase';
 
 export const Services: React.FC = () => {
   const { formatEstimatedPrice, formatPhpPrice, showEstimate } = useLocalizedCurrency();
   const completedWork = featured.filter(
     (item) => item.company === 'La Fleur' || item.company === 'Meridian Auctions'
   );
+  const standardPackages = servicePackages.filter((pkg) => !pkg.isFlagship);
+  const flagship = servicePackages.find((pkg) => pkg.isFlagship);
+
+  /** Shared price readout: PHP always, local estimate only when one is available. */
+  const priceRange = (card: (typeof servicePackages)[number]) =>
+    card.maxPricePhp
+      ? `${formatPhpPrice(card.basePricePhp)} – ${formatPhpPrice(card.maxPricePhp)}`
+      : formatPhpPrice(card.basePricePhp);
+
+  const estimateRange = (card: (typeof servicePackages)[number]) => {
+    const min = formatEstimatedPrice(card.basePricePhp);
+    const max = card.maxPricePhp ? formatEstimatedPrice(card.maxPricePhp) : null;
+    return max ? `${min} – ${max}` : min;
+  };
 
   return (
-    <section id="services" className="py-24 md:py-32 scroll-mt-20">
+    <section id="services" className="scroll-mt-[var(--topbar-h)] py-16 md:py-24">
       <Container>
         <motion.div
           variants={containerVariants}
@@ -32,479 +50,473 @@ export const Services: React.FC = () => {
           whileInView="visible"
           viewport={{ once: true, margin: '-10%' }}
         >
-          <motion.div variants={itemVariants} className="text-center max-w-2xl mx-auto mb-12">
-            <H2 className="mb-4">Website & Web App Development Services</H2>
-            <Body className="text-neutral-400 !max-w-none">
-              Five transparent, fixed-scope packages engineered for high conversion, robust performance, and modern
-              aesthetics. Tell me your vision or consult our built-in AI assistant for an instant scope
-              breakdown.
-            </Body>
-          </motion.div>
+          <SectionHeader
+            index="10"
+            label="Packages"
+            title={'Website & Web App Development Services'}
+            meta="Fixed scope · PHP"
+            description="Five transparent, fixed-scope packages built for conversion, performance, and modern aesthetics. Tell me your vision, or ask the built-in AI assistant for an instant scope breakdown."
+          />
 
+          {/* Interactive scope guide — hairline panel, no glow, no colour */}
           <motion.div
             variants={itemVariants}
-            className="mb-14 relative overflow-hidden rounded-2xl border border-neutral-700/60 bg-gradient-to-r from-neutral-900/90 via-neutral-900/50 to-neutral-950 p-5 md:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 shadow-2xl backdrop-blur-md"
+            className="mt-10 flex flex-col gap-6 border border-line-mid bg-panel p-5 md:flex-row md:items-center md:justify-between md:p-8"
           >
             <div className="flex items-start gap-4">
-              <div className="rounded-xl border border-white/20 bg-white/10 p-3 text-white shrink-0 mt-0.5 shadow-inner">
-                <Bot className="w-6 h-6 text-white" />
-              </div>
+              <span className="grid h-10 w-10 shrink-0 place-items-center border border-line-strong text-fg">
+                <Bot size={18} aria-hidden="true" />
+              </span>
               <div>
-                <div className="inline-flex items-center gap-2 mb-1.5">
-                  <span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-neutral-400">
-                    Interactive Scope Guide
-                  </span>
-                  <span className="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                <div className="flex items-center gap-2">
+                  <span className={blockLabel}>Interactive Scope Guide</span>
+                  <span className="h-1.5 w-1.5 bg-paper" aria-hidden="true" />
                 </div>
-                <h3 className="text-lg md:text-xl font-semibold text-white">Not sure which package fits your project?</h3>
-                <p className="text-xs md:text-sm text-neutral-400 mt-1 max-w-2xl leading-relaxed">
-                  Talk to our AI assistant to get an instant scope breakdown, calculate custom add-ons, or find the
-                  ideal tier for your timeline and budget.
+                <h3 className="mt-2 font-sans text-lg font-medium tracking-[-0.02em] text-fg md:text-xl">
+                  Not sure which package fits your project?
+                </h3>
+                <p className="mt-1.5 max-w-[62ch] text-[0.8125rem] leading-relaxed text-fg-muted">
+                  Ask the assistant for an instant scope breakdown, help pricing add-ons, or a recommendation
+                  based on your timeline and budget.
                 </p>
               </div>
             </div>
             <Button
-              onClick={() => openAIChat('Can you help me choose the right website or web app package for my business?')}
-              variant="primary"
-              className="whitespace-nowrap shrink-0 justify-center w-full md:w-auto"
-              icon={<MessageSquare size={16} />}
+              onClick={() =>
+                openAIChat('Can you help me choose the right website or web app package for my business?')
+              }
+              className="w-full shrink-0 justify-center md:w-auto"
+              icon={<MessageSquare size={14} />}
             >
-              Talk to AI to Know More
+              Ask the Assistant
             </Button>
           </motion.div>
 
           {completedWork.length ? (
-            <motion.div variants={itemVariants} className="mb-16">
-              <div className="mx-auto max-w-3xl text-center mb-10">
-                <p className="text-[11px] uppercase tracking-[0.24em] text-neutral-500 mb-3">Recent Launches</p>
-                <p className="text-neutral-300 text-base md:text-lg">
-                  A quick look at websites I’ve already delivered, so you can see the build quality and finish.
-                </p>
+            <motion.div variants={itemVariants} className="mt-16">
+              <div className="flex items-baseline justify-between gap-4 border-t border-line pt-6">
+                <span className={blockLabel}>Recent Launches</span>
+                <span className="tnum font-mono text-2xs text-fg-faint">
+                  {String(completedWork.length).padStart(2, '0')}
+                </span>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+              <p className="mt-4 max-w-[68ch] text-[0.9375rem] leading-[1.75] text-fg-muted">
+                Two sites I’ve already shipped, so you can judge the build quality and finish before you commit.
+              </p>
+
+              <div className="mt-8 grid grid-cols-1 gap-px border border-line bg-line md:grid-cols-2">
                 {completedWork.map((item) => (
-                  <motion.div
-                    key={item.company}
-                    variants={itemVariants}
-                    className="rounded-2xl border border-neutral-800 bg-neutral-900/20 p-6 md:p-8 flex flex-col h-full"
-                  >
-                    <div className="flex-1">
-                      <p className="text-white text-lg font-medium">{item.company}</p>
-                      <p className="text-neutral-500 text-xs uppercase tracking-[0.24em] mt-2">{item.status}</p>
-                      <p className="text-neutral-400 text-sm md:text-base mt-4 leading-relaxed">{item.description}</p>
+                  <div key={item.company} className="flex flex-col justify-between bg-ink p-6 md:p-8">
+                    <div>
+                      <div className="flex items-baseline justify-between gap-4">
+                        <H3 className="text-xl">{item.company}</H3>
+                        <span className="shrink-0 border border-line-mid px-2 py-0.5 font-mono text-2xs tracking-wider2 text-fg-dim uppercase">
+                          {item.status}
+                        </span>
+                      </div>
+                      <Body className="mt-4 text-[0.9375rem]">{item.description}</Body>
                     </div>
-                    <div className="pt-6 mt-6 border-t border-neutral-800/50">
+                    <div className="mt-8 border-t border-line pt-5">
                       <Button
                         href={item.link}
                         variant="secondary"
                         className="w-full justify-center"
-                        icon={<ArrowUpRight size={16} />}
+                        icon={<ArrowUpRight size={13} />}
                       >
                         Visit Platform
                       </Button>
                     </div>
-                  </motion.div>
+                  </div>
                 ))}
               </div>
             </motion.div>
           ) : null}
 
-          {/* Standard Website Packages (4 Columns) */}
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-10 items-stretch">
-            {servicePackages
-              .filter((pkg) => !pkg.isFlagship)
-              .map((card) => {
-                const estimatedMin = formatEstimatedPrice(card.basePricePhp);
-                const estimatedMax = card.maxPricePhp ? formatEstimatedPrice(card.maxPricePhp) : null;
-                const estimatedPrice = estimatedMax ? `${estimatedMin} – ${estimatedMax}` : estimatedMin;
+          {/* Standard package ledger — shared hairlines via the gap-px grid idiom */}
+          <div className="mt-16">
+            <div className="flex items-baseline justify-between gap-4 border-t border-line pt-6">
+              <span className={blockLabel}>Standard Packages</span>
+              <span className="tnum font-mono text-2xs text-fg-faint">
+                {String(standardPackages.length).padStart(2, '0')} tiers
+              </span>
+            </div>
 
-                const displayPhpPrice = card.maxPricePhp
-                  ? `${formatPhpPrice(card.basePricePhp)} – ${formatPhpPrice(card.maxPricePhp)}`
-                  : formatPhpPrice(card.basePricePhp);
+            <div className="mt-8 grid grid-cols-1 gap-px border border-line bg-line md:grid-cols-2 xl:grid-cols-4">
+              {standardPackages.map((card, index) => {
+                const estimate = estimateRange(card);
+                const displayPhpPrice = priceRange(card);
 
                 return (
-                  <motion.div key={card.id} variants={itemVariants} className="relative flex flex-col">
-                    <motion.article
-                      whileHover={{ scale: 1.015 }}
-                      transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-                      className={`h-full flex flex-col rounded-2xl border bg-neutral-900/50 backdrop-blur-sm p-5 sm:p-6 transition-all duration-300 hover:border-neutral-500 hover:shadow-xl hover:shadow-black/20 ${
-                        card.popular
-                          ? 'border-white/40 shadow-xl shadow-white/5 xl:scale-[1.02] z-10 ring-1 ring-white/20 bg-neutral-900/70'
-                          : 'border-neutral-800'
-                      }`}
-                    >
-                      {card.popular && (
-                        <div className="absolute -top-3 left-1/2 -translate-x-1/2 whitespace-nowrap z-20">
-                          <span className="inline-block px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider bg-white text-neutral-900 border border-white shadow-md">
-                            Most Popular
-                          </span>
-                        </div>
-                      )}
+                  <motion.article
+                    key={card.id}
+                    variants={itemVariants}
+                    className={`flex flex-col p-5 sm:p-6 ${
+                      card.popular ? 'bg-panel-2' : 'bg-ink'
+                    }`}
+                  >
+                    <div className="flex items-baseline justify-between gap-3">
+                      <span className="tnum font-mono text-2xs text-fg-faint">
+                        {String(index + 1).padStart(2, '0')}
+                      </span>
+                      {card.popular ? (
+                        <span className="border border-paper bg-paper px-2 py-0.5 font-mono text-2xs tracking-wider2 text-ink uppercase">
+                          Most Popular
+                        </span>
+                      ) : null}
+                    </div>
 
-                      <div className="mb-5">
-                        <h3 className="text-base font-semibold text-white mb-2 leading-snug">{card.title}</h3>
-                        <p className="text-2xl font-bold text-white tracking-tight">{displayPhpPrice}</p>
-                        {showEstimate && estimatedPrice && (
-                          <>
-                            <p className="mt-1.5 text-xs text-neutral-400">Approx. {estimatedPrice}</p>
-                            <p className="mt-0.5 text-[10px] text-neutral-500">
-                              Estimated local price based on current exchange rates
-                            </p>
-                          </>
-                        )}
-                        <p className="text-xs text-neutral-400 mt-2 font-mono">{card.scopeLine}</p>
-                        <div className="mt-3 space-y-1.5 text-xs text-neutral-400 leading-relaxed border-t border-neutral-800/80 pt-3">
-                          <p>{card.summary[0]}</p>
-                          <p className="text-neutral-500">{card.summary[1]}</p>
-                        </div>
+                    <H3 className="mt-5 text-lg">{card.title}</H3>
+
+                    <p className="tnum mt-3 font-mono text-xl font-medium tracking-[-0.02em] text-fg">
+                      {displayPhpPrice}
+                    </p>
+                    {showEstimate && estimate ? (
+                      <>
+                        <p className="mt-1 font-mono text-2xs text-fg-dim">≈ {estimate}</p>
+                        <p className="mt-0.5 font-mono text-2xs text-fg-faint">
+                          Local price estimated at current exchange rates
+                        </p>
+                      </>
+                    ) : null}
+
+                    <p className="mt-3 font-mono text-2xs leading-relaxed text-fg-dim">{card.scopeLine}</p>
+
+                    <div className="mt-4 space-y-2 border-t border-line pt-4">
+                      <p className="text-[0.8125rem] leading-relaxed text-fg-muted">{card.summary[0]}</p>
+                      <p className="text-[0.8125rem] leading-relaxed text-fg-dim">{card.summary[1]}</p>
+                    </div>
+
+                    <div className="mt-6 space-y-5 border-t border-line pt-5">
+                      <div>
+                        <p className={blockLabel}>{card.pagesTitle}</p>
+                        <ul className="mt-3 space-y-2">
+                          {card.pages.map((item, i) => (
+                            <li key={i} className="flex items-start gap-2.5">
+                              <span className="mt-1.5 h-1.5 w-1.5 shrink-0 bg-paper" aria-hidden="true" />
+                              <span className="text-[0.8125rem] leading-relaxed text-fg-muted">{item}</span>
+                            </li>
+                          ))}
+                        </ul>
                       </div>
 
-                      <div className="space-y-4 flex-1">
-                        <div>
-                          <p className="text-xs font-medium text-neutral-500 uppercase tracking-wider mb-2">
-                            {card.pagesTitle}
-                          </p>
-                          <ul className="space-y-1.5">
-                            {card.pages.map((item, i) => (
-                              <li key={i} className="text-xs text-neutral-300 flex items-start gap-2 leading-relaxed">
-                                <Check className="w-3.5 h-3.5 text-neutral-400 shrink-0 mt-0.5" />
-                                <span>{item}</span>
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-
-                        <div>
-                          <p className="text-xs font-medium text-neutral-500 uppercase tracking-wider mb-2">
-                            {card.extrasTitle}
-                          </p>
-                          <ul className="space-y-1.5">
-                            {card.extras.map((item, i) => (
-                              <li key={i} className="text-xs text-neutral-300 flex items-start gap-2 leading-relaxed">
-                                <Check className="w-3.5 h-3.5 text-neutral-400 shrink-0 mt-0.5" />
-                                <span>{item}</span>
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-
-                        <div className="pt-2 border-t border-neutral-800/40">
-                          <p className="text-[10px] uppercase tracking-wider text-neutral-500 mb-1">Best for:</p>
-                          <p className="text-xs text-neutral-400 leading-relaxed">{card.bestFor}</p>
-                        </div>
+                      <div>
+                        <p className={blockLabel}>{card.extrasTitle}</p>
+                        <ul className="mt-3 space-y-2">
+                          {card.extras.map((item, i) => (
+                            <li key={i} className="flex items-start gap-2.5">
+                              <span className="mt-1.5 h-1.5 w-1.5 shrink-0 bg-paper" aria-hidden="true" />
+                              <span className="text-[0.8125rem] leading-relaxed text-fg-muted">{item}</span>
+                            </li>
+                          ))}
+                        </ul>
                       </div>
+                    </div>
 
-                      <div className="mt-6 pt-5 border-t border-neutral-800 space-y-2">
-                        <Button
-                          href="#contact"
-                          variant={card.popular ? 'primary' : 'secondary'}
-                          className="w-full justify-center text-xs md:text-sm"
-                        >
-                          Get Started
-                        </Button>
-                        <button
-                          type="button"
-                          onClick={() =>
-                            openAIChat(`Can you explain what's included in the ${card.title} and help me decide if it fits my goals?`)
-                          }
-                          className="w-full text-center text-[11px] text-neutral-400 hover:text-white transition-colors flex items-center justify-center gap-1.5 pt-1 cursor-pointer"
-                        >
-                          <Bot className="w-3.5 h-3.5 text-neutral-400" />
-                          <span>Talk to AI to know more</span>
-                        </button>
-                      </div>
-                    </motion.article>
-                  </motion.div>
+                    <div className="mt-6 border-t border-line pt-5">
+                      <p className={blockLabel}>Best for</p>
+                      <p className="mt-2 text-[0.8125rem] leading-relaxed text-fg-muted">{card.bestFor}</p>
+                    </div>
+
+                    <div className="mt-6 flex flex-col gap-2.5 pt-1">
+                      <Button
+                        href="#contact"
+                        variant={card.popular ? 'primary' : 'secondary'}
+                        className="w-full justify-center"
+                      >
+                        Get Started
+                      </Button>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          openAIChat(
+                            `Can you explain what's included in the ${card.title} and help me decide if it fits my goals?`
+                          )
+                        }
+                        className="inline-flex cursor-pointer items-center justify-center gap-2 py-1 font-mono text-2xs tracking-wider2 text-fg-dim uppercase transition-colors hover:text-fg"
+                      >
+                        <Bot size={12} aria-hidden="true" />
+                        <span>Ask AI about this package</span>
+                      </button>
+                    </div>
+                  </motion.article>
                 );
               })}
+            </div>
           </div>
 
-          {/* Flagship Tier Spotlight Card */}
-          {(() => {
-            const card = servicePackages.find((pkg) => pkg.isFlagship);
-            if (!card) return null;
+          {/* Flagship tier spotlight */}
+          {flagship
+            ? (() => {
+                const card = flagship;
+                const estimate = estimateRange(card);
+                const displayPhpPrice = priceRange(card);
 
-            const estimatedMin = formatEstimatedPrice(card.basePricePhp);
-            const estimatedMax = card.maxPricePhp ? formatEstimatedPrice(card.maxPricePhp) : null;
-            const estimatedPrice = estimatedMax ? `${estimatedMin} – ${estimatedMax}` : estimatedMin;
-            const displayPhpPrice = card.maxPricePhp
-              ? `${formatPhpPrice(card.basePricePhp)} – ${formatPhpPrice(card.maxPricePhp)}`
-              : formatPhpPrice(card.basePricePhp);
-
-            return (
-              <motion.div variants={itemVariants} className="mb-16">
-                <div className="relative rounded-2xl border border-neutral-700/80 bg-gradient-to-br from-neutral-900/90 via-neutral-900/50 to-neutral-950 p-5 sm:p-6 md:p-8 lg:p-10 shadow-2xl backdrop-blur-md overflow-hidden">
-                  {/* Ambient accent background glow */}
-                  <div className="pointer-events-none absolute -right-24 -top-24 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl" />
-                  <div className="pointer-events-none absolute -left-24 -bottom-24 w-96 h-96 bg-cyan-500/5 rounded-full blur-3xl" />
-
-                  <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
-                    {/* Left Column: Overview, Price, CTAs */}
-                    <div className="lg:col-span-5 flex flex-col justify-between h-full space-y-6">
-                      <div>
-                        <div className="inline-flex items-center gap-2 mb-3">
-                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider bg-white/10 text-white border border-white/20 shadow-md">
-                            <Sparkles className="w-3.5 h-3.5 text-amber-300" />
-                            Flagship Tier · Creative Tech
-                          </span>
-                        </div>
-                        <h3 className="text-xl md:text-2xl font-bold text-white leading-snug">
-                          {card.title}
-                        </h3>
-                        <div className="mt-3 flex flex-wrap items-baseline gap-3">
-                          <p className="text-2xl md:text-3xl font-extrabold text-white tracking-tight">
-                            {displayPhpPrice}
-                          </p>
-                          <span className="text-xs text-neutral-400 font-mono">
-                            {card.scopeLine}
-                          </span>
-                        </div>
-                        {showEstimate && estimatedPrice && (
-                          <p className="mt-1 text-xs text-neutral-400">
-                            Approx. {estimatedPrice} (local exchange rate estimate)
-                          </p>
-                        )}
-                        <p className="text-sm text-neutral-300 mt-4 leading-relaxed">
-                          {card.summary[0]}
-                        </p>
-                        <p className="text-xs text-neutral-400 mt-2 leading-relaxed">
-                          {card.summary[1]}
-                        </p>
-                      </div>
-
-                      <div className="rounded-xl border border-neutral-800 bg-neutral-950/60 p-4">
-                        <p className="text-[11px] uppercase tracking-wider text-neutral-500 font-semibold mb-1">
-                          Best for:
-                        </p>
-                        <p className="text-xs text-neutral-300 leading-relaxed">
-                          {card.bestFor}
-                        </p>
-                      </div>
-
-                      <div className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-                        <Button
-                          href="#contact"
-                          variant="primary"
-                          className="justify-center text-sm px-6 py-3 font-semibold"
-                        >
-                          Inquire Flagship Scope
-                        </Button>
-                        <Button
-                          onClick={() =>
-                            openAIChat(`Can you explain the architecture and capabilities of the Bespoke Web App / Creative Tech Flagship package?`)
-                          }
-                          variant="secondary"
-                          icon={<Bot className="w-4 h-4 text-neutral-400" />}
-                          className="justify-center text-xs sm:text-sm"
-                        >
-                          Talk to AI
-                        </Button>
-                      </div>
+                return (
+                  <motion.div variants={itemVariants} className="mt-16">
+                    <div className="flex flex-wrap items-baseline justify-between gap-3 border-t border-line pt-6">
+                      <span className={blockLabel}>Flagship Tier</span>
+                      <span className="border border-paper bg-paper px-2 py-0.5 font-mono text-2xs tracking-wider2 text-ink uppercase">
+                        Creative Tech
+                      </span>
                     </div>
 
-                    {/* Right Column: Inclusions Grid */}
-                    <div className="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-6 bg-neutral-950/50 border border-neutral-800/80 rounded-xl p-4 sm:p-6">
-                      {/* Architecture */}
-                      <div>
-                        <p className="text-xs font-semibold text-white uppercase tracking-wider mb-4 pb-2 border-b border-neutral-800 flex items-center justify-between">
-                          <span>{card.pagesTitle}</span>
-                        </p>
-                        <ul className="space-y-3">
-                          {card.pages.map((item, i) => (
-                            <li key={i} className="text-xs text-neutral-300 flex items-start gap-2.5 leading-relaxed">
-                              <Check className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                              <span>{item}</span>
-                            </li>
-                          ))}
-                        </ul>
+                    <div className="mt-8 grid grid-cols-1 gap-px border border-line bg-line lg:grid-cols-12">
+                      <div className="flex flex-col justify-between bg-ink p-5 sm:p-6 md:p-8 lg:col-span-5">
+                        <div>
+                          <H3 className="text-xl md:text-2xl">{card.title}</H3>
+                          <div className="mt-3 flex flex-wrap items-baseline gap-3">
+                            <span className="tnum font-mono text-2xl font-medium tracking-[-0.03em] text-fg md:text-3xl">
+                              {displayPhpPrice}
+                            </span>
+                            <span className="font-mono text-2xs text-fg-dim">{card.scopeLine}</span>
+                          </div>
+                          {showEstimate && estimate ? (
+                            <p className="mt-1 font-mono text-2xs text-fg-dim">
+                              ≈ {estimate} (local exchange estimate)
+                            </p>
+                          ) : null}
+                          <p className="mt-4 text-[0.9375rem] leading-[1.7] text-fg-muted">{card.summary[0]}</p>
+                          <p className="mt-2 text-[0.8125rem] leading-relaxed text-fg-dim">{card.summary[1]}</p>
+                        </div>
+
+                        <div className="mt-6 border border-line-mid bg-panel p-4">
+                          <p className={blockLabel}>Best for</p>
+                          <p className="mt-2 text-[0.8125rem] leading-relaxed text-fg-muted">{card.bestFor}</p>
+                        </div>
+
+                        <div className="mt-6 flex flex-col gap-2.5 sm:flex-row">
+                          <Button href="#contact" className="justify-center">
+                            Inquire Flagship Scope
+                          </Button>
+                          <Button
+                            variant="secondary"
+                            onClick={() =>
+                              openAIChat(
+                                `Can you explain the architecture and capabilities of the Bespoke Web App / Creative Tech Flagship package?`
+                              )
+                            }
+                            icon={<Bot size={13} />}
+                            className="justify-center"
+                          >
+                            Talk to AI
+                          </Button>
+                        </div>
                       </div>
 
-                      {/* Deliverables */}
-                      <div>
-                        <p className="text-xs font-semibold text-white uppercase tracking-wider mb-4 pb-2 border-b border-neutral-800 flex items-center justify-between">
-                          <span>{card.extrasTitle}</span>
-                        </p>
-                        <ul className="space-y-3">
-                          {card.extras.map((item, i) => (
-                            <li key={i} className="text-xs text-neutral-300 flex items-start gap-2.5 leading-relaxed">
-                              <Check className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                              <span>{item}</span>
-                            </li>
-                          ))}
-                        </ul>
+                      <div className="grid grid-cols-1 gap-px bg-line sm:grid-cols-2 lg:col-span-7">
+                        <div className="bg-ink p-5 sm:p-6">
+                          <p className={`${blockLabel} border-b border-line pb-3`}>{card.pagesTitle}</p>
+                          <ul className="mt-4 space-y-3">
+                            {card.pages.map((item, i) => (
+                              <li key={i} className="flex items-start gap-2.5">
+                                <span className="mt-1.5 h-1.5 w-1.5 shrink-0 bg-paper" aria-hidden="true" />
+                                <span className="text-[0.8125rem] leading-relaxed text-fg-muted">{item}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                        <div className="bg-ink p-5 sm:p-6">
+                          <p className={`${blockLabel} border-b border-line pb-3`}>{card.extrasTitle}</p>
+                          <ul className="mt-4 space-y-3">
+                            {card.extras.map((item, i) => (
+                              <li key={i} className="flex items-start gap-2.5">
+                                <span className="mt-1.5 h-1.5 w-1.5 shrink-0 bg-paper" aria-hidden="true" />
+                                <span className="text-[0.8125rem] leading-relaxed text-fg-muted">{item}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </div>
-              </motion.div>
-            );
-          })()}
+                  </motion.div>
+                );
+              })()
+            : null}
 
-          <motion.div
-            variants={itemVariants}
-            className="mb-16 rounded-2xl border border-neutral-800 bg-neutral-950/40 overflow-hidden"
-          >
-            <div className="px-4 py-4 md:px-6 border-b border-neutral-800 flex flex-col md:flex-row md:items-center md:justify-between gap-2">
-              <div>
-                <p className="text-sm font-medium text-white">Compare packages</p>
-                <p className="text-xs text-neutral-500 mt-1 leading-relaxed">
-                  Use this table to see what changes between tiers. The jump from ₱10k → ₱30k adds{' '}
-                  <span className="text-neutral-400">structure + verified lead forms</span>; ₱45k adds{' '}
-                  <span className="text-neutral-400">Services, Gallery, Maps, and speed work</span>; ₱60k adds{' '}
-                  <span className="text-neutral-400">Blog + FAQ + Testimonials</span> hubs; and the ₱100k–₱120k Flagship unlocks{' '}
-                  <span className="text-neutral-400">interactive Desktop OS, Web Audio API, Gemini AI, and Headless CMS</span>.
+          {/* Comparison matrix */}
+          <motion.div variants={itemVariants} className="mt-16">
+            <div className="flex flex-col gap-4 border-t border-line pt-6 md:flex-row md:items-end md:justify-between md:gap-10">
+              <div className="min-w-0">
+                <span className={blockLabel}>Comparison Matrix</span>
+                <p className="mt-3 max-w-[76ch] text-[0.8125rem] leading-relaxed text-fg-muted">
+                  See exactly what changes between tiers. ₱10k → ₱30k adds structure and verified lead forms. ₱45k
+                  adds Services, Gallery, Maps, and speed work. ₱60k adds Blog, FAQ, and Testimonials hubs. The
+                  ₱100k–₱120k Flagship unlocks the interactive Desktop OS, Web Audio API, Gemini AI, and Headless CMS.
                 </p>
               </div>
               <button
                 type="button"
-                onClick={() => openAIChat('Can you compare your website packages and recommend the best one for my budget?')}
-                className="inline-flex items-center gap-1.5 text-xs text-neutral-300 hover:text-white bg-neutral-900 border border-neutral-800 px-3 py-1.5 rounded-lg whitespace-nowrap self-start md:self-auto cursor-pointer transition-colors"
+                onClick={() =>
+                  openAIChat('Can you compare your website packages and recommend the best one for my budget?')
+                }
+                className="inline-flex shrink-0 cursor-pointer items-center gap-2 self-start border border-line-mid px-3 py-2 font-mono text-2xs tracking-wider2 text-fg-dim uppercase transition-colors hover:border-line-strong hover:text-fg md:self-auto"
               >
-                <Bot className="w-3.5 h-3.5 text-neutral-400" />
-                <span>Talk to AI to compare</span>
+                <Bot size={12} aria-hidden="true" />
+                <span>Compare tiers with AI</span>
               </button>
             </div>
-            <div className="block md:hidden px-4 py-2 border-b border-neutral-800/60 bg-neutral-900/40 text-xs font-mono text-neutral-300 flex items-center justify-between">
-              <span>Feature comparison</span>
-              <span className="text-neutral-400">← Scroll for tiers →</span>
-            </div>
-            <div className="overflow-x-auto relative">
-              <table className="w-full min-w-[760px] text-left text-sm">
-                <thead>
-                  <tr className="border-b border-neutral-800 text-neutral-400 text-xs uppercase tracking-wider bg-neutral-900/30">
-                    <th className="px-4 py-3 md:px-6 font-medium sticky left-0 bg-neutral-950 z-10 shadow-[4px_0_12px_rgba(0,0,0,0.7)]">Feature</th>
-                    <th className="px-3 py-3 font-medium whitespace-nowrap">₱10k</th>
-                    <th className="px-3 py-3 font-medium whitespace-nowrap">₱30k</th>
-                    <th className="px-3 py-3 font-medium whitespace-nowrap">₱45k</th>
-                    <th className="px-3 py-3 font-medium whitespace-nowrap">₱60k</th>
-                    <th className="px-3 py-3 pr-4 md:pr-6 font-medium whitespace-nowrap text-white">₱100k–₱120k</th>
-                  </tr>
-                </thead>
-                <tbody className="text-neutral-300">
-                  {comparisonRows.map((row) => (
-                    <tr key={row.feature} className="border-b border-neutral-800/80 last:border-0 hover:bg-neutral-900/20 transition-colors">
-                      <td className="px-4 py-3 md:px-6 text-white font-medium sticky left-0 bg-neutral-950 z-10 shadow-[4px_0_12px_rgba(0,0,0,0.7)]">{row.feature}</td>
-                      <td className="px-3 py-3 text-neutral-300">{row.portfolio}</td>
-                      <td className="px-3 py-3 text-neutral-300">{row.starter}</td>
-                      <td className="px-3 py-3 text-neutral-300 font-medium">{row.business}</td>
-                      <td className="px-3 py-3 text-neutral-300">{row.professional}</td>
-                      <td className="px-3 py-3 pr-4 md:pr-6 text-neutral-200 font-medium">{row.flagship}</td>
+
+            <div className="mt-6 border border-line-mid">
+              <div className="flex items-center justify-between border-b border-line px-4 py-2 font-mono text-2xs tracking-wider2 text-fg-dim uppercase md:hidden">
+                <span>Feature comparison</span>
+                <span>← Scroll for tiers →</span>
+              </div>
+              <div className="no-scrollbar overflow-x-auto">
+                <table className="w-full min-w-[760px] text-left">
+                  <thead>
+                    <tr className="border-b border-line-mid">
+                      <th className="sticky left-0 z-10 bg-ink px-4 py-3 font-mono text-2xs tracking-wider2 text-fg-dim uppercase md:px-6">
+                        Feature
+                      </th>
+                      {['₱10k', '₱30k', '₱45k', '₱60k'].map((tier) => (
+                        <th
+                          key={tier}
+                          className="whitespace-nowrap px-3 py-3 font-mono text-2xs tracking-wider2 text-fg-dim uppercase"
+                        >
+                          {tier}
+                        </th>
+                      ))}
+                      <th className="whitespace-nowrap px-3 py-3 pr-4 font-mono text-2xs tracking-wider2 text-fg uppercase md:pr-6">
+                        ₱100k–₱120k
+                      </th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {comparisonRows.map((row) => (
+                      <tr key={row.feature} className="border-b border-line last:border-b-0">
+                        <td className="sticky left-0 z-10 bg-ink px-4 py-3 text-[0.8125rem] text-fg md:px-6">
+                          {row.feature}
+                        </td>
+                        <td className="px-3 py-3 text-[0.8125rem] text-fg-muted">{row.portfolio}</td>
+                        <td className="px-3 py-3 text-[0.8125rem] text-fg-muted">{row.starter}</td>
+                        <td className="px-3 py-3 text-[0.8125rem] text-fg-muted">{row.business}</td>
+                        <td className="px-3 py-3 text-[0.8125rem] text-fg-muted">{row.professional}</td>
+                        <td className="px-3 py-3 pr-4 text-[0.8125rem] text-fg md:pr-6">{row.flagship}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </motion.div>
 
-          <motion.div
-            variants={itemVariants}
-            className="mb-16 rounded-2xl border border-neutral-800 bg-neutral-950/40 overflow-hidden"
-          >
-            <div className="px-4 py-5 md:px-6 border-b border-neutral-800 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-              <div>
-                <p className="text-sm md:text-base font-medium text-white">Modular Add-Ons & Maintenance Menu</p>
-                <p className="text-xs text-neutral-400 mt-1">
-                  Tailor your package with specialized integrations or retain on-demand engineering support.
+          {/* Add-ons & maintenance menu */}
+          <motion.div variants={itemVariants} className="mt-16">
+            <div className="flex flex-col gap-4 border-t border-line pt-6 sm:flex-row sm:items-end sm:justify-between sm:gap-8">
+              <div className="min-w-0">
+                <span className={blockLabel}>Add-Ons</span>
+                <h3 className="mt-3 font-sans text-lg font-medium tracking-[-0.02em] text-fg md:text-xl">
+                  Modular Add-Ons &amp; Maintenance Menu
+                </h3>
+                <p className="mt-2 max-w-[68ch] text-[0.8125rem] leading-relaxed text-fg-muted">
+                  Extend any package with specialized integrations, or keep on-demand engineering support on retainer.
                 </p>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 <button
                   type="button"
                   onClick={() => openAIChat('Can you help me calculate custom add-ons for my website?')}
-                  className="inline-flex items-center gap-1.5 text-xs text-neutral-300 hover:text-white bg-neutral-900 border border-neutral-800 px-3 py-1.5 rounded-lg whitespace-nowrap cursor-pointer transition-colors"
+                  className="inline-flex cursor-pointer items-center gap-2 border border-line-mid px-3 py-2 font-mono text-2xs tracking-wider2 text-fg-dim uppercase transition-colors hover:border-line-strong hover:text-fg"
                 >
-                  <Bot className="w-3.5 h-3.5 text-neutral-400" />
-                  <span>Talk to AI for add-ons</span>
+                  <Bot size={12} aria-hidden="true" />
+                  <span>Price add-ons with AI</span>
                 </button>
-                <span className="inline-flex items-center text-xs text-neutral-400 font-mono bg-neutral-900 border border-neutral-800 px-3 py-1.5 rounded-lg">
+                <span className="border border-line-mid px-3 py-2 font-mono text-2xs tracking-wider2 text-fg-muted uppercase">
                   À la carte
                 </span>
               </div>
             </div>
 
-            {/* Mobile View: Native Stacked Cards */}
-            <div className="md:hidden divide-y divide-neutral-800/80 p-4 space-y-4">
-              {addOnItems.map((item) => (
-                <div key={item.name} className="pt-4 first:pt-0 space-y-2">
-                  <div className="flex items-start justify-between gap-3">
-                    <span className="text-white font-medium text-sm">{item.name}</span>
-                    <span className="text-white font-semibold text-xs font-mono shrink-0 px-2.5 py-1 rounded-lg bg-neutral-900 border border-neutral-800">
-                      {item.investmentPhp}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs font-mono px-2 py-0.5 rounded bg-neutral-900/60 border border-neutral-800 text-neutral-400">
-                      Timeline: {item.timeline}
-                    </span>
-                  </div>
-                  <p className="text-xs text-neutral-300 leading-relaxed">
-                    {item.description}
-                  </p>
-                </div>
-              ))}
-            </div>
-
-            {/* Desktop View: Full Table */}
-            <div className="hidden md:block overflow-x-auto">
-              <table className="w-full text-left text-sm">
-                <thead>
-                  <tr className="border-b border-neutral-800 text-neutral-400 text-xs uppercase tracking-wider bg-neutral-900/30">
-                    <th className="px-6 py-3 font-medium">Add-On Service</th>
-                    <th className="px-3 py-3 font-medium whitespace-nowrap">Investment (PHP)</th>
-                    <th className="px-3 py-3 font-medium whitespace-nowrap">Timeline Impact</th>
-                    <th className="px-6 py-3 font-medium">Description</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-neutral-800/60">
-                  {addOnItems.map((item) => (
-                    <tr key={item.name} className="hover:bg-neutral-900/20 transition-colors">
-                      <td className="px-6 py-3.5 text-white font-medium whitespace-nowrap">{item.name}</td>
-                      <td className="px-3 py-3.5 text-neutral-200 font-semibold whitespace-nowrap">{item.investmentPhp}</td>
-                      <td className="px-3 py-3.5 whitespace-nowrap">
-                        <span className="inline-block px-2 py-0.5 rounded text-xs bg-neutral-900 border border-neutral-800 text-neutral-300">
-                          {item.timeline}
-                        </span>
-                      </td>
-                      <td className="px-6 py-3.5 text-neutral-300 text-sm leading-relaxed">
-                        {item.description}
-                      </td>
+            <div className="mt-6 border border-line-mid">
+              <div className="no-scrollbar overflow-x-auto">
+                <table className="w-full min-w-[720px] text-left">
+                  <thead>
+                    <tr className="border-b border-line-mid">
+                      <th className="px-4 py-3 font-mono text-2xs tracking-wider2 text-fg-dim uppercase md:px-6">
+                        Add-On Service
+                      </th>
+                      <th className="whitespace-nowrap px-3 py-3 font-mono text-2xs tracking-wider2 text-fg-dim uppercase">
+                        Investment (PHP)
+                      </th>
+                      <th className="whitespace-nowrap px-3 py-3 font-mono text-2xs tracking-wider2 text-fg-dim uppercase">
+                        Timeline Impact
+                      </th>
+                      <th className="px-4 py-3 font-mono text-2xs tracking-wider2 text-fg-dim uppercase md:px-6">
+                        Description
+                      </th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {addOnItems.map((item) => (
+                      <tr key={item.name} className="border-b border-line last:border-b-0">
+                        <td className="whitespace-nowrap px-4 py-3.5 text-[0.8125rem] text-fg md:px-6">
+                          {item.name}
+                        </td>
+                        <td className="tnum whitespace-nowrap px-3 py-3.5 font-mono text-xs text-fg">
+                          {item.investmentPhp}
+                        </td>
+                        <td className="whitespace-nowrap px-3 py-3.5">
+                          <span className="border border-line-mid px-2 py-0.5 font-mono text-2xs text-fg-muted">
+                            {item.timeline}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3.5 text-[0.8125rem] leading-relaxed text-fg-muted md:px-6">
+                          {item.description}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </motion.div>
 
           <QuoteCalculator />
 
-          <motion.div
-            variants={itemVariants}
-            className="mb-16 rounded-2xl border border-neutral-800 bg-neutral-950/30 p-6 md:p-8"
-          >
-            <p className="text-sm font-medium text-white mb-2">Commercial Terms & Engagement Policy</p>
-            <p className="text-xs text-neutral-400 mb-6">
-              Standard policies applied across all client projects for mutual clarity and accountability.
-            </p>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {engagementTerms.map((item) => (
-                <div key={item.label} className="rounded-xl border border-neutral-800 bg-neutral-900/30 p-5 flex flex-col">
-                  <p className="text-xs uppercase tracking-wider text-neutral-400 font-semibold mb-2">{item.label}</p>
-                  <p className="text-sm text-neutral-300 leading-relaxed">{item.value}</p>
-                </div>
-              ))}
-            </div>
-          </motion.div>
-
-          <motion.div
-            variants={itemVariants}
-            className="flex flex-wrap items-center justify-center gap-6 md:gap-10 py-6 border-t border-neutral-800"
-          >
-            {trustItems.map((item, i) => (
-              <span key={i} className="inline-flex items-center gap-2 text-sm text-neutral-400">
-                <Check className="w-4 h-4 text-neutral-400 shrink-0" />
-                {item}
+          {/* Commercial terms + working guarantees */}
+          <motion.div variants={itemVariants} className="mt-16">
+            <div className="flex items-baseline justify-between gap-4 border-t border-line pt-6">
+              <span className={blockLabel}>Commercial Terms &amp; Engagement Policy</span>
+              <span className="tnum font-mono text-2xs text-fg-faint">
+                {String(engagementTerms.length).padStart(2, '0')} clauses
               </span>
-            ))}
+            </div>
+            <p className="mt-4 max-w-[68ch] text-[0.8125rem] leading-relaxed text-fg-muted">
+              The same terms on every project, so both sides know exactly what to expect.
+            </p>
+
+            <div className="mt-8 grid grid-cols-1 gap-10 lg:grid-cols-12 lg:gap-14">
+              <div className="lg:col-span-7">
+                <div className="border-t border-line">
+                  {engagementTerms.map((item) => (
+                    <div
+                      key={item.label}
+                      className="grid grid-cols-1 gap-2 border-b border-line py-4 last:border-b-0 md:grid-cols-12 md:gap-6"
+                    >
+                      <span className="font-mono text-[11px] tracking-wider2 text-fg-dim uppercase md:col-span-4">
+                        {item.label}
+                      </span>
+                      <p className="text-[0.8125rem] leading-relaxed text-fg-muted md:col-span-8">{item.value}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="lg:col-span-5 lg:border-l lg:border-line lg:pl-14">
+                <span className={blockLabel}>Working Guarantees</span>
+                <ul className="mt-4 border-t border-line">
+                  {trustItems.map((item) => (
+                    <li
+                      key={item}
+                      className="flex items-baseline gap-3 border-b border-line py-2.5 last:border-b-0"
+                    >
+                      <span className="mt-1 h-1.5 w-1.5 shrink-0 bg-paper" aria-hidden="true" />
+                      <span className="text-[0.8125rem] text-fg-muted">{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
           </motion.div>
         </motion.div>
       </Container>

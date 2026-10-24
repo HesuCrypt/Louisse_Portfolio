@@ -4,9 +4,9 @@ import { ProjectContact } from '../sections/ProjectContact';
 import { Services } from '../sections/Services';
 import { Divider } from '../ui/Divider';
 import { Container } from '../ui/Container';
-import { Body, H1, H2 } from '../ui/Text';
+import { Body, H1 } from '../ui/Text';
+import { SectionHeader } from '../ui/SectionHeader';
 import { containerVariants, itemVariants } from '../motion/variants';
-import { ArrowDown } from 'lucide-react';
 
 const testimonials = [
   {
@@ -25,78 +25,96 @@ const testimonials = [
   },
 ] as const;
 
-const Testimonials: React.FC = () => {
-  return (
-    <section className="py-24 md:py-32 bg-neutral-900/10">
+/** Short spec strip under the hero — the page's own "index". */
+const heroFacts = [
+  { label: 'Packages', value: '05 tiers' },
+  { label: 'Pricing', value: 'Fixed scope · PHP' },
+  { label: 'Payment', value: '50% deposit · 50% delivery' },
+  { label: 'Coverage', value: 'Manila · Worldwide' },
+] as const;
+
+const Testimonials: React.FC = () => (
+  <section className="py-16 md:py-24">
+    <Container>
+      <motion.div
+        variants={containerVariants}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: '-10%' }}
+      >
+        <SectionHeader
+          index="11"
+          label="Testimonials"
+          title="Proof of delivery, clarity, and communication"
+          meta="Client feedback"
+        />
+
+        <div className="mt-10 grid grid-cols-1 gap-px border border-line bg-line lg:grid-cols-2">
+          {testimonials.map((item) => (
+            <motion.figure
+              key={`${item.author}-${item.company}`}
+              variants={itemVariants}
+              className="flex h-full flex-col justify-between bg-ink p-6 md:p-8"
+            >
+              <blockquote className="text-[0.9375rem] leading-[1.75] text-fg-muted">
+                “{item.quote}”
+              </blockquote>
+              <figcaption className="mt-8 border-t border-line pt-5">
+                <span className="block font-sans text-sm text-fg">{item.author}</span>
+                <span className="mt-1 block font-mono text-2xs tracking-wider2 text-fg-dim uppercase">
+                  {item.title}, {item.company}
+                </span>
+              </figcaption>
+            </motion.figure>
+          ))}
+        </div>
+      </motion.div>
+    </Container>
+  </section>
+);
+
+export const ServicesPage: React.FC = () => (
+  <>
+    <section className="py-16 md:py-24">
       <Container>
         <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: '-10%' }}
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
         >
-          <motion.div variants={itemVariants} className="mb-12 flex flex-col md:flex-row md:items-baseline md:justify-between gap-4">
-            <H2 className="mb-0">Testimonials</H2>
-            <span className="text-neutral-500 text-sm">Proof of delivery, clarity, and communication</span>
-          </motion.div>
+          <p className="font-mono text-2xs tracking-label text-fg-dim uppercase">
+            <span className="tnum text-fg-muted">09</span>
+            <span className="px-2 text-line-strong">/</span>
+            <span>Services &amp; Rates</span>
+          </p>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8 items-stretch">
-            {testimonials.map((item) => (
-              <motion.div
-                key={`${item.author}-${item.company}`}
-                variants={itemVariants}
-                className="relative p-6 md:p-10 border border-neutral-800 bg-neutral-900/20 hover:bg-neutral-900/40 transition-all duration-500 rounded-sm overflow-hidden flex flex-col h-full"
-              >
-                <div className="flex-1">
-                  <Body className="text-neutral-200 max-w-none text-base md:text-lg">
-                    “{item.quote}”
-                  </Body>
-                </div>
-                <div className="mt-8 pt-6 border-t border-neutral-800/50">
-                  <div className="text-white font-medium">{item.author}</div>
-                  <div className="text-neutral-500 text-sm">{item.title}, {item.company}</div>
-                </div>
-              </motion.div>
+          <H1 className="mt-6 max-w-[48rem]">
+            Website &amp; web app packages built for launch, conversion, and creative impact.
+          </H1>
+
+          <Body className="mt-6 max-w-[62ch] text-base md:text-[1.0625rem]">
+            Choose a fixed-scope package, compare inclusions and add-ons, and reach out when you want
+            a version tailored to your brand.
+          </Body>
+
+          <dl className="mt-12 grid grid-cols-2 gap-px border border-line bg-line md:grid-cols-4">
+            {heroFacts.map((fact) => (
+              <div key={fact.label} className="bg-ink p-5">
+                <dt className="font-mono text-2xs tracking-wider2 text-fg-dim uppercase">
+                  {fact.label}
+                </dt>
+                <dd className="mt-2 font-mono text-xs text-fg">{fact.value}</dd>
+              </div>
             ))}
-          </div>
+          </dl>
         </motion.div>
       </Container>
     </section>
-  );
-};
 
-export const ServicesPage: React.FC = () => {
-  return (
-    <>
-      <section className="min-h-[75vh] md:min-h-[82vh] flex items-center justify-start relative pt-20 pb-16">
-        <Container>
-          <motion.div
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="space-y-6 max-w-4xl"
-          >
-            <p className="text-xs font-mono uppercase tracking-[0.24em] text-neutral-500">Services &amp; Pricing</p>
-            <H1 className="max-w-3xl mb-4 leading-tight">
-              Website &amp; web app packages built for launch, conversion, and creative impact.
-            </H1>
-            <Body className="text-neutral-400 !max-w-2xl text-lg md:text-xl leading-relaxed">
-              Choose a fixed-scope package, compare inclusions and add-ons, and reach out when you want a version tailored to your brand.
-            </Body>
-          </motion.div>
-        </Container>
-
-        {/* Subtle Scroll Indicator */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 text-neutral-600 hidden md:block pointer-events-none">
-          <ArrowDown size={18} className="animate-bounce" />
-        </div>
-      </section>
-
-      <Services />
-      <Divider />
-      <Testimonials />
-      <Divider />
-      <ProjectContact />
-    </>
-  );
-};
+    <Services />
+    <Divider />
+    <Testimonials />
+    <Divider />
+    <ProjectContact />
+  </>
+);

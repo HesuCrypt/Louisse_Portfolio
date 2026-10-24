@@ -4,15 +4,24 @@ import { HomePage } from './pages/HomePage';
 import { ServicesPage } from './pages/ServicesPage';
 import { LegalPage } from './pages/LegalPage';
 import { Header } from './sections/Header';
-import { LoadingScreen } from './ui/LoadingScreen';
+import { DesktopIndexRail } from './ui/IndexRail';
 import { AIChatWidget } from './ui/AIChatWidget';
 import { CookieConsentBanner } from './ui/CookieConsentBanner';
-import { getAppRoute, isLegalRoute, pushRoute } from './utils/routing';
+import { Container } from './ui/Container';
+import { sections } from './data/sections';
+import { socials } from './data/socials';
+import {
+  AppRoute,
+  buildHomeSectionPath,
+  getAppRoute,
+  isLegalRoute,
+  pushRoute,
+  scrollToSection,
+} from './utils/routing';
 import { openCookiePreferences } from './utils/cookies';
 import { pageVariants } from './motion/variants';
 
 export default function App() {
-  const [loading, setLoading] = useState(true);
   const [locationState, setLocationState] = useState(() => ({
     pathname: typeof window !== 'undefined' ? window.location.pathname : '/',
     hash: typeof window !== 'undefined' ? window.location.hash : '',
@@ -22,15 +31,8 @@ export default function App() {
   const scaleX = useSpring(scrollYProgress, {
     stiffness: 180,
     damping: 30,
-    restDelta: 0.001
+    restDelta: 0.001,
   });
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setLoading(false);
-    }, 2200);
-    return () => clearTimeout(timer);
-  }, []);
 
   useEffect(() => {
     const syncLocation = () => {
@@ -48,10 +50,18 @@ export default function App() {
     };
   }, []);
 
-  const route = useMemo(
+  const route: AppRoute = useMemo(
     () => getAppRoute(locationState.pathname, locationState.hash),
     [locationState.pathname, locationState.hash]
   );
+
+  const handleSectionNav = (sectionId: string) => {
+    if (route === '/') {
+      scrollToSection(sectionId);
+      return;
+    }
+    pushRoute(buildHomeSectionPath(sectionId));
+  };
 
   const renderContent = () => {
     if (route === '/services') {
@@ -64,79 +74,150 @@ export default function App() {
   };
 
   return (
-    <main className="min-h-screen w-full bg-background text-neutral-300 selection:bg-white/20 relative">
-      {/* Sleek top scroll reading progress bar */}
+    <main className="rail-offset relative min-h-screen w-full bg-ink text-fg">
+      {/* Hairline scroll reading position */}
       <motion.div
-        className="fixed top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-neutral-600 via-white to-neutral-400 origin-left z-[60] pointer-events-none"
+        className="pointer-events-none fixed top-0 left-0 right-0 z-[60] h-px origin-left bg-paper/80 xl:left-[var(--rail-w)]"
         style={{ scaleX }}
       />
 
-      <AnimatePresence mode="wait">
-        {loading && <LoadingScreen key="loader" />}
-      </AnimatePresence>
+      <DesktopIndexRail />
+      <Header currentRoute={route} />
 
-      {!loading && (
-        <div>
-          <Header currentRoute={route} />
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={route}
-              variants={pageVariants}
-              initial="initial"
-              animate="animate"
-              exit="exit"
-            >
-              {renderContent()}
-            </motion.div>
-          </AnimatePresence>
+      {/* Reserve the fixed bar (and the mobile index strip) so nothing hides under it */}
+      <div className="pt-[calc(var(--topbar-h)+var(--strip-h))]">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={route}
+            variants={pageVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+          >
+            {renderContent()}
+          </motion.div>
+        </AnimatePresence>
 
-          <footer className="py-12 px-4 text-center text-neutral-600 text-sm border-t border-neutral-900/60 mt-12">
-            <p className="text-neutral-400 text-xs mb-1.5 font-medium">
-              Louisse Dominique Bertillo (Louisse Baja) &middot; Full-Stack Web Developer &amp; AI Implementation
-            </p>
-            <p className="text-neutral-500 text-xs mb-3">
-              Specializing in high-conversion websites, custom Shopify platforms, and automated AI workflows.
-            </p>
-            <p>&copy; {new Date().getFullYear()} Louisse Dominique Bertillo. All rights reserved.</p>
-            <div className="mt-3 flex flex-wrap items-center justify-center gap-3 md:gap-4 text-xs">
-              <button
-                type="button"
-                onClick={() => pushRoute('/privacy')}
-                className="hover:text-neutral-300 transition-colors cursor-pointer"
-              >
-                Privacy Policy
-              </button>
-              <span>•</span>
-              <button
-                type="button"
-                onClick={() => pushRoute('/terms')}
-                className="hover:text-neutral-300 transition-colors cursor-pointer"
-              >
-                Terms &amp; Conditions
-              </button>
-              <span>•</span>
-              <button
-                type="button"
-                onClick={() => pushRoute('/cookies')}
-                className="hover:text-neutral-300 transition-colors cursor-pointer"
-              >
-                Cookie Policy
-              </button>
-              <span>•</span>
-              <button
-                type="button"
-                onClick={openCookiePreferences}
-                className="hover:text-neutral-300 transition-colors cursor-pointer text-neutral-500 underline"
-              >
-                Cookie Preferences
-              </button>
+        <footer className="border-t border-line">
+          <Container>
+            <div className="grid grid-cols-1 gap-10 py-12 sm:grid-cols-2 lg:grid-cols-12 lg:gap-8">
+              <div className="lg:col-span-5">
+                <div className="flex items-center gap-3">
+                  <span className="grid h-8 w-8 place-items-center bg-paper font-mono text-[11px] leading-none font-bold text-ink">
+                    LB
+                  </span>
+                  <span className="font-sans text-[13px] font-medium tracking-[-0.02em] text-fg">
+                    Louisse Dominique Bertillo
+                  </span>
+                </div>
+                <p className="mt-5 max-w-[42ch] text-[0.9375rem] leading-[1.7] text-fg-dim">
+                  Full-stack web development, Shopify e-commerce, and AI implementation.
+                  Available for select client projects worldwide.
+                </p>
+                <a
+                  href="mailto:louissebertillo2004@gmail.com"
+                  className="mt-5 inline-block font-mono text-2xs tracking-wider2 text-fg-muted uppercase underline decoration-line-strong underline-offset-4 transition-colors hover:text-fg"
+                >
+                  louissebertillo2004@gmail.com
+                </a>
+              </div>
+
+              <nav aria-label="Footer index" className="lg:col-span-3">
+                <span className="font-mono text-2xs tracking-label text-fg-dim uppercase">Index</span>
+                <ul className="mt-4 space-y-2.5">
+                  {sections.map((section) => (
+                    <li key={section.id}>
+                      <button
+                        type="button"
+                        onClick={() => handleSectionNav(section.id)}
+                        className="group flex items-baseline gap-2.5 text-left"
+                      >
+                        <span className="tnum font-mono text-2xs text-fg-faint">{section.index}</span>
+                        <span className="font-sans text-[13px] text-fg-muted transition-colors group-hover:text-fg">
+                          {section.label}
+                        </span>
+                      </button>
+                    </li>
+                  ))}
+                  <li>
+                    <button
+                      type="button"
+                      onClick={() => pushRoute('/services')}
+                      className="group flex items-baseline gap-2.5 text-left"
+                    >
+                      <span className="tnum font-mono text-2xs text-fg-faint">09</span>
+                      <span className="font-sans text-[13px] text-fg-muted transition-colors group-hover:text-fg">
+                        Services &amp; Rates
+                      </span>
+                    </button>
+                  </li>
+                </ul>
+              </nav>
+
+              <div className="lg:col-span-4">
+                <span className="font-mono text-2xs tracking-label text-fg-dim uppercase">Legal</span>
+                <ul className="mt-4 space-y-2.5">
+                  {(
+                    [
+                      ['Privacy Policy', '/privacy'],
+                      ['Terms & Conditions', '/terms'],
+                      ['Cookie Policy', '/cookies'],
+                    ] as const
+                  ).map(([label, path]) => (
+                    <li key={path}>
+                      <button
+                        type="button"
+                        onClick={() => pushRoute(path)}
+                        className="font-sans text-[13px] text-fg-muted transition-colors hover:text-fg"
+                      >
+                        {label}
+                      </button>
+                    </li>
+                  ))}
+                  <li>
+                    <button
+                      type="button"
+                      onClick={openCookiePreferences}
+                      className="font-sans text-[13px] text-fg-dim transition-colors hover:text-fg"
+                    >
+                      Cookie Preferences
+                    </button>
+                  </li>
+                </ul>
+
+                <span className="mt-8 block font-mono text-2xs tracking-label text-fg-dim uppercase">
+                  Elsewhere
+                </span>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {socials.map((social) => (
+                    <a
+                      key={social.name}
+                      href={social.url}
+                      target={social.url.startsWith('mailto') ? undefined : '_blank'}
+                      rel={social.url.startsWith('mailto') ? undefined : 'noreferrer'}
+                      className="border border-line-mid px-3 py-1.5 font-mono text-2xs tracking-wider2 text-fg-muted uppercase transition-colors duration-200 hover:border-paper hover:bg-paper hover:text-ink"
+                    >
+                      {social.name}
+                    </a>
+                  ))}
+                </div>
+              </div>
             </div>
-          </footer>
 
-          <AIChatWidget />
-          <CookieConsentBanner />
-        </div>
-      )}
+            <div className="flex flex-col gap-3 border-t border-line py-6 sm:flex-row sm:items-center sm:justify-between">
+              <p className="font-mono text-2xs tracking-wider2 text-fg-faint uppercase">
+                &copy; {new Date().getFullYear()} Louisse Dominique Bertillo
+              </p>
+              <p className="font-mono text-2xs tracking-wider2 text-fg-faint uppercase">
+                Manila, PH &middot; Remote Worldwide
+              </p>
+            </div>
+          </Container>
+        </footer>
+      </div>
+
+      <AIChatWidget />
+      <CookieConsentBanner />
     </main>
   );
 }

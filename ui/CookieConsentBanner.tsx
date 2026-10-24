@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Shield, Settings, Check, X, ChevronDown, ChevronUp, Lock } from 'lucide-react';
+import { Shield, Settings, X, ChevronDown, ChevronUp, Lock } from 'lucide-react';
 import {
   getStoredCookieConsent,
   saveCookieConsent,
@@ -10,6 +10,14 @@ import {
   CookieConsentPreferences,
 } from '../utils/cookies';
 import { pushRoute } from '../utils/routing';
+
+const inlineLinkStyles = 'font-medium text-fg underline underline-offset-4 transition-colors hover:text-fg-muted';
+const inlineButtonStyles =
+  'inline-flex cursor-pointer items-center gap-2 border border-line-mid px-3.5 py-2 font-mono text-2xs tracking-wider2 text-fg-muted uppercase transition-colors hover:border-line-strong hover:text-fg';
+const primaryButtonStyles =
+  'inline-flex cursor-pointer items-center justify-center border border-paper bg-paper px-4 py-2 font-mono text-2xs tracking-wider2 text-ink uppercase transition-colors hover:bg-ink hover:text-paper';
+const checkboxStyles =
+  'h-4 w-4 shrink-0 cursor-pointer appearance-none border border-line-strong bg-ink transition-colors checked:border-paper checked:bg-paper';
 
 export const CookieConsentBanner: React.FC = () => {
   const [visible, setVisible] = useState(false);
@@ -82,48 +90,49 @@ export const CookieConsentBanner: React.FC = () => {
       {visible && (
         <motion.div
           key="cookie-consent"
-          initial={{ opacity: 0, y: 50, scale: 0.98 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          exit={{ opacity: 0, y: 50, scale: 0.98 }}
+          initial={{ opacity: 0, y: 50 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 50 }}
           transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-          className="fixed bottom-4 left-4 right-4 md:left-6 md:right-auto md:bottom-6 md:max-w-md z-[70] bg-neutral-950/95 backdrop-blur-xl border border-neutral-800 text-neutral-200 rounded-2xl shadow-2xl p-5 overflow-hidden"
+          className="fixed right-4 bottom-4 left-4 z-[70] border border-line-mid bg-ink p-5 text-fg md:right-auto md:bottom-6 md:left-6 md:max-w-md"
           role="region"
           aria-label="Cookie consent banner"
         >
-          {/* Subtle Ambient Glow */}
-          <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-2xl pointer-events-none -mr-10 -mt-10" />
-
           {/* Header */}
-          <div className="flex items-start justify-between gap-3 mb-3 relative">
-            <div className="flex items-center gap-2.5">
-              <div className="p-2 rounded-lg bg-neutral-900 border border-neutral-800 text-neutral-300">
-                <Shield className="w-4 h-4 text-emerald-400" />
-              </div>
+          <div className="flex items-start justify-between gap-3 border-b border-line pb-3">
+            <div className="flex items-center gap-3">
+              <span className="grid h-8 w-8 shrink-0 place-items-center border border-line-strong text-fg">
+                <Shield size={15} aria-hidden="true" />
+              </span>
               <div>
-                <h3 className="text-sm font-medium text-white">Privacy &amp; Cookie Choices</h3>
-                <span className="text-[11px] text-neutral-500 font-mono">Respecting your preferences</span>
+                <h3 className="font-mono text-2xs tracking-label text-fg uppercase">
+                  Privacy &amp; Cookie Choices
+                </h3>
+                <span className="mt-0.5 block font-mono text-2xs text-fg-dim">
+                  Respecting your preferences
+                </span>
               </div>
             </div>
 
             <button
               type="button"
               onClick={handleEssentialOnly}
-              className="text-neutral-500 hover:text-white transition-colors p-1 -mr-1 rounded-md"
+              className="cursor-pointer p-1 text-fg-dim transition-colors hover:text-fg"
               aria-label="Close and continue with essential only"
               title="Accept essential only"
             >
-              <X className="w-4 h-4" />
+              <X size={16} />
             </button>
           </div>
 
-          {/* Main Notice */}
-          <p className="text-xs text-neutral-400 leading-relaxed mb-4 relative">
+          {/* Main notice */}
+          <p className="mt-4 text-[0.8125rem] leading-relaxed text-fg-muted">
             We use strictly necessary storage to keep the site secure and functional. With your consent, we also use optional
             cookies to improve performance and preserve AI chat state. Learn more in our{' '}
             <button
               type="button"
               onClick={() => pushRoute('/cookies')}
-              className="text-white underline hover:text-neutral-300 font-medium cursor-pointer"
+              className={`${inlineLinkStyles} cursor-pointer`}
             >
               Cookie Policy
             </button>{' '}
@@ -131,13 +140,13 @@ export const CookieConsentBanner: React.FC = () => {
             <button
               type="button"
               onClick={() => pushRoute('/privacy')}
-              className="text-white underline hover:text-neutral-300 font-medium cursor-pointer"
+              className={`${inlineLinkStyles} cursor-pointer`}
             >
               Privacy Policy
             </button>.
           </p>
 
-          {/* Expandable Granular Controls */}
+          {/* Expandable granular controls */}
           <AnimatePresence>
             {showCustomize && (
               <motion.div
@@ -145,75 +154,77 @@ export const CookieConsentBanner: React.FC = () => {
                 animate={{ opacity: 1, height: 'auto' }}
                 exit={{ opacity: 0, height: 0 }}
                 transition={{ duration: 0.25 }}
-                className="overflow-hidden mb-4 space-y-2.5 border-t border-neutral-800/80 pt-3 text-xs"
+                className="overflow-hidden"
               >
-                {/* Strictly Necessary */}
-                <div className="flex items-start justify-between gap-3 p-2.5 rounded-lg bg-neutral-900/60 border border-neutral-800/80">
-                  <div className="space-y-0.5">
-                    <div className="flex items-center gap-1.5 font-medium text-white">
-                      <span>Strictly Necessary</span>
-                      <Lock className="w-3 h-3 text-neutral-500" />
+                <div className="mt-4 space-y-px border border-line bg-line">
+                  {/* Strictly Necessary */}
+                  <div className="flex items-start justify-between gap-3 bg-panel p-3">
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-1.5 font-sans text-[0.8125rem] font-medium text-fg">
+                        <span>Strictly Necessary</span>
+                        <Lock size={12} className="text-fg-dim" aria-hidden="true" />
+                      </div>
+                      <p className="text-[11px] leading-relaxed text-fg-dim">
+                        Core security, session routing, and consent preferences. Always enabled.
+                      </p>
                     </div>
-                    <p className="text-[11px] text-neutral-400">
-                      Core security, session routing, and consent preferences. Always enabled.
-                    </p>
+                    <span className="shrink-0 border border-line-mid px-2 py-0.5 font-mono text-2xs tracking-wider2 text-fg-faint uppercase">
+                      Required
+                    </span>
                   </div>
-                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-neutral-800 text-neutral-400 shrink-0">
-                    Required
-                  </span>
-                </div>
 
-                {/* Functional */}
-                <div className="flex items-start justify-between gap-3 p-2.5 rounded-lg bg-neutral-900/60 border border-neutral-800/80">
-                  <div className="space-y-0.5">
-                    <div className="font-medium text-white">Functional &amp; State</div>
-                    <p className="text-[11px] text-neutral-400">
-                      Preserves recent AI Assistant chat context and custom interface settings.
-                    </p>
+                  {/* Functional */}
+                  <div className="flex items-start justify-between gap-3 bg-panel p-3">
+                    <div className="space-y-1">
+                      <div className="font-sans text-[0.8125rem] font-medium text-fg">Functional &amp; State</div>
+                      <p className="text-[11px] leading-relaxed text-fg-dim">
+                        Preserves recent AI Assistant chat context and custom interface settings.
+                      </p>
+                    </div>
+                    <label className="inline-flex shrink-0 cursor-pointer items-center pt-0.5">
+                      <input
+                        type="checkbox"
+                        checked={functional}
+                        onChange={(e) => setFunctional(e.target.checked)}
+                        className={checkboxStyles}
+                        aria-label="Enable functional and state storage"
+                      />
+                    </label>
                   </div>
-                  <label className="relative inline-flex items-center cursor-pointer shrink-0 mt-0.5">
-                    <input
-                      type="checkbox"
-                      checked={functional}
-                      onChange={(e) => setFunctional(e.target.checked)}
-                      className="sr-only peer"
-                    />
-                    <div className="w-8 h-4 bg-neutral-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-neutral-400 peer-checked:after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-emerald-600"></div>
-                  </label>
-                </div>
 
-                {/* Analytics */}
-                <div className="flex items-start justify-between gap-3 p-2.5 rounded-lg bg-neutral-900/60 border border-neutral-800/80">
-                  <div className="space-y-0.5">
-                    <div className="font-medium text-white">Analytics &amp; Performance</div>
-                    <p className="text-[11px] text-neutral-400">
-                      Anonymous aggregate telemetry to measure page speed and core web vitals.
-                    </p>
+                  {/* Analytics */}
+                  <div className="flex items-start justify-between gap-3 bg-panel p-3">
+                    <div className="space-y-1">
+                      <div className="font-sans text-[0.8125rem] font-medium text-fg">Analytics &amp; Performance</div>
+                      <p className="text-[11px] leading-relaxed text-fg-dim">
+                        Anonymous aggregate telemetry to measure page speed and core web vitals.
+                      </p>
+                    </div>
+                    <label className="inline-flex shrink-0 cursor-pointer items-center pt-0.5">
+                      <input
+                        type="checkbox"
+                        checked={analytics}
+                        onChange={(e) => setAnalytics(e.target.checked)}
+                        className={checkboxStyles}
+                        aria-label="Enable analytics and performance storage"
+                      />
+                    </label>
                   </div>
-                  <label className="relative inline-flex items-center cursor-pointer shrink-0 mt-0.5">
-                    <input
-                      type="checkbox"
-                      checked={analytics}
-                      onChange={(e) => setAnalytics(e.target.checked)}
-                      className="sr-only peer"
-                    />
-                    <div className="w-8 h-4 bg-neutral-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-neutral-400 peer-checked:after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-emerald-600"></div>
-                  </label>
                 </div>
               </motion.div>
             )}
           </AnimatePresence>
 
-          {/* Action Buttons */}
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 pt-1">
+          {/* Action buttons */}
+          <div className="mt-4 flex flex-col items-stretch justify-between gap-2 border-t border-line pt-4 sm:flex-row sm:items-center">
             <button
               type="button"
               onClick={() => setShowCustomize(!showCustomize)}
-              className="inline-flex items-center justify-center gap-1.5 text-xs text-neutral-400 hover:text-white py-1.5 transition-colors cursor-pointer"
+              className="inline-flex cursor-pointer items-center justify-center gap-1.5 font-mono text-2xs tracking-wider2 text-fg-dim uppercase transition-colors hover:text-fg"
             >
-              <Settings className="w-3.5 h-3.5" />
+              <Settings size={13} aria-hidden="true" />
               <span>{showCustomize ? 'Hide Options' : 'Customize'}</span>
-              {showCustomize ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+              {showCustomize ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
             </button>
 
             <div className="flex items-center gap-2">
@@ -221,7 +232,7 @@ export const CookieConsentBanner: React.FC = () => {
                 <button
                   type="button"
                   onClick={handleSavePreferences}
-                  className="w-full sm:w-auto px-3.5 py-1.5 rounded-lg bg-neutral-800 hover:bg-neutral-700 text-white text-xs font-medium transition-colors border border-neutral-700 cursor-pointer text-center"
+                  className={`${inlineButtonStyles} w-full justify-center text-fg sm:w-auto`}
                 >
                   Save Choices
                 </button>
@@ -229,7 +240,7 @@ export const CookieConsentBanner: React.FC = () => {
                 <button
                   type="button"
                   onClick={handleEssentialOnly}
-                  className="w-full sm:w-auto px-3.5 py-1.5 rounded-lg border border-neutral-800 hover:border-neutral-700 bg-neutral-900 text-neutral-300 hover:text-white text-xs font-medium transition-colors cursor-pointer text-center"
+                  className={`${inlineButtonStyles} w-full justify-center sm:w-auto`}
                 >
                   Essential Only
                 </button>
@@ -238,7 +249,7 @@ export const CookieConsentBanner: React.FC = () => {
               <button
                 type="button"
                 onClick={handleAcceptAll}
-                className="w-full sm:w-auto px-4 py-1.5 rounded-lg bg-white text-black hover:bg-neutral-200 text-xs font-medium transition-colors cursor-pointer text-center shadow-sm"
+                className={`${primaryButtonStyles} w-full sm:w-auto`}
               >
                 Accept All
               </button>
