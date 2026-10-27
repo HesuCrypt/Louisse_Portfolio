@@ -8,7 +8,7 @@ import { containerVariants, itemVariants } from '../motion/variants';
 const endorsements = [
   {
     lead: 'Delivered fast and with great quality, especially with our tight timeline before Mother’s Day.',
-    body: 'Louisse worked tirelessly to meet the deadline. The design matched our brand perfectly, and every request was handled seamlessly—including bonus improvements within budget. Clear communication, technical honesty, and finding ways to save us money made the whole process smooth.',
+    body: 'Louisse worked tirelessly to meet the deadline. The design matched our brand perfectly, and every request was handled seamlessly, including bonus improvements within budget. Clear communication, technical honesty, and finding ways to save us money made the whole process smooth.',
     author: 'Maricel',
     title: 'Owner',
     company: 'La Fleur',

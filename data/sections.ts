@@ -20,12 +20,12 @@ export interface SectionLink {
  */
 export const sections: SectionLink[] = [
   { index: '01', id: 'top', label: 'Identity', nav: 'Identity' },
-  { index: '02', id: 'experience', label: 'Experience', nav: 'Experience' },
-  { index: '03', id: 'projects', label: 'Selected Work', nav: 'Work' },
-  { index: '04', id: 'testimonials', label: 'Endorsements', nav: 'Endorsements' },
-  { index: '05', id: 'capabilities', label: 'Capabilities & Rates', nav: 'Capabilities' },
-  { index: '06', id: 'directory', label: 'Technical Directory', nav: 'Directory' },
-  { index: '07', id: 'about', label: 'Profile', nav: 'Profile' },
+  { index: '02', id: 'about', label: 'Profile', nav: 'Profile' },
+  { index: '03', id: 'experience', label: 'Experience', nav: 'Experience' },
+  { index: '04', id: 'projects', label: 'Selected Work', nav: 'Work' },
+  { index: '05', id: 'testimonials', label: 'Endorsements', nav: 'Endorsements' },
+  { index: '06', id: 'capabilities', label: 'Capabilities & Rates', nav: 'Capabilities' },
+  { index: '07', id: 'directory', label: 'Technical Directory', nav: 'Directory' },
   { index: '08', id: 'contact', label: 'Contact', nav: 'Contact' },
 ];
 

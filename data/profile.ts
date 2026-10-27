@@ -7,9 +7,9 @@ export const profile = {
     subtext: "High-performance web apps, Shopify storefronts, and AI workflow automation. Recent work lifted online sales at ISSY Cosmetics by 170%."
   },
   about: {
-    title: "I build it, then I keep it running",
-    description: `I'm a web developer and AI implementation specialist. My work splits two ways: the interface people actually use, and the systems behind it that decide whether it converts.
+    title: "Full-stack web engineering & autonomous AI systems",
+    description: `Web developer and AI implementation specialist based in Manila. I bridge user-facing digital experiences with backend automations that drive measurable revenue.
 
-In practice that means Shopify storefronts built for conversion, web apps that hold up under real traffic, and AI agents and n8n pipelines that take manual work off someone's desk. What I care about is what changes after launch: sales, response times, hours saved.`
+Specialized in high-conversion Shopify storefronts, resilient web applications, and multi-step AI pipelines (n8n, LLM agents) that eliminate manual operational bottlenecks.`
   }
 };

@@ -28,7 +28,7 @@ export const Projects: React.FC = () => {
             label={label}
             title="Commercial platforms and client builds"
             meta="Case Studies"
-            description="A short list of engagements where the outcome is measurable — revenue, concurrency, or platform stability."
+            description="A curated list of engagements with measurable outcomes in revenue, concurrency, and stability."
           />
 
           <div className="mt-10 grid grid-cols-1 gap-px border border-line bg-line lg:grid-cols-2">

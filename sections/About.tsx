@@ -12,7 +12,7 @@ import { scrollToSection, pushRoute } from '../utils/routing';
 import { ArrowUpRight } from 'lucide-react';
 
 const credentials = [
-  { label: 'Current Focus', value: 'Lead IT — Web & AI', caption: 'ISSY Cosmetics' },
+  { label: 'Current Focus', value: 'Lead IT · Web & AI', caption: 'ISSY Cosmetics' },
   { label: 'Primary Stack', value: 'React · Next.js · TS', caption: 'Tailwind, Node, MySQL, Supabase' },
   { label: 'AI & Automation', value: 'n8n · Claude · ADK', caption: 'Custom agents & pipelines' },
   { label: 'Location', value: 'Manila, PH', caption: 'Remote / async worldwide' },
@@ -35,7 +35,7 @@ export const About: React.FC = () => {
             label={label}
             title={profile.about.title}
             meta="Manila · Remote Worldwide"
-            description="The short version: I build the website, the systems behind it, and the automation that keeps it running."
+            description="High-converting Shopify storefronts, resilient web applications, and autonomous AI systems."
           />
 
           <div className="mt-10 grid grid-cols-1 gap-10 lg:grid-cols-12 lg:gap-14">
@@ -45,7 +45,7 @@ export const About: React.FC = () => {
                 <div className="relative aspect-[4/5] w-full overflow-hidden bg-panel">
                   <img
                     src="/louisse-portrait.jpg"
-                    alt="Louisse Dominique Bertillo — Web Developer & AI Implementation"
+                    alt="Louisse Dominique Bertillo: Web Developer & AI Implementation"
                     className="h-full w-full object-cover object-center grayscale contrast-[1.05]"
                     loading="lazy"
                   />
@@ -89,8 +89,8 @@ export const About: React.FC = () => {
                     How I Work
                   </span>
                   <p className="mt-3 text-[0.8125rem] leading-relaxed text-fg-muted">
-                    Fixed scope, clear milestones, and a staging link you can review before anything
-                    goes live. You always know what is being built and when it ships.
+                    Fixed scope, defined milestones, and private staging links. You always know what is
+                    shipping and when.
                   </p>
                 </div>
                 <div className="bg-ink p-6">
@@ -98,8 +98,8 @@ export const About: React.FC = () => {
                     What I Optimize For
                   </span>
                   <p className="mt-3 text-[0.8125rem] leading-relaxed text-fg-muted">
-                    Load speed, conversion, and the operational cost of maintaining the thing after
-                    launch — not just how it looks on day one.
+                    Sub-second load times, checkout conversion, and minimal operational maintenance
+                    after launch.
                   </p>
                 </div>
               </div>

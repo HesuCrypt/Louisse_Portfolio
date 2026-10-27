@@ -13,7 +13,7 @@ export interface Project {
 export const projects: Project[] = [
   {
     title: "Y2K Retro Desktop OS",
-    description: "A browser-based desktop environment you can actually use — draggable windows, a procedural Web Audio synthesizer, a media player, and an embedded AI companion.",
+    description: "A browser-based desktop environment with draggable windows, a procedural Web Audio synthesizer, a media player, and an embedded AI companion.",
     tech: "React 19, TypeScript, Web Audio API, Framer Motion, Tailwind",
     category: "Web App",
     live: "https://github.com/hesucrypt/y2k-retro-desktop-os",
@@ -57,7 +57,7 @@ export const projects: Project[] = [
   },
   {
     title: "3D Farming Game",
-    description: "A browser-based 3D experiment in scene rendering and interaction — tile-based farming, rendered in WebGL and playable on a phone.",
+    description: "A browser-based 3D experiment in scene rendering and interaction with tile-based farming, rendered in WebGL and playable on mobile.",
     tech: "React, Three.js, WebGL",
     category: "Game",
     live: "https://issy-farm.vercel.app/",
@@ -84,7 +84,7 @@ export const projects: Project[] = [
   },
   {
     title: "Appointment Scheduler",
-    description: "A booking workflow that removes the back-and-forth — clients claim a slot, availability stays accurate, and confirmations send themselves.",
+    description: "A booking workflow where clients claim a slot, availability stays synchronized, and confirmations send automatically.",
     tech: "React, Supabase, Postgres, Tailwind",
     category: "Business Site",
     live: "https://hesucrypt.github.io/appointment/",

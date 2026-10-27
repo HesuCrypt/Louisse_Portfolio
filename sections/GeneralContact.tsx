@@ -13,6 +13,7 @@ import {
 import { Container } from '../ui/Container';
 import { SectionHeader } from '../ui/SectionHeader';
 import { Body } from '../ui/Text';
+import { sectionMeta } from '../data/sections';
 
 const inquiryOptions = [
   'Job Opportunity',
@@ -125,6 +126,8 @@ export const GeneralContact: React.FC = () => {
 
   const selectedInquiryLabel = formData.inquiryType || 'Select inquiry type';
 
+  const { index: sectionIndex, label: sectionLabel } = sectionMeta('contact');
+
   return (
     <section id="contact" className="scroll-mt-[var(--topbar-h)] py-16 md:py-24">
       <Container>
@@ -135,8 +138,8 @@ export const GeneralContact: React.FC = () => {
           viewport={{ once: true, margin: '-10%' }}
         >
           <SectionHeader
-            index="08"
-            label="Contact"
+            index={sectionIndex}
+            label={sectionLabel}
             title="Let's work together"
             meta="Response under 24h"
           />
@@ -145,8 +148,8 @@ export const GeneralContact: React.FC = () => {
             {/* Left: intro + direct channels */}
             <motion.div variants={itemVariants} className="lg:col-span-4">
               <Body className="text-base md:text-[1.0625rem]">
-                Open to job opportunities, contract roles, collaborations, and freelance projects.
-                Every message lands in my inbox — not a ticket queue.
+                Available for engineering roles, contract projects, and freelance engagements.
+                Direct communication, fast turnaround.
               </Body>
 
               <div className="mt-8 border-t border-line">

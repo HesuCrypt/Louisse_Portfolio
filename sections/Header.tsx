@@ -15,7 +15,7 @@ import {
 } from '../utils/routing';
 
 /** Desktop bar shows a deliberate subset, ordered to follow the page itself. */
-const desktopNavIds = ['experience', 'projects', 'capabilities', 'directory', 'about', 'contact'];
+const desktopNavIds = ['about', 'experience', 'projects', 'capabilities', 'directory', 'contact'];
 const desktopNav = sections.filter((section) => desktopNavIds.includes(section.id));
 
 interface HeaderProps {
@@ -100,7 +100,7 @@ export const Header: React.FC<HeaderProps> = ({ currentRoute }) => {
             type="button"
             onClick={handleLogoClick}
             className="flex shrink-0 items-center gap-3"
-            aria-label="Louisse Dominique Bertillo — back to top"
+            aria-label="Louisse Dominique Bertillo: back to top"
           >
             <span className="grid h-8 w-8 place-items-center bg-paper font-mono text-[11px] leading-none font-bold text-ink">
               LB
@@ -139,7 +139,7 @@ export const Header: React.FC<HeaderProps> = ({ currentRoute }) => {
 
             <span className="hidden items-center gap-2 border border-line-mid px-2.5 py-1.5 font-mono text-2xs tracking-wider2 text-fg-dim uppercase lg:flex">
               <span className="h-1.5 w-1.5 bg-paper" aria-hidden="true" />
-              Available — Select Projects
+              Available · Select Projects
             </span>
 
             <Button

@@ -42,7 +42,7 @@ export const servicePackages: ServicePackage[] = [
     basePricePhp: 10000,
     scopeLine: '1 high-impact page · 2–3 days turnaround',
     summary: [
-      'One page, done properly — the fastest route from nothing to a live, high-converting presence.',
+      'One page, done properly: the fastest route from nothing to a live, high-converting presence.',
       'Covers the hero, bio, project grid, social hub, direct contact CTA, and core SEO.',
     ],
     pagesTitle: 'Pages Included (PHP 6,000 value)',

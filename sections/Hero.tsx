@@ -32,7 +32,7 @@ const performanceLog = [
     value: <CountUp to={120} suffix="K+" />,
     caption: 'Requests in 72 hours',
   },
-  { index: '04', label: 'Based In', value: 'MANILA', caption: 'Working remotely worldwide' },
+  { index: '04', label: 'Based In', value: 'MANILA', caption: 'Remote worldwide' },
 ];
 
 const clients = [

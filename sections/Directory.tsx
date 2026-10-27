@@ -62,7 +62,7 @@ export const Directory: React.FC = () => {
             label={label}
             title="Systems, experiments and open builds"
             meta={`${filteredProjects.length} / ${projects.length} entries`}
-            description="Open any entry to read how it was architected, what shipped, and where the source lives."
+            description="Technical architecture, live deployments, and source repositories across select software builds."
           />
 
           <div className="mt-8 flex flex-wrap gap-2">

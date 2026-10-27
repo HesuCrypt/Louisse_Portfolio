@@ -29,9 +29,9 @@ export const Capabilities: React.FC = () => {
           <SectionHeader
             index={sectionIndex}
             label={label}
-            title="What I build, and what it costs"
+            title="Capabilities & Rates"
             meta="Fixed scope · PHP"
-            description="A stack I actually build with, not a keyword list. The rates below are fixed-scope packages — the full breakdown, comparison matrix, and add-ons live on the services page."
+            description="Battle-tested production technologies paired with transparent, fixed-scope investment tiers."
           />
 
           {/* Stack directory — each category enters on its own beat */}
@@ -103,8 +103,8 @@ export const Capabilities: React.FC = () => {
               </ul>
 
               <Body className="mt-6 text-[0.8125rem]">
-                Every engagement starts with a scoping call. Deposits are 50% upfront, 50% on
-                staging sign-off — no retainer required unless you want ongoing care.
+                Clear milestones and zero hidden fees. Standard terms: 50% upfront deposit, 50%
+                upon final staging sign-off.
               </Body>
 
               <div className="mt-6 flex flex-wrap gap-2">

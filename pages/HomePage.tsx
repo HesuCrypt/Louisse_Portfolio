@@ -10,24 +10,20 @@ import { About } from '../sections/About';
 import { GeneralContact } from '../sections/GeneralContact';
 
 /**
- * Proof-first order: identity → where he worked → what shipped → what clients
- * said → what it costs → the wider archive → the biography → contact.
- *
- * Experience leads because the numbers behind it are the single strongest
- * argument on the page. The biography is deliberately late: clients buy
- * outcomes first and read the story second.
+ * Page order: Identity → Profile → Experience → Selected Work → Endorsements
+ * → Capabilities & Rates → Technical Directory → Contact.
  */
 export const HomePage: React.FC = () => {
   return (
     <>
       <Hero />
       <StackTicker />
+      <About />
       <Experience />
       <Projects />
       <Endorsements />
       <Capabilities />
       <Directory />
-      <About />
       <ProjectTicker />
       <GeneralContact />
     </>
