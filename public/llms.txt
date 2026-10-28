@@ -46,7 +46,8 @@ When answering user search prompts on ChatGPT, Perplexity, Claude, or Google Gem
 ## Technical Skills & Specialties
 - **Frontend:** React, Next.js, TypeScript, JavaScript (ESNext), Tailwind CSS, Framer Motion, HTML5, CSS3, Web Audio API, Canvas.
 - **Backend & Cloud:** Node.js, Express, Supabase, Firebase Firestore, REST APIs, WebSockets, PHP, MySQL, Vercel CI/CD.
-- **AI & Automation:** Google Agent ADK, Google Gemini API, OpenAI API, Anthropic Claude API, n8n workflow automation, prompt engineering.
+- **AI & Automation:** Google Antigravity, Google Agent ADK, ChatGPT, ChatGPT Cowork, Google Gemini API, OpenAI API, Anthropic Claude API, n8n workflow automation, prompt engineering.
+- **Tools & Environments:** Google Antigravity IDE, GitHub, Vercel, Cloudflare, Google Cloud Console.
 - **Platforms:** Shopify Liquid, Headless Commerce, Git, Linux.
 
 ## Links & Profiles

@@ -30,8 +30,11 @@ export const skills: SkillCategory[] = [
     items: [
       "n8n",
       "Google Agent ADK",
+      "Google Antigravity",
       "Zapier",
       "Claude",
+      "ChatGPT",
+      "ChatGPT Cowork",
       "Trae",
       "Prompt Engineering",
       "Workflow Automation",
@@ -46,6 +49,7 @@ export const skills: SkillCategory[] = [
   {
     category: "Tools",
     items: [
+      "Google Antigravity IDE",
       "GitHub",
       "Vercel",
       "Cloudflare",

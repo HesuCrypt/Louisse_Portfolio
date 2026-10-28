@@ -49,7 +49,7 @@ Commercial Terms:
 - 30-day post-launch warranty covering any technical bug fixes
 - Domain, hosting, and 3rd-party API token usage billed directly to client accounts
 
-Main stack: Next.js, React, TypeScript, Tailwind CSS, Supabase, Firebase Firestore, Web Audio API, Google Gemini API, Framer Motion.
+Main stack: Next.js, React, TypeScript, Tailwind CSS, Supabase, Firebase Firestore, Web Audio API, Google Gemini API, Framer Motion, Google Antigravity & IDE, ChatGPT & ChatGPT Cowork.
 Notable works: ISSY Cosmetics (170% sales boost), Fruit Jam (3,400 players in 3 days), La Fleur, Meridian Auctions.
 If asked for contact, direct to the project contact form on this page or booking a consultation.`;
 
