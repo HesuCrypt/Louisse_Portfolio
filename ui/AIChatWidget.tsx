@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { MessageCircle, X, SendHorizontal, Sparkles, Bot } from 'lucide-react';
+import { MessageCircle, X, SendHorizontal, Sparkles, Bot, RotateCcw, Copy, Check } from 'lucide-react';
 import { sound } from '../utils/sound';
+import { FormattedChatText } from './FormattedChatText';
 
 type ChatMessage = {
   role: 'user' | 'assistant';
@@ -8,13 +9,14 @@ type ChatMessage = {
 };
 
 const starterMessage =
-  "Hi! I'm Louisse's AI assistant. Ask me about website packages, timelines, tech stack, or which package fits your business.";
+  "Hi! I'm Louisse's AI assistant. Ask me about **website packages**, timelines, tech stack, or which package fits your business best.";
 
 const promptSuggestions = [
+  'Can you help choose a package?',
   'What does the ₱45k Business tier include?',
-  'How does the 50/50 payment split work?',
+  'Turnaround for Starter (₱30k)?',
   'Tell me about the ₱100k Bespoke Web App',
-  'What is the turnaround for Starter (₱30k)?',
+  'How does the 50/50 payment split work?',
 ];
 
 export function openAIChat(prompt?: string) {
@@ -25,6 +27,7 @@ export const AIChatWidget: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
   const messagesContainerRef = useRef<HTMLDivElement | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([
     { role: 'assistant', content: starterMessage },
@@ -62,9 +65,28 @@ export const AIChatWidget: React.FC = () => {
     container.scrollTop = container.scrollHeight;
   }, [messages, isLoading, isOpen]);
 
+  const handleCopy = async (text: string, index: number) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      sound.playClick();
+      setCopiedIndex(index);
+      setTimeout(() => setCopiedIndex(null), 2000);
+    } catch {
+      // Ignore clipboard write failures
+    }
+  };
+
+  const handleResetChat = () => {
+    sound.playClick();
+    setMessages([{ role: 'assistant', content: starterMessage }]);
+    setInput('');
+  };
+
   const sendMessage = async (overrideText?: string) => {
     const textToSend = (overrideText ?? input).trim();
     if (!textToSend || isLoading) return;
+
+    sound.playClick();
 
     const nextMessages: ChatMessage[] = [...messages, { role: 'user', content: textToSend }];
     setMessages(nextMessages);
@@ -104,6 +126,8 @@ export const AIChatWidget: React.FC = () => {
 
       const data = await response.json();
       const answer = data?.answer?.trim();
+
+      sound.playPop();
 
       setMessages([
         ...nextMessages,
@@ -163,12 +187,12 @@ export const AIChatWidget: React.FC = () => {
 
   return (
     <div
-      className={`fixed right-4 z-[60] transition-all duration-300 md:right-6 ${
+      className={`fixed right-3 z-[60] transition-all duration-300 sm:right-6 ${
         hasCookieBanner
           ? isOpen
-            ? 'bottom-[calc(var(--strip-h)+1rem)] md:bottom-6'
+            ? 'bottom-[calc(var(--strip-h)+0.75rem)] md:bottom-6'
             : 'hidden md:block md:bottom-6'
-          : 'bottom-[calc(var(--strip-h)+1rem)] md:bottom-6'
+          : 'bottom-[calc(var(--strip-h)+0.75rem)] md:bottom-6'
       }`}
     >
       {!isOpen ? (
@@ -177,18 +201,18 @@ export const AIChatWidget: React.FC = () => {
             sound.playPop();
             setIsOpen(true);
           }}
-          className="inline-flex cursor-pointer items-center gap-2 border border-line-mid bg-ink px-4 py-2.5 font-mono text-2xs tracking-wider2 text-fg uppercase transition-colors duration-200 hover:border-paper hover:bg-paper hover:text-ink"
+          className="inline-flex cursor-pointer items-center gap-2 border border-line-mid bg-ink px-4 py-2.5 font-mono text-2xs tracking-wider2 text-fg uppercase transition-colors duration-200 hover:border-paper hover:bg-paper hover:text-ink shadow-lg"
           aria-label="Open AI chat assistant"
         >
           <MessageCircle size={15} aria-hidden="true" />
           <span>Ask AI</span>
         </button>
       ) : (
-        <div className="flex w-[360px] max-w-[calc(100vw-2rem)] flex-col overflow-hidden border border-line-mid bg-ink">
+        <div className="flex w-[390px] max-w-[calc(100vw-1.5rem)] flex-col overflow-hidden border border-line-strong bg-ink shadow-2xl">
           {/* Header */}
-          <div className="flex items-center justify-between gap-3 border-b border-line px-4 py-3">
+          <div className="flex items-center justify-between gap-3 border-b border-line px-4 py-3 bg-panel/60">
             <div className="flex items-center gap-3">
-              <span className="grid h-8 w-8 shrink-0 place-items-center border border-line-strong text-fg">
+              <span className="grid h-8 w-8 shrink-0 place-items-center border border-line-strong bg-ink text-fg">
                 <Bot size={15} aria-hidden="true" />
               </span>
               <div>
@@ -198,45 +222,81 @@ export const AIChatWidget: React.FC = () => {
                 </p>
               </div>
             </div>
-            <button
-              onClick={() => {
-                setIsOpen(false);
-              }}
-              className="cursor-pointer p-1 text-fg-dim transition-colors hover:text-fg"
-              aria-label="Close AI chat assistant"
-            >
-              <X size={16} />
-            </button>
+            <div className="flex items-center gap-1.5">
+              <button
+                type="button"
+                onClick={handleResetChat}
+                className="cursor-pointer p-1.5 text-fg-dim transition-colors hover:text-fg"
+                title="Reset conversation"
+                aria-label="Reset conversation"
+              >
+                <RotateCcw size={14} />
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  sound.playClick();
+                  setIsOpen(false);
+                }}
+                className="cursor-pointer p-1.5 text-fg-dim transition-colors hover:text-fg"
+                aria-label="Close AI chat assistant"
+              >
+                <X size={16} />
+              </button>
+            </div>
           </div>
 
           {/* Messages */}
           <div
             ref={messagesContainerRef}
-            className="h-[50vh] max-h-[380px] space-y-3 overflow-y-auto bg-panel p-3.5 sm:h-80 sm:p-4"
+            className="h-[52vh] max-h-[400px] space-y-3.5 overflow-y-auto bg-panel p-3.5 sm:h-84 sm:p-4"
           >
-            {messages.map((message, index) => (
-              <div
-                key={`${message.role}-${index}`}
-                className={`max-w-[88%] border px-3.5 py-2.5 text-[0.8125rem] leading-relaxed ${
-                  message.role === 'assistant'
-                    ? 'border-line bg-ink text-fg-muted'
-                    : 'ml-auto border-paper bg-paper text-ink'
-                }`}
-              >
-                {message.content}
-              </div>
-            ))}
+            {messages.map((message, index) => {
+              const isAssistant = message.role === 'assistant';
+              return (
+                <div
+                  key={`${message.role}-${index}`}
+                  className={`group relative max-w-[90%] border px-3.5 py-3 transition-colors ${
+                    isAssistant
+                      ? 'border-line-mid bg-ink text-fg-muted'
+                      : 'ml-auto border-paper bg-paper text-ink font-medium shadow-sm'
+                  }`}
+                >
+                  <FormattedChatText content={message.content} isUser={!isAssistant} />
+
+                  {isAssistant && (
+                    <button
+                      type="button"
+                      onClick={() => handleCopy(message.content, index)}
+                      className="absolute top-2 right-2 opacity-0 transition-opacity duration-150 group-hover:opacity-100 p-1 text-fg-faint hover:text-fg bg-ink/90 border border-line"
+                      title="Copy response"
+                      aria-label="Copy response"
+                    >
+                      {copiedIndex === index ? (
+                        <Check size={11} className="text-paper" />
+                      ) : (
+                        <Copy size={11} />
+                      )}
+                    </button>
+                  )}
+                </div>
+              );
+            })}
+
             {isLoading && (
-              <div className="flex max-w-[88%] items-center gap-2 border border-line bg-ink px-3.5 py-2.5 font-mono text-2xs tracking-wider2 text-fg-dim uppercase">
-                <span className="h-1.5 w-1.5 shrink-0 bg-paper" aria-hidden="true" />
-                <span>AI is typing…</span>
+              <div className="flex max-w-[88%] items-center gap-2.5 border border-line-mid bg-ink px-3.5 py-2.5 font-mono text-2xs tracking-wider2 text-fg-dim uppercase">
+                <span className="relative flex h-2 w-2">
+                  <span className="absolute inline-flex h-full w-full animate-ping bg-paper opacity-75" />
+                  <span className="relative inline-flex h-2 w-2 bg-paper" />
+                </span>
+                <span>AI is consulting knowledge base…</span>
               </div>
             )}
           </div>
 
           {/* Quick-prompt suggestion chips */}
-          <div className="no-scrollbar overflow-x-auto border-t border-line px-3 pt-2 pb-2">
-            <div className="flex items-center gap-2 pb-1">
+          <div className="no-scrollbar overflow-x-auto border-t border-line bg-panel/40 px-3 py-2">
+            <div className="flex items-center gap-2">
               <Sparkles size={11} className="shrink-0 text-fg-dim" aria-hidden="true" />
               <span className="shrink-0 font-mono text-2xs tracking-wider2 text-fg-dim uppercase">
                 Quick Ask
@@ -247,7 +307,7 @@ export const AIChatWidget: React.FC = () => {
                   type="button"
                   onClick={() => handleQuickPrompt(prompt)}
                   disabled={isLoading}
-                  className="shrink-0 cursor-pointer whitespace-nowrap border border-line px-2.5 py-1 font-mono text-2xs text-fg-muted transition-colors hover:border-line-strong hover:text-fg disabled:opacity-40"
+                  className="shrink-0 cursor-pointer whitespace-nowrap border border-line-mid bg-ink px-2.5 py-1 font-mono text-2xs text-fg-muted transition-colors hover:border-paper hover:text-fg disabled:cursor-not-allowed disabled:opacity-40"
                 >
                   {prompt}
                 </button>
@@ -256,7 +316,7 @@ export const AIChatWidget: React.FC = () => {
           </div>
 
           {/* Input bar */}
-          <div className="border-t border-line p-3">
+          <div className="border-t border-line p-3 bg-ink">
             <div className="flex items-center gap-2">
               <input
                 value={input}
@@ -267,12 +327,13 @@ export const AIChatWidget: React.FC = () => {
                     void sendMessage();
                   }
                 }}
-                placeholder="Ask about your project..."
-                className="flex-1 border border-line-mid bg-ink px-3 py-2 font-sans text-[0.8125rem] text-fg transition-colors placeholder-fg-faint focus-visible:border-paper focus-visible:outline-none"
+                placeholder="Ask about packages, rates, scope..."
+                className="flex-1 border border-line-mid bg-panel px-3 py-2 font-sans text-[0.8125rem] text-fg transition-colors placeholder:text-fg-faint focus-visible:border-paper focus-visible:outline-none"
               />
               <button
+                type="button"
                 onClick={() => void sendMessage()}
-                className="inline-flex cursor-pointer items-center justify-center border border-paper bg-paper p-2.5 text-ink transition-colors duration-200 hover:bg-ink hover:text-paper disabled:opacity-40"
+                className="inline-flex cursor-pointer items-center justify-center border border-paper bg-paper p-2.5 text-ink transition-colors duration-200 hover:bg-ink hover:text-paper disabled:cursor-not-allowed disabled:opacity-40"
                 disabled={isLoading || !input.trim()}
                 aria-label="Send message"
               >
@@ -285,3 +346,4 @@ export const AIChatWidget: React.FC = () => {
     </div>
   );
 };
+

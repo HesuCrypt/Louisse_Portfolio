@@ -54,7 +54,11 @@ CRITICAL SECURITY & TOPIC PERIMETER (NON-NEGOTIABLE):
 
 Tone and style rules:
 - Write in first person assistant voice (e.g., "I can help you choose the right package or calculate custom add-ons.")
-- Keep answers short, punchy, and practical (2-4 sentences unless user asks for an in-depth breakdown).
+- Keep answers short, punchy, and practical (2-4 sentences or clear bullet points).
+- Formatting guidelines for readability:
+  * Use clear line breaks and concise bullet points (* or -) for package comparisons, lists, or steps.
+  * Use **bold** for package names, prices (e.g. **₱45,000**), turnaround times, and key deliverables so they are easy to scan.
+  * Keep paragraphs short (1-2 sentences). Avoid walls of text.
 - Be specific with recommendations, never generic. Calculate exact prices or show tier comparisons when asked.
 - End with a clear next step when relevant (book a consultation, select a package on the contact form, share their timeline).
 - Do not mention being an AI model or language model.
@@ -82,7 +86,7 @@ Commercial Terms:
 - 30-day post-launch warranty covering any technical bug fixes
 - Domain, hosting, and 3rd-party API token usage billed directly to client accounts
 
-Main stack: Next.js, React, TypeScript, Tailwind CSS, Supabase, Firebase Firestore, Web Audio API, Google Gemini API, Framer Motion.
+Main stack: Next.js, React, TypeScript, Tailwind CSS, Supabase, Firebase Firestore, Web Audio API, Google Gemini API, Framer Motion, Google Antigravity & IDE, ChatGPT & ChatGPT Cowork.
 Notable works: ISSY Cosmetics (170% sales boost), Fruit Jam (3,400 players in 3 days), La Fleur, Meridian Auctions.
 If asked for contact, direct to the project contact form on this page or booking a consultation.`;
 
@@ -116,11 +120,9 @@ If asked for contact, direct to the project contact form on this page or booking
                     }
 
                     const candidateModels = [
-                      'gemini-3.8-flash',
-                      'gemini-3.6-flash',
-                      'gemini-3.5-flash-lite',
-                      'gemini-3.1-flash-lite',
                       'gemini-flash-lite-latest',
+                      'gemini-3.5-flash-lite',
+                      'gemini-3.6-flash',
                       'gemini-3.5-flash',
                       'gemini-flash-latest',
                     ];
@@ -128,11 +130,15 @@ If asked for contact, direct to the project contact form on this page or booking
                     let lastError = '';
 
                     for (const model of candidateModels) {
+                      const controller = new AbortController();
+                      const timeoutId = setTimeout(() => controller.abort(), 6500);
+
                       try {
                         const candidateRes = await fetch(
                           `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
                           {
                             method: 'POST',
+                            signal: controller.signal,
                             headers: {
                               'Content-Type': 'application/json',
                             },
@@ -144,6 +150,10 @@ If asked for contact, direct to the project contact form on this page or booking
                               systemInstruction: {
                                 parts: [{ text: systemPrompt }],
                               },
+                              generationConfig: {
+                                temperature: 0.7,
+                                maxOutputTokens: 800,
+                              },
                               safetySettings: [
                                 { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_LOW_AND_ABOVE' },
                                 { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_LOW_AND_ABOVE' },
@@ -153,6 +163,9 @@ If asked for contact, direct to the project contact form on this page or booking
                             }),
                           }
                         );
+
+                        clearTimeout(timeoutId);
+
                         if (candidateRes.ok) {
                           response = candidateRes;
                           break;
@@ -160,6 +173,7 @@ If asked for contact, direct to the project contact form on this page or booking
                           lastError = await candidateRes.text();
                         }
                       } catch (err: any) {
+                        clearTimeout(timeoutId);
                         lastError = String(err);
                       }
                     }
