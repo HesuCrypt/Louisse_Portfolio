@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { MessageCircle, X, SendHorizontal, Sparkles, Bot, RotateCcw, Copy, Check } from 'lucide-react';
+import { MessageCircle, X, SendHorizontal, Sparkles, Bot, RotateCcw, Copy, Check, ChevronDown } from 'lucide-react';
 import { sound } from '../utils/sound';
 import { FormattedChatText } from './FormattedChatText';
 
@@ -8,15 +8,41 @@ type ChatMessage = {
   content: string;
 };
 
+type QuickPrompt = {
+  id: string;
+  label: string;
+  prompt: string;
+};
+
 const starterMessage =
   "Hi! I'm Louisse's AI assistant. Ask me about **website packages**, timelines, tech stack, or which package fits your business best.";
 
-const promptSuggestions = [
-  'Can you help choose a package?',
-  'What does the ₱45k Business tier include?',
-  'Turnaround for Starter (₱30k)?',
-  'Tell me about the ₱100k Bespoke Web App',
-  'How does the 50/50 payment split work?',
+const quickPrompts: QuickPrompt[] = [
+  {
+    id: 'recommend',
+    label: 'Help Me Choose',
+    prompt: 'Can you help me choose the right website or web app package for my business?',
+  },
+  {
+    id: 'business',
+    label: '₱45k Business Tier',
+    prompt: 'What does the ₱45,000 Business Website package include and what are the deliverables?',
+  },
+  {
+    id: 'bespoke',
+    label: '₱100k Bespoke App',
+    prompt: 'Tell me more about the ₱100,000 Bespoke Web App flagship experience.',
+  },
+  {
+    id: 'turnaround',
+    label: 'Turnaround Times',
+    prompt: 'What are the estimated turnaround times for each website package?',
+  },
+  {
+    id: 'terms',
+    label: '50/50 Payment Terms',
+    prompt: 'How does your 50/50 payment milestone split and 30-day warranty work?',
+  },
 ];
 
 export function openAIChat(prompt?: string) {
@@ -28,6 +54,7 @@ export const AIChatWidget: React.FC = () => {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
+  const [showQuickAsk, setShowQuickAsk] = useState(true);
   const messagesContainerRef = useRef<HTMLDivElement | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([
     { role: 'assistant', content: starterMessage },
@@ -295,24 +322,42 @@ export const AIChatWidget: React.FC = () => {
           </div>
 
           {/* Quick-prompt suggestion chips */}
-          <div className="no-scrollbar overflow-x-auto border-t border-line bg-panel/40 px-3 py-2">
-            <div className="flex items-center gap-2">
-              <Sparkles size={11} className="shrink-0 text-fg-dim" aria-hidden="true" />
-              <span className="shrink-0 font-mono text-2xs tracking-wider2 text-fg-dim uppercase">
-                Quick Ask
+          <div className="border-t border-line bg-panel/50 px-3.5 py-2">
+            <div className="flex items-center justify-between">
+              <span className="flex items-center gap-1.5 font-mono text-2xs tracking-wider2 text-fg-dim uppercase">
+                <Sparkles size={11} className="text-paper" aria-hidden="true" />
+                <span>Quick Ask</span>
               </span>
-              {promptSuggestions.map((prompt) => (
-                <button
-                  key={prompt}
-                  type="button"
-                  onClick={() => handleQuickPrompt(prompt)}
-                  disabled={isLoading}
-                  className="shrink-0 cursor-pointer whitespace-nowrap border border-line-mid bg-ink px-2.5 py-1 font-mono text-2xs text-fg-muted transition-colors hover:border-paper hover:text-fg disabled:cursor-not-allowed disabled:opacity-40"
-                >
-                  {prompt}
-                </button>
-              ))}
+              <button
+                type="button"
+                onClick={() => setShowQuickAsk(!showQuickAsk)}
+                className="flex cursor-pointer items-center gap-1 font-mono text-[10px] tracking-wider2 text-fg-faint uppercase transition-colors hover:text-fg"
+                aria-label={showQuickAsk ? 'Hide quick prompts' : 'Show quick prompts'}
+              >
+                <span>{showQuickAsk ? 'Hide' : `${quickPrompts.length} Topics`}</span>
+                <ChevronDown
+                  size={11}
+                  className={`transition-transform duration-200 ${showQuickAsk ? 'rotate-180' : ''}`}
+                />
+              </button>
             </div>
+
+            {showQuickAsk && (
+              <div className="mt-2 flex flex-wrap gap-1.5 pt-0.5">
+                {quickPrompts.map((item) => (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => handleQuickPrompt(item.prompt)}
+                    disabled={isLoading}
+                    className="cursor-pointer border border-line-mid bg-ink px-2.5 py-1 font-mono text-2xs text-fg-muted transition-all duration-150 hover:border-paper hover:bg-paper hover:text-ink disabled:cursor-not-allowed disabled:opacity-40 active:scale-[0.98]"
+                    title={item.prompt}
+                  >
+                    {item.label}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Input bar */}
