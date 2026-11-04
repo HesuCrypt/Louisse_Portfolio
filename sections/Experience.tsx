@@ -6,43 +6,31 @@ import { SectionHeader } from '../ui/SectionHeader';
 import { experience, Job, RoleMilestone } from '../data/experience';
 import { sectionMeta } from '../data/sections';
 import { accordionTransition, containerVariants, itemVariants } from '../motion/variants';
+import { sound } from '../utils/sound';
 
-/** Small square marker used instead of the previous coloured timeline dots. */
 const Marker: React.FC<{ filled: boolean }> = ({ filled }) => (
   <span
     aria-hidden="true"
-    className={`mt-1.5 h-2 w-2 shrink-0 ${filled ? 'bg-paper' : 'border border-line-strong'}`}
+    className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${
+      filled ? 'bg-emerald-400' : 'border border-line-strong'
+    }`}
   />
 );
 
-const BulletList: React.FC<{ items: string[] }> = ({ items }) => (
-  <ul className="space-y-2">
-    {items.map((item) => (
-      <li key={item} className="flex items-baseline gap-3">
-        <span className="mt-1.5 h-1 w-2.5 shrink-0 bg-line-strong" aria-hidden="true" />
-        <span className="text-[0.8125rem] leading-relaxed text-fg-muted">{item}</span>
-      </li>
-    ))}
-  </ul>
-);
-
-/**
- * One connected role inside a multi-role engagement. Roadmaps are dropped here:
- * across three near-identical entries they read as future plans rather than a
- * delivery record, and the section is stronger without them.
- */
 const RoleBlock: React.FC<{ role: RoleMilestone; isCurrent: boolean }> = ({ role, isCurrent }) => (
-  <div>
+  <div className="rounded-lg border border-line bg-ink p-4">
     <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-2">
-      <div className="flex flex-wrap items-center gap-3">
+      <div className="flex flex-wrap items-center gap-2.5">
         <Marker filled={isCurrent} />
-        <h4 className="font-sans text-[0.9375rem] font-medium tracking-[-0.01em] text-fg">
+        <h4 className="font-sans text-sm font-semibold tracking-[-0.01em] text-fg">
           {role.role}
         </h4>
         {role.tag ? (
           <span
-            className={`px-2 py-0.5 font-mono text-2xs tracking-wider2 uppercase ${
-              isCurrent ? 'bg-paper text-ink' : 'border border-line-mid text-fg-dim'
+            className={`rounded-full px-2.5 py-0.5 font-mono text-[10px] tracking-wider2 uppercase ${
+              isCurrent
+                ? 'border border-emerald-500/30 bg-emerald-500/15 text-emerald-400'
+                : 'border border-line-mid text-fg-dim'
             }`}
           >
             {role.tag}
@@ -53,31 +41,23 @@ const RoleBlock: React.FC<{ role: RoleMilestone; isCurrent: boolean }> = ({ role
     </div>
 
     {role.highlight ? (
-      <p className="mt-3 max-w-[68ch] text-[0.8125rem] leading-relaxed text-fg">{role.highlight}</p>
-    ) : null}
-
-    <p className="mt-3 max-w-[68ch] text-[0.8125rem] leading-relaxed text-fg-muted">{role.focus}</p>
+      <p className="mt-2.5 text-xs leading-relaxed text-fg-muted">{role.highlight}</p>
+    ) : (
+      <p className="mt-2.5 text-xs leading-relaxed text-fg-muted">{role.focus}</p>
+    )}
 
     {role.connectedWorks?.length ? (
-      <div className="mt-5 border-t border-line">
-        <span className="sr-only">Selected work from this role</span>
+      <div className="mt-4 flex flex-wrap gap-2 border-t border-line pt-3">
         {role.connectedWorks.map((work) => (
           <a
             key={work.title}
             href={work.link}
             target="_blank"
             rel="noopener noreferrer"
-            className="sweep group/work relative flex items-baseline justify-between gap-4 border-b border-line py-3 last:border-b-0"
+            className="group/work inline-flex items-center gap-1.5 rounded-full border border-line-mid bg-panel px-3 py-1 font-mono text-2xs text-fg-muted transition-colors hover:border-paper hover:text-fg"
           >
-            <span className="min-w-0">
-              <span className="flex items-center gap-2 font-sans text-[0.8125rem] font-medium text-fg">
-                {work.title}
-                <ArrowUpRight size={12} className="text-fg-faint transition-colors group-hover/work:text-fg" />
-              </span>
-              <span className="mt-1 block text-2xs leading-relaxed text-fg-dim">
-                {work.description}
-              </span>
-            </span>
+            <span>{work.title}</span>
+            <ArrowUpRight size={11} className="text-fg-faint group-hover/work:text-fg" />
           </a>
         ))}
       </div>
@@ -90,50 +70,28 @@ const JobDetail: React.FC<{ job: Job }> = ({ job }) => {
 
   if (isMultiRole) {
     return (
-      <>
-        {job.connectedSummary ? (
-          <p className="mb-7 max-w-[68ch] text-[0.8125rem] leading-relaxed text-fg-muted">
-            {job.connectedSummary}
-          </p>
-        ) : null}
-        <div className="space-y-8 border-l border-line pl-5 sm:pl-7">
-          {job.roles!.map((role, roleIndex) => (
-            <RoleBlock key={`${role.role}-${roleIndex}`} role={role} isCurrent={roleIndex === 0} />
-          ))}
-        </div>
-      </>
+      <div className="grid grid-cols-1 gap-3 pt-2 md:grid-cols-3">
+        {job.roles!.map((role, roleIndex) => (
+          <RoleBlock key={`${role.role}-${roleIndex}`} role={role} isCurrent={roleIndex === 0} />
+        ))}
+      </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 gap-px border border-line bg-line sm:grid-cols-2">
-        {job.focus ? (
-          <div className="bg-ink p-5">
-            <span className="font-mono text-2xs tracking-label text-fg-dim uppercase">Focus</span>
-            <p className="mt-2 text-[0.8125rem] leading-relaxed text-fg-muted">{job.focus}</p>
-          </div>
-        ) : null}
-        {job.highlight ? (
-          <div className="bg-ink p-5">
-            <span className="font-mono text-2xs tracking-label text-fg-dim uppercase">
-              Key Achievement
-            </span>
-            <p className="mt-2 text-[0.8125rem] leading-relaxed text-fg">{job.highlight}</p>
-          </div>
-        ) : null}
-      </div>
-
-      {job.roadmap?.length ? (
-        <div>
-          <span className="font-mono text-2xs tracking-label text-fg-dim uppercase">
-            Scope &amp; Approach
-          </span>
-          <div className="mt-3">
-            <BulletList items={job.roadmap} />
-          </div>
-        </div>
-      ) : null}
+    <div className="rounded-lg border border-line bg-ink p-4">
+      <p className="text-xs leading-relaxed text-fg-muted">{job.focus}</p>
+      {job.website && (
+        <a
+          href={job.website}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-3 inline-flex items-center gap-1.5 font-mono text-2xs text-fg uppercase underline decoration-line-strong underline-offset-4 hover:text-paper"
+        >
+          <span>Visit Live Platform</span>
+          <ArrowUpRight size={11} />
+        </a>
+      )}
     </div>
   );
 };
@@ -141,7 +99,8 @@ const JobDetail: React.FC<{ job: Job }> = ({ job }) => {
 export const Experience: React.FC = () => {
   const { index, label } = sectionMeta('experience');
   const reduceMotion = useReducedMotion();
-  const [openIndex, setOpenIndex] = useState<number | null>(0);
+  // Start all collapsed so the user clicks only the engagement they want to read
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
 
   return (
     <section id="experience" className="scroll-mt-[var(--topbar-h)] py-16 md:py-24">
@@ -155,77 +114,83 @@ export const Experience: React.FC = () => {
           <SectionHeader
             index={index}
             label={label}
-            title="Roles, clients and delivery record"
-            meta={`${experience.length} engagements`}
-            description="Every engagement below states its outcome up front. Open a row for the full scope."
+            title="Track Record & Leadership"
+            meta="Click to expand role"
+            description="Select any engagement below to view role progression, deliverables, and live work."
           />
 
-          <motion.div variants={itemVariants} className="mt-10 border-t border-line">
+          <motion.div variants={itemVariants} className="mt-10 space-y-4">
             {experience.map((job, position) => {
               const isMultiRole = Array.isArray(job.roles) && job.roles.length > 0;
               const isOpen = openIndex === position;
               const panelId = `experience-panel-${position}`;
 
-              const heading = isMultiRole ? job.company : job.role;
-              const context = isMultiRole
-                ? `${job.roles!.length} roles · ${job.period} · ${job.location}`
-                : `${job.company} · ${job.period} · ${job.location}`;
+              const heading =
+                job.company === 'ISSY Cosmetics'
+                  ? 'IT officer - Web developer & AI automation - ISSY Cosmetics'
+                  : isMultiRole
+                    ? job.company
+                    : `${job.role} · ${job.company}`;
 
               return (
-                <div key={`${job.company}-${position}`} className="border-b border-line">
+                <div
+                  key={`${job.company}-${position}`}
+                  className={`overflow-hidden rounded-2xl border transition-all duration-300 ${
+                    isOpen
+                      ? 'border-white/30 bg-[#111216]'
+                      : 'border-white/10 bg-[#0c0d11] hover:border-white/20'
+                  }`}
+                >
                   <button
                     type="button"
-                    onClick={() => setOpenIndex(isOpen ? null : position)}
+                    onClick={() => {
+                      sound.playClick();
+                      setOpenIndex(isOpen ? null : position);
+                    }}
                     aria-expanded={isOpen}
                     aria-controls={panelId}
-                    className={`group flex w-full items-start justify-between gap-5 py-6 text-left transition-colors duration-200 ${
-                      isOpen ? '' : 'hover:bg-panel'
-                    }`}
+                    className="group flex w-full cursor-pointer items-center justify-between gap-6 px-6 py-5 text-left"
                   >
-                    <div className="flex min-w-0 items-start gap-3 md:gap-5">
-                      <span className="tnum mt-1.5 font-mono text-2xs text-fg-faint">
-                        {String(position + 1).padStart(2, '0')}
-                      </span>
-                      <div className="min-w-0">
-                        <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-                          <span className="font-sans text-lg font-medium tracking-[-0.02em] text-fg md:text-xl">
-                            {heading}
+                    <div className="flex min-w-0 flex-1 flex-col gap-2">
+                      <div className="flex flex-wrap items-center gap-3">
+                        <span className="tnum font-mono text-xs text-fg-dim">
+                          {String(position + 1).padStart(2, '0')}
+                        </span>
+                        <span className="font-sans text-base sm:text-lg font-semibold tracking-tight text-white">
+                          {heading}
+                        </span>
+                        {job.type ? (
+                          <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-0.5 font-mono text-xs text-fg-muted uppercase">
+                            {job.type}
                           </span>
-                          {job.type ? (
-                            <span className="border border-line-mid px-2 py-0.5 font-mono text-2xs tracking-wider2 text-fg-dim uppercase">
-                              {job.type}
-                            </span>
-                          ) : null}
-                        </div>
-                        <p className="mt-2 font-mono text-2xs tracking-wider2 text-fg-dim uppercase">
-                          {context}
-                        </p>
-                        {job.highlight ? (
-                          <p className="mt-3 max-w-[62ch] text-[0.8125rem] leading-relaxed text-fg-muted">
-                            {job.highlight}
-                          </p>
                         ) : null}
                       </div>
+
+                      {job.highlight && (
+                        <p className="font-mono text-xs leading-relaxed text-emerald-400">
+                          &bull; {job.highlight}
+                        </p>
+                      )}
                     </div>
 
-                    <span className="mt-1 flex shrink-0 items-center gap-3">
-                      <span className="hidden font-mono text-2xs tracking-wider2 text-fg-dim uppercase transition-colors group-hover:text-fg sm:block">
-                        {isOpen ? 'Close' : 'Detail'}
+                    <span className="flex shrink-0 items-center gap-4">
+                      <span className="tnum hidden font-mono text-xs text-fg-dim sm:inline">
+                        {job.period}
                       </span>
                       <motion.span
                         aria-hidden="true"
-                        className="grid h-6 w-6 place-items-center border border-line-mid text-fg-dim transition-colors group-hover:border-line-strong group-hover:text-fg"
+                        className="grid h-8 w-8 place-items-center rounded-full border border-white/15 bg-white/5 text-fg-dim transition-colors group-hover:border-white group-hover:text-white"
                         animate={reduceMotion ? undefined : { rotate: isOpen ? 45 : 0 }}
                         transition={accordionTransition}
                       >
-                        <Plus size={13} />
+                        <Plus size={14} />
                       </motion.span>
                     </span>
                   </button>
 
                   {reduceMotion ? (
                     isOpen ? (
-                      <div id={panelId} className="pb-8">
+                      <div id={panelId} className="px-6 pb-6 pt-2">
                         <JobDetail job={job} />
                       </div>
                     ) : null
@@ -241,7 +206,7 @@ export const Experience: React.FC = () => {
                           transition={accordionTransition}
                           className="overflow-hidden"
                         >
-                          <div className="pb-8">
+                          <div className="px-6 pb-6 pt-2">
                             <JobDetail job={job} />
                           </div>
                         </motion.div>

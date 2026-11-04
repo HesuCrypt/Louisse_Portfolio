@@ -10,28 +10,24 @@ export interface SectionLink {
 }
 
 /**
- * Single source of truth for page order. The index rail, the mobile strip and
- * the top bar navigation all read from this so they can never drift apart.
- * Ids intentionally keep the historical `#projects` / `#about` / `#contact`
- * anchors working for existing inbound links.
- *
- * Order is proof-first: who he is, where he worked, what shipped, what clients
- * said, what it costs, the wider archive, the biography, then contact.
+ * Single source of truth for page order:
+ * Overview / Identity → Profile → Experience → Selected Work & Endorsements → Capabilities → Contact
  */
 export const sections: SectionLink[] = [
   { index: '01', id: 'top', label: 'Identity', nav: 'Identity' },
   { index: '02', id: 'about', label: 'Profile', nav: 'Profile' },
   { index: '03', id: 'experience', label: 'Experience', nav: 'Experience' },
-  { index: '04', id: 'projects', label: 'Selected Work', nav: 'Work' },
-  { index: '05', id: 'testimonials', label: 'Endorsements', nav: 'Endorsements' },
-  { index: '06', id: 'capabilities', label: 'Capabilities & Rates', nav: 'Capabilities' },
-  { index: '07', id: 'directory', label: 'Technical Directory', nav: 'Directory' },
-  { index: '08', id: 'contact', label: 'Contact', nav: 'Contact' },
+  { index: '04', id: 'projects', label: 'Selected Work & Endorsements', nav: 'Work' },
+  { index: '05', id: 'capabilities', label: 'Capabilities & Rates', nav: 'Capabilities' },
+  { index: '06', id: 'contact', label: 'Contact', nav: 'Contact' },
 ];
 
 /**
- * Ordinal and label lookup for the sections, so a re-order never leaves a
- * hardcoded "02" stranded on the wrong block.
+ * Ordinal and label lookup for the sections, with aliases for combined sections.
  */
-export const sectionMeta = (id: string): SectionLink =>
-  sections.find((section) => section.id === id) ?? sections[0];
+export const sectionMeta = (id: string): SectionLink => {
+  if (id === 'testimonials' || id === 'directory' || id === 'featured') {
+    return sections.find((s) => s.id === 'projects') ?? sections[0];
+  }
+  return sections.find((section) => section.id === id) ?? sections[0];
+};

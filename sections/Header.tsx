@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowUpRight, Menu, X } from 'lucide-react';
+import { ArrowUpRight, Menu, Volume2, VolumeX, X } from 'lucide-react';
 import { Container } from '../ui/Container';
 import { Button } from '../ui/Button';
 import { MobileIndexStrip } from '../ui/IndexRail';
 import { sections } from '../data/sections';
 import { socials } from '../data/socials';
+import { sound } from '../utils/sound';
 import {
   AppRoute,
   buildHomeSectionPath,
@@ -15,7 +16,7 @@ import {
 } from '../utils/routing';
 
 /** Desktop bar shows a deliberate subset, ordered to follow the page itself. */
-const desktopNavIds = ['about', 'experience', 'projects', 'capabilities', 'directory', 'contact'];
+const desktopNavIds = ['top', 'about', 'experience', 'projects', 'capabilities', 'contact'];
 const desktopNav = sections.filter((section) => desktopNavIds.includes(section.id));
 
 interface HeaderProps {
@@ -25,6 +26,11 @@ interface HeaderProps {
 export const Header: React.FC<HeaderProps> = ({ currentRoute }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [soundEnabled, setSoundEnabled] = useState(() => sound.isEnabled());
+
+  useEffect(() => {
+    return sound.subscribe(setSoundEnabled);
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 24);
@@ -55,6 +61,7 @@ export const Header: React.FC<HeaderProps> = ({ currentRoute }) => {
   }, [currentRoute]);
 
   const handleSectionNav = (sectionId: string) => {
+    sound.playClick();
     setIsOpen(false);
     if (currentRoute === '/') {
       scrollToSection(sectionId);
@@ -64,6 +71,7 @@ export const Header: React.FC<HeaderProps> = ({ currentRoute }) => {
   };
 
   const handleLogoClick = () => {
+    sound.playClick();
     setIsOpen(false);
     if (currentRoute === '/') {
       scrollToTop();
@@ -73,11 +81,13 @@ export const Header: React.FC<HeaderProps> = ({ currentRoute }) => {
   };
 
   const handleServicesNav = () => {
+    sound.playClick();
     setIsOpen(false);
     pushRoute('/services');
   };
 
   const handleQuoteClick = () => {
+    sound.playClick();
     setIsOpen(false);
     handleSectionNav('contact');
   };
@@ -90,65 +100,79 @@ export const Header: React.FC<HeaderProps> = ({ currentRoute }) => {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.4 }}
       className={`fixed top-0 right-0 left-0 z-50 transition-colors duration-300 xl:left-[var(--rail-w)] ${
-        solid ? 'border-b border-line bg-ink' : 'border-b border-transparent'
+        solid
+          ? 'border-b border-line bg-ink/90 backdrop-blur-md'
+          : 'border-b border-transparent bg-ink/60 backdrop-blur-sm'
       }`}
     >
       <div className="h-[var(--topbar-h)]">
         <Container className="flex h-full items-center justify-between gap-4">
-          {/* Monogram mark — a white square keeps the palette strictly monochrome */}
+          {/* Authentic Louisse Bertillo Brand Mark */}
           <button
             type="button"
             onClick={handleLogoClick}
-            className="flex shrink-0 items-center gap-3"
+            className="group flex shrink-0 cursor-pointer items-center gap-3"
             aria-label="Louisse Dominique Bertillo: back to top"
           >
-            <span className="grid h-8 w-8 place-items-center bg-paper font-mono text-[11px] leading-none font-bold text-ink">
+            <span className="grid h-8 w-8 place-items-center rounded-md border border-line-strong bg-panel font-mono text-2xs leading-none font-semibold text-fg transition-colors group-hover:border-paper group-hover:bg-paper group-hover:text-ink">
               LB
             </span>
-            <span className="font-sans text-[13px] font-medium tracking-[-0.02em] text-fg">
-              <span className="sm:hidden">Louisse.</span>
-              <span className="hidden sm:inline">Louisse Dominique Bertillo</span>
+            <span className="flex items-center gap-2">
+              <span className="font-sans text-sm font-medium tracking-[-0.02em] text-fg">
+                Louisse Bertillo
+              </span>
+              <span className="hidden rounded border border-line-mid bg-panel px-1.5 py-0.5 font-mono text-[10px] tracking-wider2 text-fg-dim uppercase sm:inline-block">
+                WEB // AI
+              </span>
             </span>
           </button>
 
-          <div className="flex items-center gap-5">
-            <nav aria-label="Primary" className="hidden items-center gap-5 xl:flex">
-              {desktopNav.map((section) => (
-                <button
-                  key={section.id}
-                  type="button"
-                  onClick={() => handleSectionNav(section.id)}
-                  className="font-mono text-[11px] tracking-wider2 text-fg-dim uppercase transition-colors duration-200 hover:text-fg"
-                >
-                  {section.nav}
-                </button>
-              ))}
+          {/* Center Navigation */}
+          <nav aria-label="Primary" className="hidden items-center gap-6 xl:flex">
+            {desktopNav.map((section) => (
               <button
+                key={section.id}
                 type="button"
-                onClick={handleServicesNav}
-                className={`flex items-center gap-2 font-mono text-[11px] tracking-wider2 uppercase transition-colors duration-200 ${
-                  currentRoute === '/services' ? 'text-fg' : 'text-fg-dim hover:text-fg'
-                }`}
+                onClick={() => handleSectionNav(section.id)}
+                className="group flex cursor-pointer items-center gap-1.5 font-sans text-xs text-fg-muted transition-colors duration-200 hover:text-fg"
               >
-                <span>Services</span>
-                <span className="border border-line-mid px-1.5 py-0.5 text-[9px] text-fg-faint">
-                  Rates
-                </span>
+                <span>{section.id === 'top' ? 'Overview' : section.nav}</span>
               </button>
-            </nav>
-
-            <span className="hidden items-center gap-2 border border-line-mid px-2.5 py-1.5 font-mono text-2xs tracking-wider2 text-fg-dim uppercase lg:flex">
-              <span className="h-1.5 w-1.5 bg-paper" aria-hidden="true" />
-              Available · Select Projects
-            </span>
-
-            <Button
-              onClick={handleQuoteClick}
-              className="hidden px-4 py-2.5 xl:inline-flex"
-              icon={<ArrowUpRight size={13} />}
+            ))}
+            <button
+              type="button"
+              onClick={handleServicesNav}
+              className={`flex cursor-pointer items-center gap-1.5 font-sans text-xs transition-colors duration-200 ${
+                currentRoute === '/services' ? 'font-medium text-fg' : 'text-fg-muted hover:text-fg'
+              }`}
             >
-              Get a Quote
-            </Button>
+              {currentRoute === '/services' && (
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" aria-hidden="true" />
+              )}
+              <span>Services &amp; Rates</span>
+            </button>
+          </nav>
+
+          {/* Right Actions: Sound Toggle & CTA */}
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => sound.toggle()}
+              className="grid h-8 w-8 cursor-pointer place-items-center rounded-lg border border-line-mid bg-panel text-fg-dim transition-colors hover:border-line-strong hover:text-fg"
+              title={soundEnabled ? 'Mute UI sound effects' : 'Enable UI sound effects'}
+              aria-label={soundEnabled ? 'Mute UI sound effects' : 'Enable UI sound effects'}
+            >
+              {soundEnabled ? <Volume2 size={14} className="text-emerald-400" /> : <VolumeX size={14} />}
+            </button>
+
+            <button
+              type="button"
+              onClick={handleQuoteClick}
+              className="hidden cursor-pointer items-center gap-2 rounded-lg border border-line-strong bg-panel px-4 py-2 font-sans text-xs font-medium text-fg transition-all duration-200 hover:border-paper hover:bg-paper hover:text-ink xl:inline-flex"
+            >
+              <span>Start a Project</span>
+              <ArrowUpRight size={13} />
+            </button>
 
             <button
               type="button"

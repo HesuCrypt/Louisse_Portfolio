@@ -12,7 +12,10 @@ const timeFormatter = new Intl.DateTimeFormat('en-GB', {
  * Live Manila clock. A running second is the cheapest possible signal that a
  * real person is on the other end of the page.
  */
-export const LocalTime: React.FC<{ className?: string }> = ({ className = '' }) => {
+export const LocalTime: React.FC<{ className?: string; showZone?: boolean }> = ({
+  className = '',
+  showZone = true,
+}) => {
   const [time, setTime] = useState(() => timeFormatter.format(new Date()));
 
   useEffect(() => {
@@ -20,5 +23,10 @@ export const LocalTime: React.FC<{ className?: string }> = ({ className = '' }) 
     return () => window.clearInterval(id);
   }, []);
 
-  return <span className={`tnum ${className}`}>{time} PHT</span>;
+  return (
+    <span className={`tnum whitespace-nowrap ${className}`}>
+      {time}
+      {showZone ? ' PHT' : ''}
+    </span>
+  );
 };

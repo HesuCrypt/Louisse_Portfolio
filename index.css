@@ -164,6 +164,10 @@ body {
   animation-timing-function: linear;
   animation-iteration-count: infinite;
   will-change: transform;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
 }
 
 .marquee:hover .marquee-track {
@@ -183,6 +187,10 @@ body {
 
 .grid-drift {
   animation: grid-drift 14s linear infinite;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
 }
 
 /* Hairline that wipes in along the bottom edge of a hovered cell */
@@ -197,6 +205,10 @@ body {
   transform: scaleX(0);
   transform-origin: left;
   transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
 }
 
 .sweep:hover::after,
@@ -205,25 +217,24 @@ body {
 }
 
 /* --------------------------------------------------------------------------
+   Dialog modal scroll containment & backdrop (per modern-web-guidance)
+   -------------------------------------------------------------------------- */
+dialog:modal {
+  overscroll-behavior: contain;
+}
+
+dialog::backdrop {
+  overflow: hidden;
+  overscroll-behavior: contain;
+  background-color: rgba(0, 0, 0, 0.78);
+  backdrop-filter: blur(8px);
+}
+
+/* --------------------------------------------------------------------------
    Motion preferences
    -------------------------------------------------------------------------- */
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
-  }
-
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
-
-  /* A 0.01ms marquee would snap to its end position and stay there, so the
-     continuous transforms are switched off outright instead. */
-  .marquee-track,
-  .grid-drift {
-    animation: none !important;
   }
 }

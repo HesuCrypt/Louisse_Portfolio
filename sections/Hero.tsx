@@ -1,192 +1,195 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Container } from '../ui/Container';
-import { H1, Body } from '../ui/Text';
-import { Button } from '../ui/Button';
-import { DataRow } from '../ui/DataRow';
 import { CountUp } from '../ui/CountUp';
 import { LocalTime } from '../ui/LocalTime';
-import { WordReveal } from '../ui/WordReveal';
+import { CyberOrb } from '../ui/CyberOrb';
+import { SystemStatusCard } from '../ui/SystemStatusCard';
 import { profile } from '../data/profile';
 import { containerVariants, itemVariants } from '../motion/variants';
 import { scrollToSection } from '../utils/routing';
-import { ArrowUpRight } from 'lucide-react';
+import { sound } from '../utils/sound';
+import { ArrowUpRight, ArrowRight, Download } from 'lucide-react';
 
-/**
- * Proof points taken straight from the experience data. Every figure here is
- * traceable to a delivery record — nothing is an estimate or a rounded-up
- * claim, which is why the years-of-experience badge that used to live here was
- * removed.
- */
-const performanceLog = [
-  {
-    index: '01',
-    label: 'Sales Lift',
-    value: <CountUp to={170} prefix="+" suffix="%" />,
-    caption: 'ISSY Cosmetics',
-  },
-  { index: '02', label: 'Peak Concurrency', value: <CountUp to={3400} />, caption: 'Fruit Jam campaign' },
-  {
-    index: '03',
-    label: 'Campaign Traffic',
-    value: <CountUp to={120} suffix="K+" />,
-    caption: 'Requests in 72 hours',
-  },
-  { index: '04', label: 'Based In', value: 'MANILA', caption: 'Remote worldwide' },
+const heroStackPills = [
+  'React / Next.js',
+  'Tailwind CSS',
+  'Shopify',
+  'Supabase',
+  'n8n & AI',
 ];
 
-const clients = [
-  { name: 'ISSY', detail: 'Storefront & AI' },
-  { name: 'Meridian Auctions', detail: 'Full-stack, Germany' },
-  { name: 'La Fleur', detail: 'Florist storefront' },
+const quickMetrics = [
+  {
+    value: <CountUp to={170} prefix="+" suffix="%" />,
+    label: 'Sales Lift',
+    sub: 'ISSY Cosmetics',
+  },
+  {
+    value: <CountUp to={3400} />,
+    label: 'Peak Users',
+    sub: 'Fruit Jam Launch',
+  },
+  {
+    value: <CountUp to={120} suffix="K+" />,
+    label: 'Requests / 72h',
+    sub: 'Zero Downtime',
+  },
 ];
 
 export const Hero: React.FC = () => {
   return (
     <section id="top" className="relative overflow-hidden scroll-mt-[var(--topbar-h)]">
-      {/* Engineered measurement grid: slowly drifting, faded out toward the fold */}
+      {/* Subtle engineered measurement grid */}
       <div
         aria-hidden="true"
-        className="bg-grid grid-drift mask-fade-b pointer-events-none absolute inset-0 opacity-70"
+        className="bg-grid grid-drift mask-fade-b pointer-events-none absolute inset-0 opacity-40"
       />
 
       <Container className="relative">
+        {/* Top Cyber HUD Status Bar */}
+        <motion.div
+          initial={{ opacity: 0, y: -6 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+          className="flex flex-wrap items-center justify-between gap-4 border-b border-line/80 py-3.5 font-mono text-2xs tracking-wider2 text-fg-dim uppercase"
+        >
+          <div className="flex flex-wrap items-center gap-3">
+            <span className="flex items-center gap-2 text-fg-muted">
+              <span className="relative flex h-2 w-2">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
+              </span>
+              <span>Available for projects</span>
+            </span>
+
+            <span className="hidden h-1 w-1 rounded-full bg-line-strong sm:inline" />
+
+            <span className="hidden text-fg-dim sm:inline">
+              Web &amp; AI Implementation Specialist
+            </span>
+          </div>
+
+          <div className="text-fg-dim">
+            Philippines &middot; <LocalTime showZone={false} /> PHT
+          </div>
+        </motion.div>
+
+        {/* Hero Main Content Row */}
         <motion.div
           variants={containerVariants}
           initial="hidden"
           animate="visible"
-          className="grid grid-cols-1 gap-y-12 py-[clamp(2.75rem,8vh,5.5rem)] xl:grid-cols-[1.12fr_0.88fr] xl:gap-y-0"
+          className="grid grid-cols-1 items-center gap-12 py-12 md:py-16 lg:grid-cols-12 lg:gap-8 lg:py-20 xl:py-24"
         >
-          {/* Identity column */}
-          <div className="xl:pr-14">
+          {/* Left Column (7 cols): Headline, Subtext, CTAs, Stack & Metrics */}
+          <div className="lg:col-span-7 xl:col-span-7">
+            <motion.h1
+              variants={itemVariants}
+              className="font-sans text-[clamp(2.5rem,5.2vw,4.4rem)] leading-[1.06] font-bold tracking-[-0.035em] text-fg"
+            >
+              Websites that convert.
+              <br />
+              <span className="text-fg">AI systems that scale</span>
+              <span className="text-emerald-400">.</span>
+            </motion.h1>
+
             <motion.p
               variants={itemVariants}
-              className="font-mono text-2xs tracking-label text-fg-dim uppercase"
+              className="mt-6 max-w-[50ch] text-[1rem] leading-[1.68] text-fg-muted md:text-[1.08rem]"
             >
-              <span className="tnum text-fg-muted">01</span>
-              <span className="px-2 text-line-strong">/</span>
-              <span>Identity</span>
+              {profile.hero.subtext}
             </motion.p>
 
-            {/* Role label sitting directly above the headline — one glance, no sentence */}
-            <motion.p
-              variants={itemVariants}
-              className="mt-6 font-mono text-[11px] tracking-wider2 text-fg uppercase"
-            >
-              {profile.title}
-            </motion.p>
-
-            <div className="mt-4">
-              <H1>
-                <WordReveal text={profile.hero.headline} />
-              </H1>
-            </div>
-
-            <motion.div variants={itemVariants} className="mt-6">
-              <Body className="max-w-[52ch] text-base md:text-lg">{profile.hero.subtext}</Body>
-            </motion.div>
-
+            {/* Primary Action Row */}
             <motion.div
               variants={itemVariants}
-              className="mt-9 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center"
+              className="mt-8 flex flex-wrap items-center gap-4"
             >
-              <Button
-                onClick={() => scrollToSection('experience')}
-                icon={<ArrowUpRight size={13} />}
-                className="justify-center sm:justify-start"
+              <button
+                type="button"
+                onClick={() => {
+                  sound.playClick();
+                  scrollToSection('projects');
+                }}
+                className="group inline-flex cursor-pointer items-center gap-2.5 rounded-full bg-paper px-6 py-3 font-sans text-xs font-semibold tracking-[-0.01em] text-ink transition-all duration-200 hover:bg-fg/90 active:scale-[0.98]"
               >
-                See the Work
-              </Button>
-              <Button
-                variant="secondary"
-                onClick={() => scrollToSection('contact')}
-                className="justify-center sm:justify-start"
+                <span className="h-2 w-2 rounded-full bg-emerald-400" aria-hidden="true" />
+                <span>View My Work</span>
+                <ArrowUpRight
+                  size={14}
+                  className="transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+                />
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  sound.playClick();
+                  scrollToSection('contact');
+                }}
+                className="group inline-flex cursor-pointer items-center gap-2 px-3 py-2.5 font-sans text-xs font-medium text-fg transition-colors hover:text-fg-muted"
               >
-                Contact
-              </Button>
-              <Button
-                variant="secondary"
+                <span>Let&apos;s Talk</span>
+                <ArrowRight
+                  size={14}
+                  className="transition-transform duration-200 group-hover:translate-x-1"
+                />
+              </button>
+
+              <a
                 href="/resume.pdf"
                 download="Louisse_Dominique_Bertillo_Resume.pdf"
-                className="justify-center sm:justify-start"
+                onClick={() => sound.playClick()}
+                className="inline-flex items-center gap-1.5 rounded-full border border-line-mid bg-panel/60 px-3.5 py-2 font-mono text-2xs tracking-wider2 text-fg-dim uppercase transition-colors hover:border-line-strong hover:text-fg"
               >
-                Download Resume
-              </Button>
+                <Download size={11} />
+                <span>Resume</span>
+              </a>
             </motion.div>
 
-            {/* Status strip — live clock, availability, scroll cue */}
+            {/* Stack Badges Strip */}
             <motion.div
               variants={itemVariants}
-              className="mt-10 flex flex-wrap items-center gap-x-6 gap-y-3 border-t border-line pt-5 font-mono text-2xs tracking-wider2 text-fg-faint uppercase"
+              className="mt-8 flex flex-wrap items-center gap-2"
             >
-              <span className="flex items-center gap-2.5">
-                <span className="relative flex h-1.5 w-1.5">
-                  <motion.span
-                    className="absolute inset-0 bg-paper"
-                    animate={{ opacity: [1, 0.25, 1] }}
-                    transition={{ duration: 2.6, repeat: Infinity, ease: 'easeInOut' }}
-                  />
+              <span className="mr-1.5 font-mono text-xs tracking-wider uppercase text-fg-dim">
+                Stack:
+              </span>
+              {heroStackPills.map((tech) => (
+                <span
+                  key={tech}
+                  className="rounded-full border border-line-mid bg-panel/70 px-3.5 py-1.5 font-mono text-xs text-fg-muted transition-colors hover:border-line-strong hover:text-fg"
+                >
+                  {tech}
                 </span>
-                <span className="text-fg-muted">Available for select projects</span>
-              </span>
+              ))}
+            </motion.div>
 
-              <span className="text-fg-dim">
-                Manila · <LocalTime />
-              </span>
-
-              <span className="hidden items-center gap-3 sm:flex">
-                <span>Scroll</span>
-                <motion.span
-                  aria-hidden="true"
-                  className="block h-px w-10 origin-left bg-line-strong"
-                  animate={{ scaleX: [0.15, 1, 0.15] }}
-                  transition={{ duration: 2.8, repeat: Infinity, ease: 'easeInOut' }}
-                />
-              </span>
+            {/* Scannable Proof Metrics Strip */}
+            <motion.div
+              variants={itemVariants}
+              className="mt-10 grid grid-cols-3 gap-6 border-t border-line pt-8"
+            >
+              {quickMetrics.map((m) => (
+                <div key={m.label}>
+                  <p className="tnum font-mono text-2xl font-bold tracking-[-0.02em] text-fg sm:text-3xl">
+                    {m.value}
+                  </p>
+                  <p className="mt-1 font-sans text-sm font-medium text-fg">{m.label}</p>
+                  <p className="mt-0.5 font-mono text-xs text-fg-muted">{m.sub}</p>
+                </div>
+              ))}
             </motion.div>
           </div>
 
-          {/* Performance log column */}
-          <motion.div variants={itemVariants} className="xl:border-l xl:border-line xl:pl-14">
-            <div className="flex items-baseline justify-between gap-6">
-              <span className="font-mono text-2xs tracking-label text-fg-dim uppercase">
-                Performance Log
-              </span>
-              <span className="font-mono text-2xs tracking-wider2 text-fg-faint uppercase">
-                Verified
-              </span>
-            </div>
-
-            <div className="mt-5 border-t border-line">
-              {performanceLog.map((row) => (
-                <DataRow
-                  key={row.label}
-                  index={row.index}
-                  label={row.label}
-                  value={row.value}
-                  caption={row.caption}
-                />
-              ))}
-            </div>
-
-            <div className="mt-8 border-t border-line pt-5">
-              <span className="font-mono text-2xs tracking-label text-fg-dim uppercase">
-                Selected Clients
-              </span>
-              <ul className="mt-4 grid grid-cols-1 gap-px bg-line sm:grid-cols-3">
-                {clients.map((client) => (
-                  <li
-                    key={client.name}
-                    className="bg-ink py-4 pr-4 sm:px-0 sm:first:pr-4 sm:[&:not(:first-child)]:pl-4"
-                  >
-                    <span className="block font-sans text-[13px] leading-tight font-medium tracking-[-0.01em] text-fg">
-                      {client.name}
-                    </span>
-                    <span className="mt-1 block font-mono text-2xs text-fg-dim">{client.detail}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
+          {/* Right Column (5 cols): Focused 3D Neural Core & Live Telemetry HUD */}
+          <motion.div
+            variants={itemVariants}
+            className="flex flex-col items-center justify-center gap-6 lg:col-span-5 xl:col-span-5"
+          >
+            <CyberOrb className="w-full" />
+            <SystemStatusCard className="w-full max-w-[340px]" />
           </motion.div>
         </motion.div>
       </Container>

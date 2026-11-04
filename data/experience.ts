@@ -40,7 +40,7 @@ export const experience: Job[] = [
     connectedSummary: "Three progressive roles: from Shopify frontend engineering to leading company-wide web systems and AI automation.",
     roles: [
       {
-        role: "Lead IT - Web Developer & AI Implementation",
+        role: "IT Officer - Web developer & AI automation",
         type: "Full-time",
         period: "July 22, 2026 - Present",
         tag: "Current Role",

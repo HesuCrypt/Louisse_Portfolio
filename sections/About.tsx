@@ -1,25 +1,67 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Container } from '../ui/Container';
 import { SectionHeader } from '../ui/SectionHeader';
-import { Body } from '../ui/Text';
 import { Button } from '../ui/Button';
-import { DataRow } from '../ui/DataRow';
 import { profile } from '../data/profile';
 import { sectionMeta } from '../data/sections';
 import { containerVariants, itemVariants } from '../motion/variants';
 import { scrollToSection, pushRoute } from '../utils/routing';
-import { ArrowUpRight } from 'lucide-react';
+import { sound } from '../utils/sound';
+import { ArrowUpRight, Cpu, Globe, ShieldCheck, Sparkles, Zap } from 'lucide-react';
 
-const credentials = [
-  { label: 'Current Focus', value: 'Lead IT · Web & AI', caption: 'ISSY Cosmetics' },
-  { label: 'Primary Stack', value: 'React · Next.js · TS', caption: 'Tailwind, Node, MySQL, Supabase' },
-  { label: 'AI & Automation', value: 'n8n · Claude · ADK', caption: 'Custom agents & pipelines' },
-  { label: 'Location', value: 'Manila, PH', caption: 'Remote / async worldwide' },
+const pipelineNodes = [
+  {
+    id: 'trigger',
+    step: '01',
+    title: 'Storefront / Webhook',
+    sub: 'Shopify · Next.js · Forms',
+    detail: 'Captures live orders, customer inquiries, and real-time user events in milliseconds.',
+  },
+  {
+    id: 'router',
+    step: '02',
+    title: 'n8n Orchestrator',
+    sub: 'Multi-step Workflow',
+    detail: 'Routes payloads, validates schemas, and syncs across databases without manual intervention.',
+  },
+  {
+    id: 'agent',
+    step: '03',
+    title: 'AI Agent Core',
+    sub: 'Claude · Gemini · Antigravity',
+    detail: 'Classifies intent, drafts contextual responses, and extracts structured business intelligence.',
+  },
+  {
+    id: 'output',
+    step: '04',
+    title: 'Automated Action',
+    sub: 'CRM · Slack · Analytics',
+    detail: 'Updates inventory, dispatches instant replies, and logs real-time revenue telemetry.',
+  },
 ];
 
 export const About: React.FC = () => {
   const { index: sectionIndex, label } = sectionMeta('about');
+  const [activeNode, setActiveNode] = useState<number>(2);
+  const [simulating, setSimulating] = useState(false);
+
+  const runPipelineSimulation = () => {
+    if (simulating) return;
+    sound.playPop();
+    setSimulating(true);
+    setActiveNode(0);
+
+    [1, 2, 3].forEach((stepIdx, i) => {
+      setTimeout(() => {
+        sound.playClick();
+        setActiveNode(stepIdx);
+        if (stepIdx === 3) {
+          setTimeout(() => setSimulating(false), 600);
+        }
+      }, (i + 1) * 420);
+    });
+  };
 
   return (
     <section id="about" className="scroll-mt-[var(--topbar-h)] py-16 md:py-24">
@@ -35,88 +77,239 @@ export const About: React.FC = () => {
             label={label}
             title={profile.about.title}
             meta="Manila · Remote Worldwide"
-            description="High-converting Shopify storefronts, resilient web applications, and autonomous AI systems."
+            description={profile.about.description}
           />
 
-          <div className="mt-10 grid grid-cols-1 gap-10 lg:grid-cols-12 lg:gap-14">
-            {/* Portrait */}
-            <motion.div variants={itemVariants} className="lg:col-span-5">
-              <div className="border border-line-mid">
-                <div className="relative aspect-[4/5] w-full overflow-hidden bg-panel">
+          {/* Cyber-Minimalist Bento Grid */}
+          <div className="mt-10 grid grid-cols-1 gap-4 lg:grid-cols-12">
+            {/* Bento 1: Portrait & Quick Identity HUD (4 cols) */}
+            <motion.div
+              variants={itemVariants}
+              className="flex flex-col justify-between rounded-xl border border-line-mid bg-panel p-4 lg:col-span-4"
+            >
+              <div>
+                <div className="relative aspect-[4/4.3] w-full overflow-hidden rounded-lg border border-line bg-ink">
                   <img
                     src="/louisse-portrait.jpg"
                     alt="Louisse Dominique Bertillo: Web Developer & AI Implementation"
-                    className="h-full w-full object-cover object-center grayscale contrast-[1.05]"
+                    className="h-full w-full object-cover object-center grayscale contrast-[1.08] transition-transform duration-500 hover:scale-[1.02]"
                     loading="lazy"
                   />
-                </div>
-                <div className="flex items-baseline justify-between gap-4 border-t border-line px-4 py-3">
-                  <span className="font-mono text-2xs tracking-wider2 text-fg-muted uppercase">
-                    Louisse Dominique Bertillo
-                  </span>
-                  <span className="font-mono text-2xs tracking-wider2 text-fg-faint uppercase">
-                    Manila · Remote
-                  </span>
+                  {/* HUD Corner Overlay */}
+                  <div className="pointer-events-none absolute inset-0 flex flex-col justify-between p-3 font-mono text-xs tracking-wider2 text-fg/80 uppercase">
+                    <div className="flex justify-between">
+                      <span className="rounded bg-ink/80 px-2 py-0.5 backdrop-blur-sm">
+                        ID // L.BERTILLO
+                      </span>
+                      <span className="rounded bg-ink/80 px-2 py-0.5 text-emerald-400 backdrop-blur-sm">
+                        ● ACTIVE
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="rounded bg-ink/80 px-2 py-0.5 backdrop-blur-sm">
+                        IT OFFICER · AI &amp; WEB
+                      </span>
+                      <span className="rounded bg-ink/80 px-2 py-0.5 backdrop-blur-sm">
+                        PH · UTC+8
+                      </span>
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              <div className="mt-6 border-t border-line">
-                {credentials.map((row, index) => (
-                  <DataRow
-                    key={row.label}
-                    index={String(index + 1).padStart(2, '0')}
-                    label={row.label}
-                    value={row.value}
-                    caption={row.caption}
-                  />
-                ))}
+              <div className="mt-4 flex items-center justify-between border-t border-line pt-3.5">
+                <div>
+                  <p className="font-sans text-sm font-medium text-fg">Louisse Dominique Bertillo</p>
+                  <p className="font-mono text-2xs text-fg-dim">Full-Stack Web &amp; AI Engineer</p>
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    onClick={() => scrollToSection('contact')}
+                    className="px-3 py-2 text-2xs"
+                    icon={<ArrowUpRight size={12} />}
+                  >
+                    Hire
+                  </Button>
+                </div>
               </div>
             </motion.div>
 
-            {/* Narrative */}
-            <motion.div variants={itemVariants} className="flex flex-col lg:col-span-7 lg:border-l lg:border-line lg:pl-14">
-              <div className="space-y-5">
-                {profile.about.description.split('\n\n').map((paragraph) => (
-                  <Body key={paragraph.slice(0, 24)} className="text-base md:text-[1.0625rem]">
-                    {paragraph}
-                  </Body>
-                ))}
-              </div>
-
-              <div className="mt-10 grid grid-cols-1 gap-px border border-line bg-line sm:grid-cols-2">
-                <div className="bg-ink p-6">
-                  <span className="font-mono text-2xs tracking-label text-fg-dim uppercase">
-                    How I Work
-                  </span>
-                  <p className="mt-3 text-[0.8125rem] leading-relaxed text-fg-muted">
-                    Fixed scope, defined milestones, and private staging links. You always know what is
-                    shipping and when.
-                  </p>
+            {/* Right 8 Columns: Interactive AI Pipeline + 2 Visual Pillar Cards */}
+            <div className="grid grid-cols-1 gap-4 lg:col-span-8">
+              {/* Bento 2: Interactive Autonomous AI Workflow Visualizer */}
+              <motion.div
+                variants={itemVariants}
+                className="flex flex-col justify-between rounded-xl border border-line-mid bg-panel p-5 sm:p-6"
+              >
+                <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line pb-4">
+                  <div className="flex items-center gap-2.5">
+                    <span className="h-2 w-2 rounded-full bg-emerald-400" aria-hidden="true" />
+                    <span className="font-mono text-2xs tracking-label text-fg uppercase">
+                      Interactive AI Automation Architecture
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={runPipelineSimulation}
+                    disabled={simulating}
+                    className="inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-line-strong bg-ink px-3 py-1 font-mono text-2xs tracking-wider2 text-fg uppercase transition-colors hover:border-paper hover:bg-paper hover:text-ink disabled:opacity-50"
+                  >
+                    <Zap size={11} className={simulating ? 'text-emerald-400' : ''} />
+                    <span>{simulating ? 'Simulating Flow…' : 'Simulate Pipeline'}</span>
+                  </button>
                 </div>
-                <div className="bg-ink p-6">
-                  <span className="font-mono text-2xs tracking-label text-fg-dim uppercase">
-                    What I Optimize For
-                  </span>
-                  <p className="mt-3 text-[0.8125rem] leading-relaxed text-fg-muted">
-                    Sub-second load times, checkout conversion, and minimal operational maintenance
-                    after launch.
-                  </p>
-                </div>
-              </div>
 
-              <div className="mt-10 flex flex-wrap gap-2">
-                <Button onClick={() => scrollToSection('contact')} icon={<ArrowUpRight size={13} />}>
-                  Start a Conversation
-                </Button>
-                <Button
-                  variant="secondary"
-                  onClick={() => pushRoute('/services')}
-                  icon={<ArrowUpRight size={13} />}
+                {/* Interactive 4-Node Pipeline */}
+                <div className="mt-5 grid grid-cols-1 gap-2.5 sm:grid-cols-4">
+                  {pipelineNodes.map((node, index) => {
+                    const isSelected = activeNode === index;
+                    return (
+                      <button
+                        key={node.id}
+                        type="button"
+                        onClick={() => {
+                          sound.playClick();
+                          setActiveNode(index);
+                        }}
+                        className={`group relative cursor-pointer rounded-lg border p-3.5 text-left transition-all duration-200 ${
+                          isSelected
+                            ? 'border-paper bg-ink shadow-lg'
+                            : 'border-line bg-ink/50 hover:border-line-strong hover:bg-ink'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between font-mono text-xs uppercase">
+                          <span className={isSelected ? 'text-emerald-400 font-bold' : 'text-fg-faint'}>
+                            {node.step}
+                          </span>
+                          <span
+                            className={`h-1.5 w-1.5 rounded-full transition-colors ${
+                              isSelected ? 'bg-emerald-400' : 'bg-line-strong'
+                            }`}
+                          />
+                        </div>
+                        <p className="mt-2 font-sans text-sm font-semibold text-fg">{node.title}</p>
+                        <p className="mt-0.5 font-mono text-xs text-fg-dim">{node.sub}</p>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Live Node Readout Bar */}
+                <div className="mt-4 flex flex-col justify-between gap-3 rounded-lg border border-line bg-ink px-4 py-3 sm:flex-row sm:items-center">
+                  <div className="flex items-start gap-2.5">
+                    <Sparkles size={14} className="mt-0.5 shrink-0 text-fg-dim" />
+                    <p className="text-sm leading-relaxed text-fg-muted">
+                      <strong className="font-mono text-xs uppercase text-fg mr-2">
+                        [{pipelineNodes[activeNode].title}]:
+                      </strong>
+                      {pipelineNodes[activeNode].detail}
+                    </p>
+                  </div>
+                  <span className="shrink-0 font-mono text-xs tracking-wider2 text-emerald-400 uppercase font-semibold">
+                    Latency &lt; 120ms
+                  </span>
+                </div>
+              </motion.div>
+
+              {/* Bottom 2 Bento Cards */}
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                {/* Bento 3: Performance & Conversion */}
+                <motion.div
+                  variants={itemVariants}
+                  className="flex flex-col justify-between rounded-xl border border-line-mid bg-panel p-5"
                 >
-                  Services &amp; Rates
-                </Button>
+                  <div>
+                    <div className="flex items-center justify-between">
+                      <span className="font-mono text-2xs tracking-label text-fg-dim uppercase">
+                        01 // Web &amp; E-Commerce
+                      </span>
+                      <Globe size={15} className="text-fg-dim" />
+                    </div>
+                    <h3 className="mt-3 font-sans text-base font-medium text-fg">
+                      Sub-second storefronts built to convert.
+                    </h3>
+                    <div className="mt-4 space-y-2.5">
+                      <div>
+                        <div className="flex justify-between font-mono text-2xs">
+                          <span className="text-fg-dim">Core Web Vitals</span>
+                          <span className="text-emerald-400">99 / 100</span>
+                        </div>
+                        <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-ink">
+                          <div className="h-full w-[99%] bg-paper" />
+                        </div>
+                      </div>
+                      <div>
+                        <div className="flex justify-between font-mono text-2xs">
+                          <span className="text-fg-dim">ISSY Sales Lift</span>
+                          <span className="text-fg">+170% Verified</span>
+                        </div>
+                        <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-ink">
+                          <div className="h-full w-[92%] bg-emerald-400" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="mt-5 flex flex-wrap gap-1.5 border-t border-line pt-3.5">
+                    {['Next.js', 'React 19', 'Shopify Liquid', 'Tailwind'].map((t) => (
+                      <span
+                        key={t}
+                        className="rounded border border-line bg-ink px-2.5 py-1 font-mono text-xs text-fg-muted"
+                      >
+                        {t}
+                      </span>
+                    ))}
+                  </div>
+                </motion.div>
+
+                {/* Bento 4: Fixed-Scope Execution */}
+                <motion.div
+                  variants={itemVariants}
+                  className="flex flex-col justify-between rounded-xl border border-line-mid bg-panel p-5"
+                >
+                  <div>
+                    <div className="flex items-center justify-between">
+                      <span className="font-mono text-2xs tracking-label text-fg-dim uppercase">
+                        02 // Execution Model
+                      </span>
+                      <ShieldCheck size={15} className="text-fg-dim" />
+                    </div>
+                    <h3 className="mt-3 font-sans text-base font-medium text-fg">
+                      Fixed scope. Zero hidden fees.
+                    </h3>
+                    <ul className="mt-4 space-y-2 font-mono text-2xs text-fg-muted">
+                      <li className="flex items-center justify-between border-b border-line pb-1.5">
+                        <span className="text-fg-dim">Turnaround</span>
+                        <span className="text-fg">2 – 18 Days</span>
+                      </li>
+                      <li className="flex items-center justify-between border-b border-line pb-1.5">
+                        <span className="text-fg-dim">Payment Split</span>
+                        <span className="text-fg">50% Upfront / 50% Launch</span>
+                      </li>
+                      <li className="flex items-center justify-between">
+                        <span className="text-fg-dim">Post-Launch Warranty</span>
+                        <span className="text-emerald-400">30 Days Included</span>
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div className="mt-5 flex items-center justify-between border-t border-line pt-3.5">
+                    <span className="flex items-center gap-1.5 font-mono text-[10px] text-fg-dim uppercase">
+                      <Cpu size={12} />
+                      <span>Direct Engineer</span>
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => pushRoute('/services')}
+                      className="inline-flex cursor-pointer items-center gap-1 font-mono text-2xs text-fg uppercase underline decoration-line-strong underline-offset-4 hover:text-paper"
+                    >
+                      <span>View Packages</span>
+                      <ArrowUpRight size={12} />
+                    </button>
+                  </div>
+                </motion.div>
               </div>
-            </motion.div>
+            </div>
           </div>
         </motion.div>
       </Container>

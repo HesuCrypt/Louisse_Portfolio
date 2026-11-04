@@ -1,7 +1,7 @@
 export const featured = [
   {
     company: "ISSY Cosmetics",
-    role: "Lead Web Developer",
+    role: "IT Officer - Web developer & AI automation",
     description: "High-conversion Shopify engineering and performance tuning behind a verified 170% lift in online sales.",
     stat: "170% Sales Lift",
     link: "https://issycosmetics.com/",

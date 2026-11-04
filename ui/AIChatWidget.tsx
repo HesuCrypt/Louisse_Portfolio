@@ -228,14 +228,18 @@ export const AIChatWidget: React.FC = () => {
             sound.playPop();
             setIsOpen(true);
           }}
-          className="inline-flex cursor-pointer items-center gap-2 border border-line-mid bg-ink px-4 py-2.5 font-mono text-2xs tracking-wider2 text-fg uppercase transition-colors duration-200 hover:border-paper hover:bg-paper hover:text-ink shadow-lg"
+          className="group inline-flex cursor-pointer items-center gap-2.5 rounded-full border border-line-strong bg-panel/95 px-4 py-2.5 font-mono text-2xs tracking-wider2 text-fg uppercase backdrop-blur-md transition-all duration-200 hover:border-paper hover:bg-paper hover:text-ink shadow-2xl"
           aria-label="Open AI chat assistant"
         >
-          <MessageCircle size={15} aria-hidden="true" />
-          <span>Ask AI</span>
+          <span className="relative flex h-2 w-2">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+            <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
+          </span>
+          <MessageCircle size={14} aria-hidden="true" />
+          <span>AI Assistant</span>
         </button>
       ) : (
-        <div className="flex w-[390px] max-w-[calc(100vw-1.5rem)] flex-col overflow-hidden border border-line-strong bg-ink shadow-2xl">
+        <div className="flex w-[390px] max-w-[calc(100vw-1.5rem)] flex-col overflow-hidden rounded-2xl border border-line-strong bg-ink/95 backdrop-blur-md shadow-2xl">
           {/* Header */}
           <div className="flex items-center justify-between gap-3 border-b border-line px-4 py-3 bg-panel/60">
             <div className="flex items-center gap-3">

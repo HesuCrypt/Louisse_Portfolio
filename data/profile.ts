@@ -3,13 +3,11 @@ export const profile = {
   title: "Web Developer & AI Implementation Specialist",
   hero: {
     label: "Louisse Dominique Bertillo",
-    headline: "I build fast websites and the automation behind them.",
-    subtext: "High-performance web apps, Shopify storefronts, and AI workflow automation. Recent work lifted online sales at ISSY Cosmetics by 170%."
+    headline: "Websites that convert. AI systems that scale",
+    subtext: "Full-stack web engineer & AI specialist crafting sub-second storefronts, interactive web apps, and autonomous workflows that turn traffic into revenue."
   },
   about: {
-    title: "Full-stack web engineering & autonomous AI systems",
-    description: `Web developer and AI implementation specialist based in Manila. I bridge user-facing digital experiences with backend automations that drive measurable revenue.
-
-Specialized in high-conversion Shopify storefronts, resilient web applications, and multi-step AI pipelines (n8n, LLM agents) that eliminate manual operational bottlenecks.`
+    title: "Engineering fast interfaces & autonomous AI systems",
+    description: "I bridge high-conversion web engineering with multi-step AI automation that removes operational bottlenecks and drives measurable revenue."
   }
 };

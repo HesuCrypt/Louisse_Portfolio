@@ -1,7 +1,13 @@
-import React from 'react';
-import { motion } from 'framer-motion';
-import { ArrowUpRight, Bot, MessageSquare } from 'lucide-react';
-import { featured } from '../data/featured';
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import {
+  ArrowUpRight,
+  Bot,
+  ChevronDown,
+  MessageSquare,
+  Calculator,
+  Check,
+} from 'lucide-react';
 import {
   addOnItems,
   comparisonRows,
@@ -16,20 +22,33 @@ import { Button } from '../ui/Button';
 import { QuoteCalculator } from './QuoteCalculator';
 import { Container } from '../ui/Container';
 import { SectionHeader } from '../ui/SectionHeader';
-import { Body, H3 } from '../ui/Text';
+import { H3 } from '../ui/Text';
+import { sound } from '../utils/sound';
 
-/** Micro-label used to title the sub-blocks that sit between the big tables. */
-const blockLabel = 'font-mono text-2xs tracking-label text-fg-dim uppercase';
+type ServicesTab = 'packages' | 'calculator' | 'compare' | 'terms';
+
+const SERVICE_TABS: Array<{
+  id: ServicesTab;
+  label: string;
+  sub: string;
+}> = [
+  { id: 'packages', label: '01 · Packages', sub: '5 Fixed Tiers' },
+  { id: 'calculator', label: '02 · Quote Builder', sub: 'Live Estimator' },
+  { id: 'compare', label: '03 · Compare & Add-Ons', sub: 'Matrix & Extras' },
+  { id: 'terms', label: '04 · Terms & Warranty', sub: '50/50 & Guarantees' },
+];
 
 export const Services: React.FC = () => {
   const { formatEstimatedPrice, formatPhpPrice, showEstimate } = useLocalizedCurrency();
-  const completedWork = featured.filter(
-    (item) => item.company === 'La Fleur' || item.company === 'Meridian Auctions'
-  );
-  const standardPackages = servicePackages.filter((pkg) => !pkg.isFlagship);
-  const flagship = servicePackages.find((pkg) => pkg.isFlagship);
+  const [activeTab, setActiveTab] = useState<ServicesTab>('packages');
+  const [selectedPackId, setSelectedPackId] = useState<string | null>(null);
+  const [openTermIdx, setOpenTermIdx] = useState<number | null>(null);
 
-  /** Shared price readout: PHP always, local estimate only when one is available. */
+  const togglePackDetail = (id: string) => {
+    sound.playClick();
+    setSelectedPackId((prev) => (prev === id ? null : id));
+  };
+
   const priceRange = (card: (typeof servicePackages)[number]) =>
     card.maxPricePhp
       ? `${formatPhpPrice(card.basePricePhp)} – ${formatPhpPrice(card.maxPricePhp)}`
@@ -42,7 +61,7 @@ export const Services: React.FC = () => {
   };
 
   return (
-    <section id="services" className="scroll-mt-[var(--topbar-h)] py-16 md:py-24">
+    <section id="services" className="scroll-mt-[var(--topbar-h)] py-14 md:py-20">
       <Container>
         <motion.div
           variants={containerVariants}
@@ -51,473 +70,516 @@ export const Services: React.FC = () => {
           viewport={{ once: true, margin: '-10%' }}
         >
           <SectionHeader
-            index="10"
-            label="Packages"
-            title={'Website & Web App Development Services'}
-            meta="Fixed scope · PHP"
-            description="Five transparent, fixed-scope packages built for conversion, performance, and modern aesthetics. Tell me your vision, or ask the built-in AI assistant for an instant scope breakdown."
+            index="09"
+            label="Services & Rates"
+            title="Fixed-Scope Packages & Interactive Estimator"
+            meta="Transparent PHP Pricing"
+            description="Select a tab below or click any package card to inspect its deliverables, add-ons, and timeline."
           />
 
-          {/* Interactive scope guide — hairline panel, no glow, no colour */}
+          {/* Clean Hairline Top Navigation Tabs */}
           <motion.div
             variants={itemVariants}
-            className="mt-10 flex flex-col gap-6 border border-line-mid bg-panel p-5 md:flex-row md:items-center md:justify-between md:p-8"
+            className="mt-8 grid grid-cols-2 gap-px border border-line bg-line lg:grid-cols-4"
           >
-            <div className="flex items-start gap-4">
-              <span className="grid h-10 w-10 shrink-0 place-items-center border border-line-strong text-fg">
-                <Bot size={18} aria-hidden="true" />
-              </span>
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className={blockLabel}>Interactive Scope Guide</span>
-                  <span className="h-1.5 w-1.5 bg-paper" aria-hidden="true" />
-                </div>
-                <h3 className="mt-2 font-sans text-lg font-medium tracking-[-0.02em] text-fg md:text-xl">
-                  Not sure which package fits your project?
-                </h3>
-                <p className="mt-1.5 max-w-[62ch] text-[0.8125rem] leading-relaxed text-fg-muted">
-                  Ask the assistant for an instant scope breakdown, help pricing add-ons, or a recommendation
-                  based on your timeline and budget.
-                </p>
-              </div>
-            </div>
-            <Button
-              onClick={() =>
-                openAIChat('Can you help me choose the right website or web app package for my business?')
-              }
-              className="w-full shrink-0 justify-center md:w-auto"
-              icon={<MessageSquare size={14} />}
-            >
-              Ask the Assistant
-            </Button>
+            {SERVICE_TABS.map(({ id, label, sub }) => {
+              const isActive = activeTab === id;
+              return (
+                <button
+                  key={id}
+                  type="button"
+                  onClick={() => {
+                    sound.playClick();
+                    setActiveTab(id);
+                  }}
+                  className={`cursor-pointer p-4 text-left transition-colors ${
+                    isActive
+                      ? 'bg-paper text-ink'
+                      : 'bg-ink text-fg hover:bg-panel'
+                  }`}
+                >
+                  <span
+                    className={`block font-mono text-xs font-semibold tracking-wider uppercase ${
+                      isActive ? 'text-ink' : 'text-fg'
+                    }`}
+                  >
+                    {label}
+                  </span>
+                  <span
+                    className={`mt-0.5 block font-mono text-[10px] ${
+                      isActive ? 'text-ink/70' : 'text-fg-dim'
+                    }`}
+                  >
+                    {sub}
+                  </span>
+                </button>
+              );
+            })}
           </motion.div>
 
-          {completedWork.length ? (
-            <motion.div variants={itemVariants} className="mt-16">
-              <div className="flex items-baseline justify-between gap-4 border-t border-line pt-6">
-                <span className={blockLabel}>Recent Launches</span>
-                <span className="tnum font-mono text-2xs text-fg-faint">
-                  {String(completedWork.length).padStart(2, '0')}
-                </span>
-              </div>
-              <p className="mt-4 max-w-[68ch] text-[0.9375rem] leading-[1.75] text-fg-muted">
-                Two sites I’ve already shipped, so you can judge the build quality and finish before you commit.
-              </p>
+          {/* Tab Content Area */}
+          <div className="mt-8">
+            <AnimatePresence mode="wait">
+              {/* TAB 1: MINIMAL CLICK-TO-EXPAND PACKAGES */}
+              {activeTab === 'packages' && (
+                <motion.div
+                  key="tab-packages"
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -6 }}
+                  transition={{ duration: 0.2 }}
+                  className="space-y-6"
+                >
+                  <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+                    {servicePackages.map((card, index) => {
+                      const isExpanded = selectedPackId === card.id;
+                      const estimate = estimateRange(card);
+                      const displayPhpPrice = priceRange(card);
 
-              <div className="mt-8 grid grid-cols-1 gap-px border border-line bg-line md:grid-cols-2">
-                {completedWork.map((item) => (
-                  <div key={item.company} className="flex flex-col justify-between bg-ink p-6 md:p-8">
-                    <div>
-                      <div className="flex items-baseline justify-between gap-4">
-                        <H3 className="text-xl">{item.company}</H3>
-                        <span className="shrink-0 border border-line-mid px-2 py-0.5 font-mono text-2xs tracking-wider2 text-fg-dim uppercase">
-                          {item.status}
-                        </span>
+                      return (
+                        <div
+                          key={card.id}
+                          className={`flex flex-col justify-between rounded-2xl border p-7 transition-all duration-300 ${
+                            card.popular
+                              ? 'border-emerald-500/40 bg-[#12141a] shadow-xl hover:border-emerald-400/60'
+                              : 'border-white/10 bg-[#0d0e12] hover:-translate-y-1 hover:border-white/20'
+                          }`}
+                        >
+                          <div>
+                            <div className="flex items-center justify-between gap-2">
+                              <span className="tnum font-mono text-xs text-fg-dim">
+                                TIER 0{index + 1}
+                              </span>
+                              {card.popular ? (
+                                <span className="rounded-full bg-paper px-2.5 py-0.5 font-mono text-xs font-semibold tracking-wider2 text-ink uppercase">
+                                  Most Popular
+                                </span>
+                              ) : card.isFlagship ? (
+                                <span className="rounded-full border border-line-strong px-2.5 py-0.5 font-mono text-xs tracking-wider2 text-fg uppercase">
+                                  Flagship OS / AI
+                                </span>
+                              ) : (
+                                <span className="font-mono text-xs text-fg-dim uppercase">
+                                  Fixed Scope
+                                </span>
+                              )}
+                            </div>
+
+                            <H3 className="mt-4 text-xl font-bold tracking-tight text-white">{card.title}</H3>
+
+                            <div className="mt-2 flex items-baseline gap-2">
+                              <span className="tnum font-mono text-2xl font-bold tracking-[-0.02em] text-fg sm:text-3xl">
+                                {displayPhpPrice}
+                              </span>
+                              {showEstimate && estimate && (
+                                <span className="font-mono text-xs text-fg-dim">
+                                  (&approx; {estimate})
+                                </span>
+                              )}
+                            </div>
+
+                            <p className="mt-2 font-mono text-xs text-emerald-400">
+                              {card.scopeLine}
+                            </p>
+
+                            <p className="mt-3 text-xs leading-relaxed text-fg-muted">
+                              {card.summary[0]}
+                            </p>
+
+                            {/* Click-to-Inspect Deliverables Button */}
+                            <button
+                              type="button"
+                              onClick={() => togglePackDetail(card.id)}
+                              aria-expanded={isExpanded}
+                              className="mt-4 flex w-full cursor-pointer items-center justify-between rounded-xl border border-line bg-panel px-3.5 py-2.5 font-mono text-xs tracking-wider2 text-fg-dim uppercase transition-colors hover:border-line-strong hover:text-fg"
+                            >
+                              <span>
+                                {isExpanded
+                                  ? 'Hide Package Details'
+                                  : `View ${card.pages.length + card.extras.length} Inclusions`}
+                              </span>
+                              <ChevronDown
+                                size={13}
+                                className={`transition-transform duration-200 ${
+                                  isExpanded ? 'rotate-180 text-emerald-400' : ''
+                                }`}
+                              />
+                            </button>
+
+                            <AnimatePresence initial={false}>
+                              {isExpanded && (
+                                <motion.div
+                                  initial={{ height: 0, opacity: 0 }}
+                                  animate={{ height: 'auto', opacity: 1 }}
+                                  exit={{ height: 0, opacity: 0 }}
+                                  transition={{ duration: 0.2 }}
+                                  className="overflow-hidden"
+                                >
+                                  <div className="mt-4 space-y-4 rounded-xl border border-line bg-panel p-4">
+                                    <div>
+                                      <p className="font-mono text-xs tracking-wider2 text-fg uppercase">
+                                        {card.pagesTitle}
+                                      </p>
+                                      <ul className="mt-2 space-y-1.5">
+                                        {card.pages.map((item, i) => (
+                                          <li key={i} className="flex items-start gap-2 text-xs text-fg-muted">
+                                            <Check size={12} className="mt-0.5 shrink-0 text-emerald-400" />
+                                            <span>{item}</span>
+                                          </li>
+                                        ))}
+                                      </ul>
+                                    </div>
+
+                                    <div className="border-t border-line pt-3">
+                                      <p className="font-mono text-xs tracking-wider2 text-fg-dim uppercase">
+                                        {card.extrasTitle}
+                                      </p>
+                                      <ul className="mt-2 space-y-1.5">
+                                        {card.extras.map((item, i) => (
+                                          <li key={i} className="flex items-start gap-2 text-xs text-fg-muted">
+                                            <Check size={12} className="mt-0.5 shrink-0 text-fg-dim" />
+                                            <span>{item}</span>
+                                          </li>
+                                        ))}
+                                      </ul>
+                                    </div>
+
+                                    <div className="border-t border-line pt-3">
+                                      <p className="font-mono text-xs tracking-wider2 text-fg-faint uppercase">
+                                        Ideal For
+                                      </p>
+                                      <p className="mt-1 text-xs text-fg-muted">{card.bestFor}</p>
+                                    </div>
+                                  </div>
+                                </motion.div>
+                              )}
+                            </AnimatePresence>
+                          </div>
+
+                          <div className="mt-6 flex items-center gap-2 border-t border-line pt-4">
+                            <Button
+                              href="#contact"
+                              variant={card.popular ? 'primary' : 'secondary'}
+                              className="flex-1 justify-center rounded-xl py-2.5"
+                            >
+                              Select Package
+                            </Button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                sound.playClick();
+                                openAIChat(
+                                  `Can you explain what's included in the ${card.title} and help me decide if it fits my goals?`
+                                );
+                              }}
+                              title="Ask AI Consultant about this tier"
+                              className="inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-xl border border-line-mid bg-ink px-3 py-2.5 font-mono text-xs text-fg-dim uppercase transition-colors hover:border-paper hover:text-fg"
+                            >
+                              <Bot size={13} />
+                              <span>Ask AI</span>
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })}
+
+                    {/* Symmetrical 6th Card: Custom Enterprise & AI Retainer */}
+                    <div className="flex flex-col justify-between rounded-2xl border border-white/10 bg-[#0d0e12] p-7 transition-all duration-300 hover:-translate-y-1 hover:border-white/20">
+                      <div>
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="tnum font-mono text-xs text-fg-dim">
+                            TIER 06
+                          </span>
+                          <span className="rounded-full border border-emerald-500/40 bg-emerald-950/20 px-2.5 py-0.5 font-mono text-xs text-emerald-400 uppercase">
+                            Enterprise / Bespoke
+                          </span>
+                        </div>
+
+                        <H3 className="mt-4 text-xl font-bold tracking-tight text-white">Custom Scope &amp; AI Retainer</H3>
+
+                        <div className="mt-2 flex items-baseline gap-2">
+                          <span className="tnum font-mono text-2xl font-bold tracking-[-0.02em] text-fg sm:text-3xl">
+                            Bespoke Quote
+                          </span>
+                        </div>
+
+                        <p className="mt-2 font-mono text-xs text-emerald-400">
+                          Flexible Sprints &middot; Dedicated Capacity
+                        </p>
+
+                        <p className="mt-3 text-xs leading-relaxed text-fg-muted">
+                          Tailored architecture, n8n automated pipelines, custom LLM fine-tuning, and dedicated monthly development capacity.
+                        </p>
+
+                        <div className="mt-4 space-y-2.5 rounded-xl border border-line bg-panel p-4">
+                          <p className="font-mono text-xs tracking-wider uppercase text-fg">
+                            Included Capabilities:
+                          </p>
+                          <ul className="space-y-2 text-xs text-fg-muted">
+                            <li className="flex items-start gap-2">
+                              <Check size={12} className="mt-0.5 shrink-0 text-emerald-400" />
+                              <span>Custom AI Model &amp; n8n Orchestration</span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <Check size={12} className="mt-0.5 shrink-0 text-emerald-400" />
+                              <span>Dedicated Engineering Sprint Capacity</span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <Check size={12} className="mt-0.5 shrink-0 text-emerald-400" />
+                              <span>Direct Async &amp; Technical Advisory</span>
+                            </li>
+                          </ul>
+                        </div>
                       </div>
-                      <Body className="mt-4 text-[0.9375rem]">{item.description}</Body>
+
+                      <div className="mt-6 flex items-center gap-2 border-t border-line pt-4">
+                        <Button
+                          href="#contact"
+                          variant="secondary"
+                          className="flex-1 justify-center rounded-xl py-2.5"
+                        >
+                          Inquire Custom
+                        </Button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            sound.playClick();
+                            openAIChat(
+                              'Can you help me design a custom scope or dedicated retainer for my project?'
+                            );
+                          }}
+                          title="Ask AI Consultant about custom retainer"
+                          className="inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-xl border border-line-mid bg-ink px-3 py-2.5 font-mono text-xs text-fg-dim uppercase transition-colors hover:border-paper hover:text-fg"
+                        >
+                          <Bot size={13} />
+                          <span>Ask AI</span>
+                        </button>
+                      </div>
                     </div>
-                    <div className="mt-8 border-t border-line pt-5">
+                  </div>
+
+                  {/* Compact Bottom Bar */}
+                  <div className="flex flex-wrap items-center justify-between gap-4 border border-line bg-panel p-5">
+                    <div>
+                      <p className="font-sans text-sm font-medium text-fg">
+                        Want to customize extra pages or add AI automation?
+                      </p>
+                      <p className="font-mono text-2xs text-fg-dim">
+                        Use the interactive Quote Builder or ask the AI assistant.
+                      </p>
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-2.5">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          sound.playClick();
+                          setActiveTab('calculator');
+                        }}
+                        className="inline-flex cursor-pointer items-center gap-2 bg-paper px-4 py-2.5 font-mono text-2xs font-semibold tracking-wider2 text-ink uppercase transition-colors hover:bg-fg/90"
+                      >
+                        <Calculator size={12} />
+                        <span>Open Quote Builder</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          sound.playClick();
+                          openAIChat(
+                            'Can you help me choose the right website or web app package for my business?'
+                          );
+                        }}
+                        className="inline-flex cursor-pointer items-center gap-1.5 border border-line-mid bg-ink px-4 py-2.5 font-mono text-2xs tracking-wider2 text-fg-muted uppercase transition-colors hover:border-paper hover:text-fg"
+                      >
+                        <MessageSquare size={12} />
+                        <span>Ask AI Guide</span>
+                      </button>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+
+              {/* TAB 2: INTERACTIVE QUOTE BUILDER */}
+              {activeTab === 'calculator' && (
+                <motion.div
+                  key="tab-calculator"
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -6 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <QuoteCalculator />
+                </motion.div>
+              )}
+
+              {/* TAB 3: SIDE-BY-SIDE COMPARISON & MODULAR ADD-ONS */}
+              {activeTab === 'compare' && (
+                <motion.div
+                  key="tab-compare"
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -6 }}
+                  transition={{ duration: 0.2 }}
+                  className="space-y-10"
+                >
+                  <div>
+                    <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line pb-3">
+                      <span className="font-mono text-xs tracking-wider2 text-fg uppercase">
+                        Modular Add-Ons (À La Carte)
+                      </span>
+                      <span className="font-mono text-2xs text-fg-dim">
+                        Attach to any base package
+                      </span>
+                    </div>
+
+                    <div className="mt-4 grid grid-cols-1 gap-px border border-line bg-line sm:grid-cols-2 lg:grid-cols-3">
+                      {addOnItems.map((item) => (
+                        <div
+                          key={item.name}
+                          className="flex flex-col justify-between bg-ink p-5"
+                        >
+                          <div>
+                            <div className="flex items-start justify-between gap-2">
+                              <h4 className="font-sans text-sm font-medium text-fg">
+                                {item.name}
+                              </h4>
+                              <span className="shrink-0 border border-line px-2 py-0.5 font-mono text-[10px] text-fg-dim">
+                                {item.timeline}
+                              </span>
+                            </div>
+                            <p className="tnum mt-2 font-mono text-base font-semibold text-fg">
+                              {item.investmentPhp}
+                            </p>
+                            <p className="mt-2 text-xs leading-relaxed text-fg-muted">
+                              {item.description}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="border border-line-mid bg-ink">
+                    <div className="flex items-center justify-between border-b border-line px-5 py-3.5">
+                      <span className="font-mono text-xs tracking-wider2 text-fg uppercase">
+                        Tier-by-Tier Feature Matrix
+                      </span>
+                      <span className="font-mono text-2xs text-fg-dim md:hidden">
+                        &larr; Swipe &rarr;
+                      </span>
+                    </div>
+                    <div className="no-scrollbar overflow-x-auto">
+                      <table className="w-full min-w-[720px] text-left">
+                        <thead>
+                          <tr className="border-b border-line-mid bg-panel">
+                            <th className="sticky left-0 z-10 bg-panel px-4 py-3 font-mono text-2xs tracking-wider2 text-fg-dim uppercase">
+                              Feature
+                            </th>
+                            {['₱10k', '₱30k', '₱45k', '₱60k', '₱100k–₱120k'].map((tier) => (
+                              <th
+                                key={tier}
+                                className="whitespace-nowrap px-3 py-3 font-mono text-2xs tracking-wider2 text-fg uppercase"
+                              >
+                                {tier}
+                              </th>
+                            ))}
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {comparisonRows.map((row) => (
+                            <tr key={row.feature} className="border-b border-line last:border-b-0">
+                              <td className="sticky left-0 z-10 bg-ink px-4 py-3 text-xs font-medium text-fg">
+                                {row.feature}
+                              </td>
+                              <td className="px-3 py-3 text-xs text-fg-muted">{row.portfolio}</td>
+                              <td className="px-3 py-3 text-xs text-fg-muted">{row.starter}</td>
+                              <td className="px-3 py-3 text-xs text-fg-muted">{row.business}</td>
+                              <td className="px-3 py-3 text-xs text-fg-muted">{row.professional}</td>
+                              <td className="px-3 py-3 text-xs font-medium text-fg">
+                                {row.flagship}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+
+              {/* TAB 4: ACCORDION ENGAGEMENT TERMS & GUARANTEES */}
+              {activeTab === 'terms' && (
+                <motion.div
+                  key="tab-terms"
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -6 }}
+                  transition={{ duration: 0.2 }}
+                  className="grid grid-cols-1 gap-px border border-line bg-line lg:grid-cols-12"
+                >
+                  <div className="divide-y divide-line bg-ink lg:col-span-7">
+                    {engagementTerms.map((item, idx) => {
+                      const isOpen = openTermIdx === idx;
+                      return (
+                        <div key={item.label} className="bg-ink">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              sound.playClick();
+                              setOpenTermIdx(isOpen ? null : idx);
+                            }}
+                            className="flex w-full cursor-pointer items-center justify-between gap-4 px-5 py-4 text-left hover:bg-panel"
+                          >
+                            <span className="font-mono text-xs font-medium tracking-wider text-fg uppercase">
+                              0{idx + 1} &middot; {item.label}
+                            </span>
+                            <ChevronDown
+                              size={14}
+                              className={`text-fg-dim transition-transform duration-200 ${
+                                isOpen ? 'rotate-180 text-emerald-400' : ''
+                              }`}
+                            />
+                          </button>
+                          {isOpen && (
+                            <div className="border-t border-line bg-panel px-5 py-4 text-xs leading-relaxed text-fg-muted">
+                              {item.value}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  <div className="flex flex-col justify-between bg-ink p-6 lg:col-span-5">
+                    <div>
+                      <span className="font-mono text-xs font-semibold tracking-wider2 text-fg uppercase">
+                        Working Guarantees
+                      </span>
+                      <ul className="mt-4 space-y-2.5 border-t border-line pt-4">
+                        {trustItems.map((item) => (
+                          <li key={item} className="flex items-start gap-2.5 text-xs text-fg-muted">
+                            <Check size={13} className="mt-0.5 shrink-0 text-emerald-400" />
+                            <span>{item}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+
+                    <div className="mt-6 border-t border-line pt-4">
                       <Button
-                        href={item.link}
-                        variant="secondary"
+                        href="#contact"
                         className="w-full justify-center"
                         icon={<ArrowUpRight size={13} />}
                       >
-                        Visit Platform
+                        Start a Project
                       </Button>
                     </div>
                   </div>
-                ))}
-              </div>
-            </motion.div>
-          ) : null}
-
-          {/* Standard package ledger — shared hairlines via the gap-px grid idiom */}
-          <div className="mt-16">
-            <div className="flex items-baseline justify-between gap-4 border-t border-line pt-6">
-              <span className={blockLabel}>Standard Packages</span>
-              <span className="tnum font-mono text-2xs text-fg-faint">
-                {String(standardPackages.length).padStart(2, '0')} tiers
-              </span>
-            </div>
-
-            <div className="mt-8 grid grid-cols-1 gap-px border border-line bg-line md:grid-cols-2 xl:grid-cols-4">
-              {standardPackages.map((card, index) => {
-                const estimate = estimateRange(card);
-                const displayPhpPrice = priceRange(card);
-
-                return (
-                  <motion.article
-                    key={card.id}
-                    variants={itemVariants}
-                    className={`flex flex-col p-5 sm:p-6 ${
-                      card.popular ? 'bg-panel-2' : 'bg-ink'
-                    }`}
-                  >
-                    <div className="flex items-baseline justify-between gap-3">
-                      <span className="tnum font-mono text-2xs text-fg-faint">
-                        {String(index + 1).padStart(2, '0')}
-                      </span>
-                      {card.popular ? (
-                        <span className="border border-paper bg-paper px-2 py-0.5 font-mono text-2xs tracking-wider2 text-ink uppercase">
-                          Most Popular
-                        </span>
-                      ) : null}
-                    </div>
-
-                    <H3 className="mt-5 text-lg">{card.title}</H3>
-
-                    <p className="tnum mt-3 font-mono text-xl font-medium tracking-[-0.02em] text-fg">
-                      {displayPhpPrice}
-                    </p>
-                    {showEstimate && estimate ? (
-                      <>
-                        <p className="mt-1 font-mono text-2xs text-fg-dim">≈ {estimate}</p>
-                        <p className="mt-0.5 font-mono text-2xs text-fg-faint">
-                          Local price estimated at current exchange rates
-                        </p>
-                      </>
-                    ) : null}
-
-                    <p className="mt-3 font-mono text-2xs leading-relaxed text-fg-dim">{card.scopeLine}</p>
-
-                    <div className="mt-4 space-y-2 border-t border-line pt-4">
-                      <p className="text-[0.8125rem] leading-relaxed text-fg-muted">{card.summary[0]}</p>
-                      <p className="text-[0.8125rem] leading-relaxed text-fg-dim">{card.summary[1]}</p>
-                    </div>
-
-                    <div className="mt-6 space-y-5 border-t border-line pt-5">
-                      <div>
-                        <p className={blockLabel}>{card.pagesTitle}</p>
-                        <ul className="mt-3 space-y-2">
-                          {card.pages.map((item, i) => (
-                            <li key={i} className="flex items-start gap-2.5">
-                              <span className="mt-1.5 h-1.5 w-1.5 shrink-0 bg-paper" aria-hidden="true" />
-                              <span className="text-[0.8125rem] leading-relaxed text-fg-muted">{item}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-
-                      <div>
-                        <p className={blockLabel}>{card.extrasTitle}</p>
-                        <ul className="mt-3 space-y-2">
-                          {card.extras.map((item, i) => (
-                            <li key={i} className="flex items-start gap-2.5">
-                              <span className="mt-1.5 h-1.5 w-1.5 shrink-0 bg-paper" aria-hidden="true" />
-                              <span className="text-[0.8125rem] leading-relaxed text-fg-muted">{item}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    </div>
-
-                    <div className="mt-6 border-t border-line pt-5">
-                      <p className={blockLabel}>Best for</p>
-                      <p className="mt-2 text-[0.8125rem] leading-relaxed text-fg-muted">{card.bestFor}</p>
-                    </div>
-
-                    <div className="mt-6 flex flex-col gap-2.5 pt-1">
-                      <Button
-                        href="#contact"
-                        variant={card.popular ? 'primary' : 'secondary'}
-                        className="w-full justify-center"
-                      >
-                        Get Started
-                      </Button>
-                      <button
-                        type="button"
-                        onClick={() =>
-                          openAIChat(
-                            `Can you explain what's included in the ${card.title} and help me decide if it fits my goals?`
-                          )
-                        }
-                        className="inline-flex cursor-pointer items-center justify-center gap-2 py-1 font-mono text-2xs tracking-wider2 text-fg-dim uppercase transition-colors hover:text-fg"
-                      >
-                        <Bot size={12} aria-hidden="true" />
-                        <span>Ask AI about this package</span>
-                      </button>
-                    </div>
-                  </motion.article>
-                );
-              })}
-            </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
-
-          {/* Flagship tier spotlight */}
-          {flagship
-            ? (() => {
-                const card = flagship;
-                const estimate = estimateRange(card);
-                const displayPhpPrice = priceRange(card);
-
-                return (
-                  <motion.div variants={itemVariants} className="mt-16">
-                    <div className="flex flex-wrap items-baseline justify-between gap-3 border-t border-line pt-6">
-                      <span className={blockLabel}>Flagship Tier</span>
-                      <span className="border border-paper bg-paper px-2 py-0.5 font-mono text-2xs tracking-wider2 text-ink uppercase">
-                        Creative Tech
-                      </span>
-                    </div>
-
-                    <div className="mt-8 grid grid-cols-1 gap-px border border-line bg-line lg:grid-cols-12">
-                      <div className="flex flex-col justify-between bg-ink p-5 sm:p-6 md:p-8 lg:col-span-5">
-                        <div>
-                          <H3 className="text-xl md:text-2xl">{card.title}</H3>
-                          <div className="mt-3 flex flex-wrap items-baseline gap-3">
-                            <span className="tnum font-mono text-2xl font-medium tracking-[-0.03em] text-fg md:text-3xl">
-                              {displayPhpPrice}
-                            </span>
-                            <span className="font-mono text-2xs text-fg-dim">{card.scopeLine}</span>
-                          </div>
-                          {showEstimate && estimate ? (
-                            <p className="mt-1 font-mono text-2xs text-fg-dim">
-                              ≈ {estimate} (local exchange estimate)
-                            </p>
-                          ) : null}
-                          <p className="mt-4 text-[0.9375rem] leading-[1.7] text-fg-muted">{card.summary[0]}</p>
-                          <p className="mt-2 text-[0.8125rem] leading-relaxed text-fg-dim">{card.summary[1]}</p>
-                        </div>
-
-                        <div className="mt-6 border border-line-mid bg-panel p-4">
-                          <p className={blockLabel}>Best for</p>
-                          <p className="mt-2 text-[0.8125rem] leading-relaxed text-fg-muted">{card.bestFor}</p>
-                        </div>
-
-                        <div className="mt-6 flex flex-col gap-2.5 sm:flex-row">
-                          <Button href="#contact" className="justify-center">
-                            Inquire Flagship Scope
-                          </Button>
-                          <Button
-                            variant="secondary"
-                            onClick={() =>
-                              openAIChat(
-                                `Can you explain the architecture and capabilities of the Bespoke Web App / Creative Tech Flagship package?`
-                              )
-                            }
-                            icon={<Bot size={13} />}
-                            className="justify-center"
-                          >
-                            Talk to AI
-                          </Button>
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-1 gap-px bg-line sm:grid-cols-2 lg:col-span-7">
-                        <div className="bg-ink p-5 sm:p-6">
-                          <p className={`${blockLabel} border-b border-line pb-3`}>{card.pagesTitle}</p>
-                          <ul className="mt-4 space-y-3">
-                            {card.pages.map((item, i) => (
-                              <li key={i} className="flex items-start gap-2.5">
-                                <span className="mt-1.5 h-1.5 w-1.5 shrink-0 bg-paper" aria-hidden="true" />
-                                <span className="text-[0.8125rem] leading-relaxed text-fg-muted">{item}</span>
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                        <div className="bg-ink p-5 sm:p-6">
-                          <p className={`${blockLabel} border-b border-line pb-3`}>{card.extrasTitle}</p>
-                          <ul className="mt-4 space-y-3">
-                            {card.extras.map((item, i) => (
-                              <li key={i} className="flex items-start gap-2.5">
-                                <span className="mt-1.5 h-1.5 w-1.5 shrink-0 bg-paper" aria-hidden="true" />
-                                <span className="text-[0.8125rem] leading-relaxed text-fg-muted">{item}</span>
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      </div>
-                    </div>
-                  </motion.div>
-                );
-              })()
-            : null}
-
-          {/* Comparison matrix */}
-          <motion.div variants={itemVariants} className="mt-16">
-            <div className="flex flex-col gap-4 border-t border-line pt-6 md:flex-row md:items-end md:justify-between md:gap-10">
-              <div className="min-w-0">
-                <span className={blockLabel}>Comparison Matrix</span>
-                <p className="mt-3 max-w-[76ch] text-[0.8125rem] leading-relaxed text-fg-muted">
-                  See exactly what changes between tiers. ₱10k → ₱30k adds structure and verified lead forms. ₱45k
-                  adds Services, Gallery, Maps, and speed work. ₱60k adds Blog, FAQ, and Testimonials hubs. The
-                  ₱100k–₱120k Flagship unlocks the interactive Desktop OS, Web Audio API, Gemini AI, and Headless CMS.
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={() =>
-                  openAIChat('Can you compare your website packages and recommend the best one for my budget?')
-                }
-                className="inline-flex shrink-0 cursor-pointer items-center gap-2 self-start border border-line-mid px-3 py-2 font-mono text-2xs tracking-wider2 text-fg-dim uppercase transition-colors hover:border-line-strong hover:text-fg md:self-auto"
-              >
-                <Bot size={12} aria-hidden="true" />
-                <span>Compare tiers with AI</span>
-              </button>
-            </div>
-
-            <div className="mt-6 border border-line-mid">
-              <div className="flex items-center justify-between border-b border-line px-4 py-2 font-mono text-2xs tracking-wider2 text-fg-dim uppercase md:hidden">
-                <span>Feature comparison</span>
-                <span>← Scroll for tiers →</span>
-              </div>
-              <div className="no-scrollbar overflow-x-auto">
-                <table className="w-full min-w-[760px] text-left">
-                  <thead>
-                    <tr className="border-b border-line-mid">
-                      <th className="sticky left-0 z-10 bg-ink px-4 py-3 font-mono text-2xs tracking-wider2 text-fg-dim uppercase md:px-6">
-                        Feature
-                      </th>
-                      {['₱10k', '₱30k', '₱45k', '₱60k'].map((tier) => (
-                        <th
-                          key={tier}
-                          className="whitespace-nowrap px-3 py-3 font-mono text-2xs tracking-wider2 text-fg-dim uppercase"
-                        >
-                          {tier}
-                        </th>
-                      ))}
-                      <th className="whitespace-nowrap px-3 py-3 pr-4 font-mono text-2xs tracking-wider2 text-fg uppercase md:pr-6">
-                        ₱100k–₱120k
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {comparisonRows.map((row) => (
-                      <tr key={row.feature} className="border-b border-line last:border-b-0">
-                        <td className="sticky left-0 z-10 bg-ink px-4 py-3 text-[0.8125rem] text-fg md:px-6">
-                          {row.feature}
-                        </td>
-                        <td className="px-3 py-3 text-[0.8125rem] text-fg-muted">{row.portfolio}</td>
-                        <td className="px-3 py-3 text-[0.8125rem] text-fg-muted">{row.starter}</td>
-                        <td className="px-3 py-3 text-[0.8125rem] text-fg-muted">{row.business}</td>
-                        <td className="px-3 py-3 text-[0.8125rem] text-fg-muted">{row.professional}</td>
-                        <td className="px-3 py-3 pr-4 text-[0.8125rem] text-fg md:pr-6">{row.flagship}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </motion.div>
-
-          {/* Add-ons & maintenance menu */}
-          <motion.div variants={itemVariants} className="mt-16">
-            <div className="flex flex-col gap-4 border-t border-line pt-6 sm:flex-row sm:items-end sm:justify-between sm:gap-8">
-              <div className="min-w-0">
-                <span className={blockLabel}>Add-Ons</span>
-                <h3 className="mt-3 font-sans text-lg font-medium tracking-[-0.02em] text-fg md:text-xl">
-                  Modular Add-Ons &amp; Maintenance Menu
-                </h3>
-                <p className="mt-2 max-w-[68ch] text-[0.8125rem] leading-relaxed text-fg-muted">
-                  Extend any package with specialized integrations, or keep on-demand engineering support on retainer.
-                </p>
-              </div>
-              <div className="flex flex-wrap items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => openAIChat('Can you help me calculate custom add-ons for my website?')}
-                  className="inline-flex cursor-pointer items-center gap-2 border border-line-mid px-3 py-2 font-mono text-2xs tracking-wider2 text-fg-dim uppercase transition-colors hover:border-line-strong hover:text-fg"
-                >
-                  <Bot size={12} aria-hidden="true" />
-                  <span>Price add-ons with AI</span>
-                </button>
-                <span className="border border-line-mid px-3 py-2 font-mono text-2xs tracking-wider2 text-fg-muted uppercase">
-                  À la carte
-                </span>
-              </div>
-            </div>
-
-            <div className="mt-6 border border-line-mid">
-              <div className="no-scrollbar overflow-x-auto">
-                <table className="w-full min-w-[720px] text-left">
-                  <thead>
-                    <tr className="border-b border-line-mid">
-                      <th className="px-4 py-3 font-mono text-2xs tracking-wider2 text-fg-dim uppercase md:px-6">
-                        Add-On Service
-                      </th>
-                      <th className="whitespace-nowrap px-3 py-3 font-mono text-2xs tracking-wider2 text-fg-dim uppercase">
-                        Investment (PHP)
-                      </th>
-                      <th className="whitespace-nowrap px-3 py-3 font-mono text-2xs tracking-wider2 text-fg-dim uppercase">
-                        Timeline Impact
-                      </th>
-                      <th className="px-4 py-3 font-mono text-2xs tracking-wider2 text-fg-dim uppercase md:px-6">
-                        Description
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {addOnItems.map((item) => (
-                      <tr key={item.name} className="border-b border-line last:border-b-0">
-                        <td className="whitespace-nowrap px-4 py-3.5 text-[0.8125rem] text-fg md:px-6">
-                          {item.name}
-                        </td>
-                        <td className="tnum whitespace-nowrap px-3 py-3.5 font-mono text-xs text-fg">
-                          {item.investmentPhp}
-                        </td>
-                        <td className="whitespace-nowrap px-3 py-3.5">
-                          <span className="border border-line-mid px-2 py-0.5 font-mono text-2xs text-fg-muted">
-                            {item.timeline}
-                          </span>
-                        </td>
-                        <td className="px-4 py-3.5 text-[0.8125rem] leading-relaxed text-fg-muted md:px-6">
-                          {item.description}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </motion.div>
-
-          <QuoteCalculator />
-
-          {/* Commercial terms + working guarantees */}
-          <motion.div variants={itemVariants} className="mt-16">
-            <div className="flex items-baseline justify-between gap-4 border-t border-line pt-6">
-              <span className={blockLabel}>Commercial Terms &amp; Engagement Policy</span>
-              <span className="tnum font-mono text-2xs text-fg-faint">
-                {String(engagementTerms.length).padStart(2, '0')} clauses
-              </span>
-            </div>
-            <p className="mt-4 max-w-[68ch] text-[0.8125rem] leading-relaxed text-fg-muted">
-              The same terms on every project, so both sides know exactly what to expect.
-            </p>
-
-            <div className="mt-8 grid grid-cols-1 gap-10 lg:grid-cols-12 lg:gap-14">
-              <div className="lg:col-span-7">
-                <div className="border-t border-line">
-                  {engagementTerms.map((item) => (
-                    <div
-                      key={item.label}
-                      className="grid grid-cols-1 gap-2 border-b border-line py-4 last:border-b-0 md:grid-cols-12 md:gap-6"
-                    >
-                      <span className="font-mono text-[11px] tracking-wider2 text-fg-dim uppercase md:col-span-4">
-                        {item.label}
-                      </span>
-                      <p className="text-[0.8125rem] leading-relaxed text-fg-muted md:col-span-8">{item.value}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="lg:col-span-5 lg:border-l lg:border-line lg:pl-14">
-                <span className={blockLabel}>Working Guarantees</span>
-                <ul className="mt-4 border-t border-line">
-                  {trustItems.map((item) => (
-                    <li
-                      key={item}
-                      className="flex items-baseline gap-3 border-b border-line py-2.5 last:border-b-0"
-                    >
-                      <span className="mt-1 h-1.5 w-1.5 shrink-0 bg-paper" aria-hidden="true" />
-                      <span className="text-[0.8125rem] text-fg-muted">{item}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-          </motion.div>
         </motion.div>
       </Container>
     </section>
