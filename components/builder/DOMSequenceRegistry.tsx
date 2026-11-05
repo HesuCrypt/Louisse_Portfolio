@@ -21,18 +21,13 @@ import {
   type CursorModel,
 } from './builderTypes';
 
-export type { BuildElement, BuilderChannel, BuilderMode, BuilderSection, BuildType } from './builderTypes';
-
-export interface DualCursorState {
-  alpha: CursorModel;
-  beta: CursorModel;
-}
+export type { BuildElement, BuilderMode, BuilderSection, BuildType } from './builderTypes';
 
 export interface BuilderContextValue {
   mode: BuilderMode;
   activeSection: BuilderSection;
   isBuilding: boolean;
-  /** True once all sections finished building. */
+  /** True once the whole queue finished building (the cursor is docked). */
   isFinished: boolean;
   isMuted: boolean;
   /** True when sessionStorage says this visitor already built or skipped. */
@@ -48,9 +43,6 @@ export interface BuilderContextValue {
   completedIds: ReadonlySet<string>;
   registeredElements: ReadonlyMap<string, BuildElement>;
   cursor: CursorModel;
-  /** Backwards compatibility aliases for dual-cursor references */
-  cursorAlpha: CursorModel;
-  cursorBeta: CursorModel;
   register: (element: BuildElement) => void;
   registerItem: (element: BuildElement) => void;
   unregister: (id: string) => void;
@@ -91,8 +83,6 @@ const defaultValue: BuilderContextValue = {
   completedIds: new Set(),
   registeredElements: new Map(),
   cursor: inertCursor,
-  cursorAlpha: inertCursor,
-  cursorBeta: inertCursor,
   register: () => undefined,
   registerItem: () => undefined,
   unregister: () => undefined,
@@ -131,6 +121,7 @@ function detectMode(enabled: boolean): BuilderMode {
   if (typeof window === 'undefined' || !enabled) return 'instant';
   if (readBuilt()) return 'instant';
   if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return 'instant';
+  // Both desktop and mobile run the autonomous build (mobile uses the AI Spark Tracer)
   return 'cursor';
 }
 
@@ -151,13 +142,7 @@ export const BuilderProvider: React.FC<BuilderProviderProps> = ({
   const [activeSection, setActiveSection] = useState<BuilderSection>('hero');
   const [isBuilding, setIsBuilding] = useState(false);
   const [isFinished, setIsFinished] = useState(false);
-  const [isMuted, setIsMuted] = useState(() =>
-    typeof builderAudio.isMuted === 'boolean'
-      ? builderAudio.isMuted
-      : typeof (builderAudio as any).getMuted === 'function'
-        ? (builderAudio as any).getMuted()
-        : true
-  );
+  const [isMuted, setIsMuted] = useState(() => builderAudio.isMuted());
   const [hasSkipped, setHasSkipped] = useState(() =>
     typeof window === 'undefined' ? true : readBuilt()
   );
@@ -178,6 +163,7 @@ export const BuilderProvider: React.FC<BuilderProviderProps> = ({
 
   const register = useCallback((element: BuildElement) => {
     registry.current.set(element.id, element);
+    // A late arrival (conditional UI) after the build ended must not stay hidden.
     if (finishedRef.current && !completed.current.has(element.id)) {
       completed.current.add(element.id);
       element.onStart?.();
@@ -227,7 +213,6 @@ export const BuilderProvider: React.FC<BuilderProviderProps> = ({
     cursor.frame = null;
     cursor.caret = false;
     cursor.down = false;
-
     writeBuilt(true);
     finishedRef.current = false;
     setCompletedSnapshot(new Set(completed.current));
@@ -246,12 +231,8 @@ export const BuilderProvider: React.FC<BuilderProviderProps> = ({
     writeBuilt(false);
     completed.current.clear();
     finishedRef.current = false;
-
     cursor.visible = false;
     cursor.frame = null;
-    cursor.caret = false;
-    cursor.down = false;
-
     if (typeof window !== 'undefined') {
       window.scrollTo({ top: 0, behavior: 'auto' });
     }
@@ -275,8 +256,6 @@ export const BuilderProvider: React.FC<BuilderProviderProps> = ({
       token.current.cancelled = true;
       cursor.visible = false;
       cursor.frame = null;
-      cursor.caret = false;
-      cursor.down = false;
       finishedRef.current = false;
       setMode('instant');
       setIsBuilding(false);
@@ -293,7 +272,7 @@ export const BuilderProvider: React.FC<BuilderProviderProps> = ({
     setEpoch((value) => value + 1);
   }, [enabled, cursor]);
 
-  /* ------------------------- single-builder loop ------------------------- */
+  /* ------------------------- the build loop --------------------------- */
 
   useEffect(() => {
     if (mode !== 'cursor') return undefined;
@@ -317,8 +296,6 @@ export const BuilderProvider: React.FC<BuilderProviderProps> = ({
         }
       },
       cursor,
-      cursorAlpha: cursor,
-      cursorBeta: cursor,
       audio: builderAudio,
       speed,
       onSection: (section) => {
@@ -378,8 +355,6 @@ export const BuilderProvider: React.FC<BuilderProviderProps> = ({
       completedIds: completedSnapshot,
       registeredElements: registry.current,
       cursor,
-      cursorAlpha: cursor,
-      cursorBeta: cursor,
       register,
       registerItem: register,
       unregister,

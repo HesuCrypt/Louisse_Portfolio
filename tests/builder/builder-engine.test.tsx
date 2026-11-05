@@ -7,14 +7,13 @@ import { BuilderCursor } from '../../components/builder/BuilderCursor';
 
 /**
  * jsdom has no layout, so give every wrapper a deterministic, in-viewport box
- * keyed off its build id.
+ * keyed off its build id. This is exactly the surface the engine reads.
  */
 const boxes: Record<string, { left: number; top: number; width: number; height: number }> = {
   'a-nav': { left: 10, top: 10, width: 300, height: 40 },
   'a-title': { left: 10, top: 80, width: 400, height: 50 },
   'a-btn': { left: 10, top: 160, width: 120, height: 40 },
   'a-stat': { left: 10, top: 240, width: 200, height: 80 },
-  'ref-card': { left: 10, top: 320, width: 400, height: 120 },
   'b-below': { left: 10, top: 5000, width: 200, height: 80 },
 };
 
@@ -41,20 +40,17 @@ const completionLog: string[] = [];
 const Page: React.FC = () => (
   <BuilderProvider speed={80}>
     <BuilderCursor />
-    <BuildItem id="a-stat" section="stats" order={1} channel="beta" type="counter">
+    <BuildItem id="a-stat" section="stats" order={1} type="counter">
       {({ progress }) => <b data-testid="stat">{Math.round(progress * 170)}</b>}
     </BuildItem>
-    <BuildItem id="a-btn" section="hero" order={30} channel="beta" type="stamp">
+    <BuildItem id="a-btn" section="hero" order={30} type="stamp">
       <button>Go</button>
     </BuildItem>
-    <BuildItem id="a-title" section="hero" order={20} channel="alpha" type="typewriter" content="Hello world" />
-    <BuildItem id="a-nav" section="hero" order={1} channel="alpha" type="frame">
+    <BuildItem id="a-title" section="hero" order={20} type="typewriter" content="Hello world" />
+    <BuildItem id="a-nav" section="hero" order={1} type="frame">
       <nav>nav</nav>
     </BuildItem>
-    <BuildItem id="ref-card" section="referral" order={1} channel="alpha" type="frame">
-      <div>referral tier</div>
-    </BuildItem>
-    <BuildItem id="b-below" section="contact" order={1} channel="alpha" type="frame">
+    <BuildItem id="b-below" section="contact" order={1} type="frame">
       <p>far below the fold</p>
     </BuildItem>
   </BuilderProvider>
@@ -66,6 +62,7 @@ beforeEach(() => {
   vi.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(function (this: Element) {
     return boxFor(this);
   });
+  // Mock window.scrollTo in jsdom
   window.scrollTo = vi.fn((x: number | ScrollToOptions, y?: number) => {
     if (typeof x === 'object' && x !== null) {
       window.scrollX = x.left ?? window.scrollX;
@@ -87,22 +84,25 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-describe('single high-speed builder engine', () => {
-  it('keeps every element in layout but hidden before builder reaches them', async () => {
+describe('cursor builder engine', () => {
+  it('keeps every element in layout but hidden before the cursor reaches it', async () => {
     root.render(<Page />);
     await vi.waitFor(() => expect(stateOf('a-nav')).toBeDefined());
 
-    for (const id of ['a-nav', 'a-title', 'a-btn', 'a-stat', 'ref-card', 'b-below']) {
+    // All five wrappers exist in the DOM immediately (no display:none, no unmount).
+    for (const id of ['a-nav', 'a-title', 'a-btn', 'a-stat', 'b-below']) {
       const node = document.querySelector(`[data-build-id="${id}"]`) as HTMLElement;
       expect(node).not.toBeNull();
       expect(node.style.display).not.toBe('none');
     }
+    // And the last-ordered visible item has not been built yet.
+    expect(stateOf('a-stat')).toBe('hidden');
   });
 
-  it('runs sequentially through all sections including referral banner', async () => {
+  it('autonomously advances through the unbroken tour across sections, auto-scrolling to below-the-fold elements', async () => {
     const seen: string[] = [];
     const observer = new MutationObserver(() => {
-      for (const id of ['a-nav', 'a-title', 'a-btn', 'a-stat', 'ref-card', 'b-below']) {
+      for (const id of ['a-nav', 'a-title', 'a-btn', 'a-stat', 'b-below']) {
         if (stateOf(id) === 'done' && !seen.includes(id)) seen.push(id);
       }
     });
@@ -110,22 +110,16 @@ describe('single high-speed builder engine', () => {
 
     root.render(<Page />);
 
-    // Entire sequence completes across all sections
+    // Entire sequence completes automatically without any user interaction
     await vi.waitFor(() => expect(stateOf('b-below')).toBe('done'), { timeout: 6000 });
     observer.disconnect();
 
-    expect(seen).toContain('a-nav');
-    expect(seen).toContain('a-title');
-    expect(seen).toContain('a-btn');
-    expect(seen).toContain('a-stat');
-    expect(seen).toContain('ref-card');
-    expect(seen).toContain('b-below');
-
+    expect(seen).toEqual(['a-nav', 'a-title', 'a-btn', 'a-stat', 'b-below']);
     expect(container.textContent).toContain('Hello world');
     expect(container.querySelector('[data-testid="stat"]')?.textContent).toBe('170');
-    expect(container.textContent).toContain('referral tier');
     expect(container.textContent).toContain('far below the fold');
 
+    // Portfolio marked as built in session
     await vi.waitFor(() => expect(sessionStorage.getItem('portfolio_built')).toBe('true'));
   });
 
@@ -136,18 +130,19 @@ describe('single high-speed builder engine', () => {
     window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
 
     await vi.waitFor(() => {
-      for (const id of ['a-nav', 'a-title', 'a-btn', 'a-stat', 'ref-card', 'b-below']) {
+      for (const id of ['a-nav', 'a-title', 'a-btn', 'a-stat', 'b-below']) {
         expect(stateOf(id)).toBe('done');
       }
     });
     expect(sessionStorage.getItem('portfolio_built')).toBe('true');
+    expect(container.textContent).toContain('far below the fold');
   });
 
   it('renders everything immediately for a returning visitor', async () => {
     sessionStorage.setItem('portfolio_built', 'true');
     root.render(<Page />);
     await vi.waitFor(() => expect(stateOf('a-nav')).toBe('done'));
-    for (const id of ['a-title', 'a-btn', 'a-stat', 'ref-card', 'b-below']) {
+    for (const id of ['a-title', 'a-btn', 'a-stat', 'b-below']) {
       expect(stateOf(id)).toBe('done');
     }
     expect(container.textContent).toContain('Hello world');

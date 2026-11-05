@@ -1,188 +1,288 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import { motion, useMotionValue, useSpring } from 'framer-motion';
-import { FastForward, Volume2, VolumeX } from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
+import { FastForward, Volume2, VolumeX, X } from 'lucide-react';
 import { useBuilder } from './DOMSequenceRegistry';
-import type { FrameBox, ToolKind } from './builderTypes';
+import type { ToolKind } from './builderTypes';
 
-interface SingleCursorProps {
-  cursor: {
-    x: number;
-    y: number;
-    tool: string;
-    isMouseDown: boolean;
-  };
-  isBuilding: boolean;
-}
-
-// Snappy spring physics for sub-frame latency tracking
-const springConfig = { damping: 30, stiffness: 480, mass: 0.5 };
-
-export function BuilderCursorLayer({ cursor, isBuilding }: SingleCursorProps) {
-  const rawX = useMotionValue(-100);
-  const rawY = useMotionValue(-100);
-  const smoothX = useSpring(rawX, springConfig);
-  const smoothY = useSpring(rawY, springConfig);
-
-  useEffect(() => {
-    rawX.set(cursor.x);
-    rawY.set(cursor.y);
-  }, [cursor.x, cursor.y, rawX, rawY]);
-
-  // Clean unmount once assembly completes - NO IDLE PILL
-  if (!isBuilding) return null;
-
-  return (
-    <div className="fixed inset-0 pointer-events-none z-[9999] overflow-hidden">
-      <motion.div
-        style={{
-          x: smoothX,
-          y: smoothY,
-          willChange: 'transform',
-        }}
-        className="absolute top-0 left-0 -translate-x-1 -translate-y-1"
-      >
-        {/* MOBILE (< 768px): Glowing AI Spark Tracer */}
-        <div className="block md:hidden">
-          <div
-            className={`w-3 h-3 rounded-full bg-emerald-400 shadow-[0_0_14px_#34d399] transition-transform duration-100 ${
-              cursor.isMouseDown ? 'scale-75' : 'scale-100 animate-pulse'
-            }`}
-          />
-        </div>
-
-        {/* DESKTOP (>= 768px): Precision Arrow + Tool Badge */}
-        <div className="hidden md:flex flex-col items-start select-none">
-          <svg
-            className={`w-5 h-5 text-emerald-400 drop-shadow-[0_2px_8px_rgba(16,185,129,0.5)] transition-transform duration-100 ${
-              cursor.isMouseDown ? 'scale-85 -translate-y-0.5' : 'scale-100'
-            }`}
-            viewBox="0 0 24 24"
-            fill="currentColor"
-          >
-            <path d="M3 3l7.5 18 3.5-7.5 7.5-3.5L3 3z" />
-          </svg>
-
-          {cursor.tool && (
-            <span className="mt-1 px-2 py-0.5 rounded bg-emerald-500 text-black text-[10px] font-mono font-bold uppercase tracking-wider shadow-xl">
-              {cursor.tool}
-            </span>
-          )}
-        </div>
-      </motion.div>
-    </div>
-  );
-}
-
-const formatTool = (t: ToolKind | string): string => {
-  if (!t || t === 'idle') return '';
-  if (t === 'frame') return '[ ⬚ Frame Tool ]';
-  if (t === 'type') return '[ I Type Tool ]';
-  if (t === 'stamp') return '[ ✦ Stamp Tool ]';
-  if (t === 'counter') return '[ ⟳ Counter Tool ]';
-  if (t === 'path') return '[ ⤹ Path Tool ]';
-  return t;
+const TOOL_LABEL: Record<ToolKind, string> = {
+  idle: 'Louisse // Builder',
+  frame: '[ ⬚ Frame Tool ]',
+  type: '[ I Type Tool ]',
+  stamp: '[ ✦ Stamp Tool ]',
+  counter: '[ ⟳ Counter Tool ]',
+  path: '[ ⤹ Path Tool ]',
 };
 
-export const BuilderCursor: React.FC = () => {
-  const { mode, cursor, isBuilding, isMuted, toggleMute, skipAll } = useBuilder();
+const ACCENT = {
+  emerald: { line: '#10B981', fill: 'rgba(16, 185, 129, 0.12)', glow: 'rgba(16, 185, 129, 0.55)' },
+  cyan: { line: '#06B6D4', fill: 'rgba(6, 182, 212, 0.14)', glow: 'rgba(6, 182, 212, 0.6)' },
+} as const;
 
-  const [cursorState, setCursorState] = useState({
-    x: cursor?.x ?? -100,
-    y: cursor?.y ?? -100,
-    tool: '',
-    isMouseDown: false,
+/**
+ * The autonomous collaborator pointer with responsive dual-mode presentation:
+ * - Desktop (>= 768px): High-precision Figma-style SVG pointer arrow + floating tool tags.
+ * - Mobile (< 768px): Sleek, glowing "AI Energy Spark" tracer dot (10px x 10px circular node
+ *   with pulsing radial glow and stamp ping rings), hiding bulky tags to keep narrow screens clean.
+ */
+export const BuilderCursor: React.FC = () => {
+  const { mode, cursor, isBuilding, isFinished, isMuted, toggleMute, skipAll } = useBuilder();
+
+  const [isMobile, setIsMobile] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      return window.innerWidth < 768;
+    }
+    return false;
   });
 
-  const [frameBox, setFrameBox] = useState<FrameBox | null>(null);
+  const groupRef = useRef<HTMLDivElement>(null);
+  const arrowRef = useRef<HTMLDivElement>(null);
+  const sparkRef = useRef<HTMLDivElement>(null);
+  const pingRingRef = useRef<HTMLSpanElement>(null);
+  const caretRef = useRef<HTMLSpanElement>(null);
+  const badgeRef = useRef<HTMLDivElement>(null);
+  const frameRef = useRef<HTMLDivElement>(null);
+  const frameSizeRef = useRef<HTMLSpanElement>(null);
+
+  // Responsive breakpoint listener
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const checkViewport = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkViewport();
+    window.addEventListener('resize', checkViewport, { passive: true });
+    return () => window.removeEventListener('resize', checkViewport);
+  }, []);
 
   useEffect(() => {
-    if (!isBuilding || mode !== 'cursor') return;
+    if (mode !== 'cursor') return undefined;
 
-    let rafId: number;
+    let frameId = 0;
+    let opacity = 0;
+    let lastTool: ToolKind | null = null;
+    let wasDown = false;
 
-    const sync = () => {
-      const sx = typeof window !== 'undefined' ? window.scrollX : 0;
-      const sy = typeof window !== 'undefined' ? window.scrollY : 0;
+    const paint = () => {
+      const sx = window.scrollX;
+      const sy = window.scrollY;
 
-      // Convert doc coordinates to viewport coordinates for fixed overlay
-      const vx = cursor.x - sx;
-      const vy = cursor.y - sy;
+      const group = groupRef.current;
+      if (group) {
+        const hidden = !cursor.visible || isFinished;
+        const target = hidden ? 0 : performance.now() < cursor.userActiveUntil ? 0.4 : 1;
+        opacity += (target - opacity) * 0.22;
+        group.style.opacity = opacity.toFixed(3);
+        group.style.transform = `translate3d(${(cursor.x - sx).toFixed(2)}px, ${(cursor.y - sy).toFixed(2)}px, 0)`;
+      }
 
-      setCursorState({
-        x: vx,
-        y: vy,
-        tool: formatTool(cursor.tool),
-        isMouseDown: cursor.down,
-      });
+      // Desktop arrow scaling
+      if (arrowRef.current) {
+        arrowRef.current.style.transform = cursor.down ? 'scale(0.85)' : 'scale(1)';
+      }
 
-      setFrameBox(cursor.frame);
+      // Mobile spark scaling & stamp ping animation
+      if (sparkRef.current) {
+        sparkRef.current.style.transform = cursor.down ? 'scale(1.3)' : 'scale(1)';
+      }
 
-      rafId = requestAnimationFrame(sync);
+      // Mobile radial ping ring when stamping/clicking
+      if (pingRingRef.current) {
+        if (cursor.down && !wasDown) {
+          pingRingRef.current.style.transition = 'none';
+          pingRingRef.current.style.transform = 'translate(-50%, -50%) scale(1)';
+          pingRingRef.current.style.opacity = '0.85';
+          requestAnimationFrame(() => {
+            if (pingRingRef.current) {
+              pingRingRef.current.style.transition = 'transform 180ms ease-out, opacity 180ms ease-out';
+              pingRingRef.current.style.transform = 'translate(-50%, -50%) scale(2.4)';
+              pingRingRef.current.style.opacity = '0';
+            }
+          });
+        }
+      }
+      wasDown = cursor.down;
+
+      if (caretRef.current) {
+        caretRef.current.style.display = cursor.caret ? 'block' : 'none';
+        caretRef.current.style.height = `${Math.max(14, cursor.caretH)}px`;
+      }
+
+      // Desktop badge text
+      if (badgeRef.current && lastTool !== cursor.tool) {
+        lastTool = cursor.tool;
+        badgeRef.current.textContent = TOOL_LABEL[cursor.tool];
+      }
+
+      // Frame selection box / animated border trace
+      const frame = frameRef.current;
+      if (frame) {
+        const box = cursor.frame;
+        if (!box) {
+          frame.style.display = 'none';
+        } else {
+          const colors = ACCENT[box.accent];
+          const flash = box.phase === 'flash';
+          frame.style.display = 'block';
+          frame.style.transform = `translate3d(${(box.x - sx).toFixed(2)}px, ${(box.y - sy).toFixed(2)}px, 0)`;
+          frame.style.width = `${Math.max(0, box.w).toFixed(2)}px`;
+          frame.style.height = `${Math.max(0, box.h).toFixed(2)}px`;
+          frame.style.border = `1.5px ${flash ? 'solid' : 'dashed'} ${colors.line}`;
+          frame.style.background = flash ? colors.fill : 'rgba(255,255,255,0.02)';
+          frame.style.boxShadow = flash
+            ? `0 0 28px ${colors.glow}`
+            : isMobile
+              ? `0 0 12px ${colors.glow}`
+              : 'none';
+
+          if (frameSizeRef.current) {
+            // Hide frame dimensions badge on mobile screens to prevent clutter
+            frameSizeRef.current.style.display = isMobile ? 'none' : 'block';
+            frameSizeRef.current.textContent = `${Math.round(box.w)} × ${Math.round(box.h)}`;
+          }
+        }
+      }
+
+      frameId = requestAnimationFrame(paint);
     };
 
-    rafId = requestAnimationFrame(sync);
-    return () => cancelAnimationFrame(rafId);
-  }, [cursor, isBuilding, mode]);
+    frameId = requestAnimationFrame(paint);
+    return () => cancelAnimationFrame(frameId);
+  }, [mode, cursor, isFinished, isMobile]);
 
-  // Clean unmount once assembly completes - NO IDLE PILL
-  if (mode !== 'cursor' || !isBuilding) return null;
-
-  const sx = typeof window !== 'undefined' ? window.scrollX : 0;
-  const sy = typeof window !== 'undefined' ? window.scrollY : 0;
+  if (mode !== 'cursor') return null;
 
   return (
     <>
-      {/* Visual Frame Marquee Layer */}
-      {frameBox && (
+      {/* Simulated layer: never intercepts user gestures */}
+      <div className="pointer-events-none fixed inset-0 z-[9999] overflow-hidden" aria-hidden="true">
         <div
-          className="fixed pointer-events-none z-[9998]"
-          style={{
-            transform: `translate3d(${(frameBox.x - sx).toFixed(2)}px, ${(frameBox.y - sy).toFixed(2)}px, 0)`,
-            width: `${Math.max(0, frameBox.w).toFixed(2)}px`,
-            height: `${Math.max(0, frameBox.h).toFixed(2)}px`,
-            border: `1.5px ${frameBox.phase === 'flash' ? 'solid' : 'dashed'} #10B981`,
-            background: frameBox.phase === 'flash' ? 'rgba(16, 185, 129, 0.12)' : 'rgba(255,255,255,0.02)',
-            boxShadow: frameBox.phase === 'flash' ? '0 0 28px rgba(16, 185, 129, 0.55)' : 'none',
-          }}
+          ref={frameRef}
+          className="absolute top-0 left-0 hidden"
+          style={{ willChange: 'transform, width, height' }}
         >
-          <span className="hidden md:block absolute -top-6 left-0 rounded bg-black/90 px-1.5 py-0.5 font-mono text-[11px] whitespace-nowrap text-emerald-300">
-            {Math.round(frameBox.w)} × {Math.round(frameBox.h)}
-          </span>
+          <span
+            ref={frameSizeRef}
+            className="absolute -top-6 left-0 rounded bg-black/90 px-1.5 py-0.5 font-mono text-[11px] whitespace-nowrap text-emerald-300"
+          />
+        </div>
+
+        <div
+          ref={groupRef}
+          className="absolute top-0 left-0"
+          style={{ opacity: 0, willChange: 'transform, opacity' }}
+        >
+          {/* Typewriter caret sits at leading edge of typed text */}
+          <span
+            ref={caretRef}
+            className="absolute top-0 left-[-1px] hidden w-[2px] animate-pulse rounded-full bg-emerald-300"
+            style={{ boxShadow: '0 0 10px #10B981' }}
+          />
+
+          {isMobile ? (
+            /* =========================================================== */
+            /* MOBILE: AI Energy Spark Node (10px x 10px glowing dot)     */
+            /* =========================================================== */
+            <div className="relative -left-[5px] -top-[5px] h-[10px] w-[10px]">
+              {/* Radial ping ring for button stamps */}
+              <span
+                ref={pingRingRef}
+                className="pointer-events-none absolute left-1/2 top-1/2 h-[18px] w-[18px] rounded-full border border-emerald-400 opacity-0"
+              />
+
+              {/* Core pulsing energy spark */}
+              <div
+                ref={sparkRef}
+                className="relative h-full w-full rounded-full bg-emerald-400 shadow-[0_0_15px_#10B981] transition-transform duration-75"
+              >
+                <span className="absolute inset-0 animate-ping rounded-full bg-emerald-300 opacity-70" />
+                <span className="absolute inset-[2px] rounded-full bg-white opacity-90" />
+              </div>
+            </div>
+          ) : (
+            /* =========================================================== */
+            /* DESKTOP: High-precision SVG pointer arrow + tool tags      */
+            /* =========================================================== */
+            <>
+              <div
+                ref={arrowRef}
+                className="origin-top-left transition-transform duration-75"
+                style={{ filter: 'drop-shadow(0 3px 6px rgba(0,0,0,0.7))' }}
+              >
+                <svg width="22" height="26" viewBox="0 0 22 26" fill="none">
+                  <path
+                    d="M1.5 1.2 L1.5 19.4 L6.2 15.1 L9.4 22.6 L12.6 21.2 L9.5 13.9 L15.8 13.7 Z"
+                    fill="#10B981"
+                    stroke="#022c22"
+                    strokeWidth="1.4"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </div>
+
+              <div
+                ref={badgeRef}
+                className="absolute top-5 left-4 rounded-md border border-emerald-400/50 bg-[#05100c]/95 px-2 py-1 font-mono text-[11px] leading-none whitespace-nowrap text-emerald-300 shadow-xl"
+              >
+                {TOOL_LABEL.idle}
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+
+      {/* Controls UI (pointer-events-auto) */}
+      {isBuilding && (
+        <div
+          className="pointer-events-auto fixed right-3 z-[9999] flex items-center gap-2 sm:right-4"
+          style={{ top: 'calc(var(--topbar-h, 64px) + var(--strip-h, 0px) + 10px)' }}
+        >
+          {isMobile ? (
+            /* Mobile compact floating pill escape hatch */
+            <button
+              type="button"
+              onClick={skipAll}
+              className="flex cursor-pointer items-center gap-1.5 rounded-full border border-white/10 bg-zinc-900/80 px-3 py-1 font-mono text-xs tracking-wider text-zinc-200 uppercase shadow-lg backdrop-blur"
+              aria-label="Skip animation"
+            >
+              <span>Skip</span>
+              <X size={12} className="text-emerald-400" />
+            </button>
+          ) : (
+            /* Desktop controls: Audio + Skip Build */
+            <>
+              <button
+                type="button"
+                onClick={toggleMute}
+                aria-pressed={isMuted}
+                className="flex cursor-pointer items-center gap-1.5 rounded-full border border-white/15 bg-black/80 px-3 py-1.5 font-mono text-[11px] tracking-wider text-white/80 uppercase backdrop-blur-md transition-colors hover:border-emerald-400 hover:text-emerald-300"
+              >
+                {isMuted ? <VolumeX size={12} /> : <Volume2 size={12} />}
+                <span>[ Audio: {isMuted ? 'OFF' : 'ON'} ]</span>
+              </button>
+              <button
+                type="button"
+                onClick={skipAll}
+                className="flex cursor-pointer items-center gap-2 rounded-full border border-white/15 bg-black/80 px-3 py-1.5 font-mono text-[11px] tracking-wider text-white/80 uppercase backdrop-blur-md transition-colors hover:border-emerald-400 hover:text-emerald-300"
+              >
+                <FastForward size={12} className="text-emerald-400" />
+                <span>[ Skip Build (ESC) ]</span>
+              </button>
+            </>
+          )}
         </div>
       )}
 
-      {/* Single Cursor GPU Layer */}
-      <BuilderCursorLayer cursor={cursorState} isBuilding={isBuilding} />
-
-      {/* Floating Skip & Audio Controls */}
-      <div
-        className="pointer-events-auto fixed right-3 z-[9999] flex items-center gap-2 sm:right-4"
-        style={{ top: 'calc(var(--topbar-h, 64px) + var(--strip-h, 0px) + 10px)' }}
-      >
-        <button
-          type="button"
-          onClick={toggleMute}
-          aria-pressed={isMuted}
-          className="hidden md:flex cursor-pointer items-center gap-1.5 rounded-full border border-white/15 bg-black/80 px-3 py-1.5 font-mono text-[11px] tracking-wider text-white/80 uppercase backdrop-blur-md transition-colors hover:border-emerald-400 hover:text-emerald-300"
+      {/* Docking Gesture: badge once everything is assembled */}
+      {isFinished && (
+        <div
+          className="pointer-events-none fixed right-4 z-[9999] flex items-center gap-2 rounded-full border border-emerald-400/40 bg-black/85 px-3 py-1.5 font-mono text-[11px] tracking-wider text-emerald-300 uppercase backdrop-blur-md"
+          style={{ bottom: '4.5rem' }}
         >
-          {isMuted ? <VolumeX size={12} /> : <Volume2 size={12} />}
-          <span>[ Audio: {isMuted ? 'OFF' : 'ON'} ]</span>
-        </button>
-        <button
-          type="button"
-          onClick={skipAll}
-          className="flex cursor-pointer items-center gap-1.5 md:gap-2 rounded-full border border-white/15 bg-black/80 px-3 py-1 md:py-1.5 font-mono text-xs md:text-[11px] tracking-wider text-white/80 uppercase backdrop-blur-md transition-colors hover:border-emerald-400 hover:text-emerald-300"
-          aria-label="Skip build"
-        >
-          <FastForward size={12} className="text-emerald-400" />
-          <span className="md:hidden">Skip</span>
-          <span className="hidden md:inline">[ Skip Build (ESC) ]</span>
-        </button>
-      </div>
+          <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+          <span>[ Louisse // Builder: IDLE • ALL SYSTEMS OPERATIONAL ]</span>
+        </div>
+      )}
     </>
   );
 };
-
-export default BuilderCursor;

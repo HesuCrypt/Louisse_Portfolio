@@ -1,8 +1,6 @@
 import type { RefObject } from 'react';
 
-export type BuildType = 'frame' | 'typewriter' | 'stamp' | 'counter' | 'connector' | 'click';
-
-export type BuilderChannel = 'alpha' | 'beta' | 'auto';
+export type BuildType = 'frame' | 'typewriter' | 'stamp' | 'counter' | 'connector';
 
 export type BuilderSection =
   | 'nav'
@@ -14,12 +12,11 @@ export type BuilderSection =
   | 'work'
   | 'projects'
   | 'capabilities'
-  | 'referral'
   | 'contact'
   | 'completed';
 
 /**
- * cursor  - desktop & mobile: dual autonomous workers / AI spark tracers build the page.
+ * cursor  - desktop & mobile: the autonomous cursor / AI spark tracer builds the page.
  * instant - returning visitor, skipped, reduced-motion, or non-home route.
  */
 export type BuilderMode = 'cursor' | 'instant';
@@ -27,7 +24,7 @@ export type BuilderMode = 'cursor' | 'instant';
 export type ToolKind = 'idle' | 'frame' | 'type' | 'stamp' | 'counter' | 'path';
 
 /** Order the engine walks sections. Matches the on-page order of the home route:
- * Nav -> Hero -> Stats -> Profile (About) -> Experience -> Work / Projects -> Capabilities -> Referral -> Contact
+ * Nav -> Hero -> Stats -> Profile (About) -> Experience -> Work / Projects -> Capabilities -> Contact
  */
 export const SECTION_ORDER: BuilderSection[] = [
   'nav',
@@ -39,7 +36,6 @@ export const SECTION_ORDER: BuilderSection[] = [
   'work',
   'projects',
   'capabilities',
-  'referral',
   'contact',
 ];
 
@@ -57,7 +53,6 @@ export interface BuildElement {
   sectionId: BuilderSection;
   order: number;
   type: BuildType;
-  channel?: BuilderChannel;
   ref: RefObject<HTMLElement | null>;
   /** Text for typewriter items. Read lazily so live values (a clock) stay current. */
   readonly content?: string;

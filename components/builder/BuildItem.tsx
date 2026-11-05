@@ -3,7 +3,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useBuilder } from './DOMSequenceRegistry';
-import type { BuildElement, BuilderChannel, BuilderSection, BuildType, CaretPoint } from './builderTypes';
+import type { BuildElement, BuilderSection, BuildType, CaretPoint } from './builderTypes';
 
 type Phase = 'hidden' | 'building' | 'done';
 
@@ -19,8 +19,6 @@ export interface BuildItemProps {
   section: BuilderSection;
   order: number;
   type: BuildType;
-  /** Dual-channel queue allocation: 'alpha' (Worker A) | 'beta' (Worker B) | 'auto' */
-  channel?: BuilderChannel;
   /** Typewriter text (alias: textContent). */
   content?: string;
   /** Typewriter text as specified in the Builder manifest. */
@@ -78,7 +76,6 @@ export const BuildItem: React.FC<BuildItemProps> = ({
   section,
   order,
   type,
-  channel = 'auto' as BuilderChannel,
   content,
   textContent,
   targetValue,
@@ -132,7 +129,6 @@ export const BuildItem: React.FC<BuildItemProps> = ({
       sectionId: section,
       order,
       type,
-      channel,
       ref: rootRef,
       get content() {
         return contentRef.current;
@@ -152,7 +148,7 @@ export const BuildItem: React.FC<BuildItemProps> = ({
     };
     register(element);
     return () => unregister(id);
-  }, [id, section, order, type, channel, ticks, accent, getCaret, register, unregister]);
+  }, [id, section, order, type, ticks, accent, getCaret, register, unregister]);
 
   const done = mode === 'instant' || phase === 'done';
   const started = done || phase === 'building';
@@ -213,12 +209,12 @@ export const BuildItem: React.FC<BuildItemProps> = ({
     );
   }
 
-  /* --------------------- stamp / frame / counter / click (animated) ------------------ */
+  /* --------------------- stamp / frame / counter (animated) ------------------ */
   let hidden: Record<string, unknown> = HIDDEN_FADE;
   let shown: Record<string, unknown> = { opacity: 1, scale: 1 };
   let transition: Record<string, unknown> = { duration: 0.28, ease: [0.16, 1, 0.3, 1] };
 
-  if (type === 'stamp' || type === 'click') {
+  if (type === 'stamp') {
     hidden = HIDDEN_STAMP;
     // Elastic [0.2 -> 1.05 -> 1] pop right under the pointer.
     shown = { opacity: 1, scale: mode === 'instant' ? 1 : [0.2, 1.05, 1] };
