@@ -7,13 +7,13 @@ import {
 import type { BuilderAudioApi } from '../../lib/builderAudio';
 
 /**
- * Framework-free autonomous build choreography.
+ * Framework-free dual-cursor autonomous build choreography.
  *
- * Everything here is driven by the REAL DOM:
- * - Robust resolveElementRef polling to eliminate silent skips.
- * - Smooth scroll coordination with mobile offset compensation for bottom URL bars.
- * - Dynamic sub-pixel tracking in document space.
- * - Native mobile micro-vibrations / haptic feedback.
+ * Runs two simultaneous collaborative workers:
+ * - Worker Alpha (Cursor A / Spark A - Emerald): Handles frames, headings, containers, copy.
+ * - Worker Beta (Cursor B / Spark B - Cyan): Handles badges, numbers, buttons, clicks, pills.
+ *
+ * Halves the total watch duration while keeping the tactile mechanical aesthetic.
  */
 
 export interface CancelToken {
@@ -24,7 +24,10 @@ export interface EngineHooks {
   getElements(): BuildElement[];
   isDone(id: string): boolean;
   markDone(id: string): void;
-  cursor: CursorModel;
+  cursorAlpha: CursorModel;
+  cursorBeta: CursorModel;
+  /** Backwards compatible alias */
+  cursor?: CursorModel;
   audio: BuilderAudioApi;
   onSection(section: BuilderSection): void;
   /** Multiplies every duration down. 1 = authored pace. */
@@ -72,6 +75,19 @@ function triggerHaptic(durationMs: number) {
 }
 
 /**
+ * Assigns an element to Track Alpha or Beta if channel is 'auto'.
+ * Alpha: containers, frames, typewriter text, timeline connectors.
+ * Beta: stamps, counters, button clicks, tags, badges.
+ */
+function resolveChannel(el: BuildElement): 'alpha' | 'beta' {
+  if (el.channel === 'alpha' || el.channel === 'beta') return el.channel;
+  if (el.type === 'frame' || el.type === 'typewriter' || el.type === 'connector') {
+    return 'alpha';
+  }
+  return 'beta';
+}
+
+/**
  * Robustly resolve an element's DOM node with a retry/poll window up to `maxWaitMs`.
  * Eliminates silent skips caused by hydration or re-rendering latencies.
  */
@@ -94,8 +110,6 @@ async function resolveElementRef(
 
 /**
  * Ensures `node` is comfortably centered in the viewport.
- * On mobile devices (< 768px), accounts for bottom browser chrome/URL bars
- * by centering elements in the upper-middle viewport (offset: window.innerHeight * 0.35).
  */
 async function ensureInViewport(token: CancelToken, node: HTMLElement, speed = 1): Promise<void> {
   if (typeof window === 'undefined') return;
@@ -103,7 +117,6 @@ async function ensureInViewport(token: CancelToken, node: HTMLElement, speed = 1
   const vh = window.innerHeight || 800;
   const isMobile = window.innerWidth < 768;
 
-  // On mobile, keep elements within 10% - 75% to stay clear of virtual address/nav bars
   const minTop = vh * 0.10;
   const maxBottom = isMobile ? vh * 0.75 : vh * 0.88;
 
@@ -111,7 +124,6 @@ async function ensureInViewport(token: CancelToken, node: HTMLElement, speed = 1
     return;
   }
 
-  // Calculate target scroll offset (mobile uses 0.35 offset to center in upper-middle viewport)
   const mobileOffset = vh * 0.35;
   const desktopOffset = vh * 0.38;
   const offset = isMobile ? mobileOffset : desktopOffset;
@@ -142,7 +154,6 @@ async function ensureInViewport(token: CancelToken, node: HTMLElement, speed = 1
     raf(scrollStep);
   });
 
-  // Short settle pause to ensure layout and bounding boxes stabilize
   await sleep(40 / speed);
 }
 
@@ -178,7 +189,6 @@ function glide(
   });
 }
 
-/** Runs `tick(progress)` every frame for `ms`, resolving when it reaches 1. */
 function run(
   token: CancelToken,
   ms: number,
@@ -208,20 +218,20 @@ function dist(a: Point, b: Point): number {
   return Math.hypot(a.x - b.x, a.y - b.y);
 }
 
-/** Glides to a target, adding a whoosh when the transit is long. */
 async function travel(
   token: CancelToken,
-  h: EngineHooks,
+  cursor: CursorModel,
+  audio: BuilderAudioApi,
   target: () => Point,
+  speed: number,
   minMs = 0
 ): Promise<void> {
-  const speed = h.speed ?? 1;
-  const distance = dist({ x: h.cursor.x, y: h.cursor.y }, target());
+  const distance = dist({ x: cursor.x, y: cursor.y }, target());
   const ms = Math.max(moveDuration(distance, speed), minMs);
   if (typeof window !== 'undefined' && distance > window.innerHeight * 0.5) {
-    h.audio.playWhoosh(ms);
+    audio.playWhoosh(ms);
   }
-  await glide(token, h.cursor, target, ms);
+  await glide(token, cursor, target, ms);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -238,24 +248,62 @@ function finish(el: BuildElement, h: EngineHooks) {
   h.markDone(el.id);
 }
 
-async function stampGesture(token: CancelToken, h: EngineHooks, el: BuildElement, node: HTMLElement) {
-  const speed = h.speed ?? 1;
-  h.cursor.tool = 'stamp';
-  await travel(token, h, centerOf(node));
+async function stampGesture(
+  token: CancelToken,
+  cursor: CursorModel,
+  audio: BuilderAudioApi,
+  speed: number,
+  el: BuildElement,
+  node: HTMLElement
+) {
+  cursor.tool = 'stamp';
+  await travel(token, cursor, audio, centerOf(node), speed);
   if (token.cancelled) return;
 
-  h.cursor.down = true;
+  cursor.down = true;
   await sleep(55 / speed);
-  triggerHaptic(25); // Stamp micro-vibration
-  h.audio.playStampPop();
+  triggerHaptic(25);
+  audio.playStampPop();
   reveal(el);
-  h.cursor.down = false;
+  cursor.down = false;
   await sleep(95 / speed);
 }
 
-async function frameGesture(token: CancelToken, h: EngineHooks, el: BuildElement, node: HTMLElement) {
-  const speed = h.speed ?? 1;
-  const { cursor } = h;
+async function clickGesture(
+  token: CancelToken,
+  cursor: CursorModel,
+  audio: BuilderAudioApi,
+  speed: number,
+  el: BuildElement,
+  node: HTMLElement
+) {
+  cursor.tool = 'stamp';
+  await travel(token, cursor, audio, centerOf(node), speed);
+  if (token.cancelled) return;
+
+  cursor.down = true;
+  await sleep(65 / speed);
+  triggerHaptic(20);
+  audio.playStampPop();
+  // Trigger DOM click event if node is clickable
+  try {
+    node.click();
+  } catch {
+    // Ignore click dispatch errors
+  }
+  reveal(el);
+  cursor.down = false;
+  await sleep(80 / speed);
+}
+
+async function frameGesture(
+  token: CancelToken,
+  cursor: CursorModel,
+  audio: BuilderAudioApi,
+  speed: number,
+  el: BuildElement,
+  node: HTMLElement
+) {
   const accent = el.accent ?? 'emerald';
   const corners = () => {
     const r = node.getBoundingClientRect();
@@ -263,7 +311,7 @@ async function frameGesture(token: CancelToken, h: EngineHooks, el: BuildElement
   };
 
   cursor.tool = 'frame';
-  await travel(token, h, () => corners().tl);
+  await travel(token, cursor, audio, () => corners().tl, speed);
   if (token.cancelled) return;
 
   const start = corners();
@@ -289,7 +337,6 @@ async function frameGesture(token: CancelToken, h: EngineHooks, el: BuildElement
   });
   if (token.cancelled) return;
 
-  // Release at the exact corner: flash, snap, and the content appears.
   const end = corners();
   cursor.down = false;
   cursor.frame = {
@@ -300,8 +347,8 @@ async function frameGesture(token: CancelToken, h: EngineHooks, el: BuildElement
     phase: 'flash',
     accent,
   };
-  triggerHaptic(15); // Frame snap micro-vibration
-  h.audio.playFrameSnap();
+  triggerHaptic(15);
+  audio.playFrameSnap();
   reveal(el);
   await sleep(130 / speed);
   cursor.frame = null;
@@ -309,12 +356,12 @@ async function frameGesture(token: CancelToken, h: EngineHooks, el: BuildElement
 
 async function typewriterGesture(
   token: CancelToken,
-  h: EngineHooks,
+  cursor: CursorModel,
+  audio: BuilderAudioApi,
+  speed: number,
   el: BuildElement,
   node: HTMLElement
 ) {
-  const speed = h.speed ?? 1;
-  const { cursor } = h;
   const text = el.content ?? el.textContent ?? node.textContent ?? '';
 
   const caretPoint = (): Point => {
@@ -328,7 +375,7 @@ async function typewriterGesture(
   };
 
   cursor.tool = 'type';
-  await travel(token, h, caretPoint);
+  await travel(token, cursor, audio, caretPoint, speed);
   if (token.cancelled) return;
 
   cursor.down = true;
@@ -344,8 +391,8 @@ async function typewriterGesture(
     el.onProgress?.(p);
     for (let i = typed; i < chars; i += 1) {
       if (text[i] !== ' ') {
-        h.audio.playKeyClick();
-        triggerHaptic(5); // Ultra-light typing tick
+        audio.playKeyClick();
+        triggerHaptic(5);
       }
     }
     typed = chars;
@@ -358,20 +405,24 @@ async function typewriterGesture(
   await sleep(60 / speed);
 }
 
-async function counterGesture(token: CancelToken, h: EngineHooks, el: BuildElement, node: HTMLElement) {
-  const speed = h.speed ?? 1;
-  const { cursor } = h;
-
+async function counterGesture(
+  token: CancelToken,
+  cursor: CursorModel,
+  audio: BuilderAudioApi,
+  speed: number,
+  el: BuildElement,
+  node: HTMLElement
+) {
   cursor.tool = 'counter';
-  await travel(token, h, centerOf(node));
+  await travel(token, cursor, audio, centerOf(node), speed);
   if (token.cancelled) return;
 
   cursor.down = true;
   await sleep(55 / speed);
   cursor.down = false;
   triggerHaptic(20);
-  h.audio.playStampPop();
-  reveal(el); // label appears on the click, number still at 0
+  audio.playStampPop();
+  reveal(el);
 
   const ticks = Math.max(1, el.ticks ?? 24);
   let lastTick = 0;
@@ -381,7 +432,7 @@ async function counterGesture(token: CancelToken, h: EngineHooks, el: BuildEleme
     const tick = Math.floor(eased * ticks);
     if (tick !== lastTick) {
       lastTick = tick;
-      h.audio.playCounterBlip();
+      audio.playCounterBlip();
       triggerHaptic(5);
     }
   });
@@ -390,13 +441,12 @@ async function counterGesture(token: CancelToken, h: EngineHooks, el: BuildEleme
 
 async function connectorGesture(
   token: CancelToken,
-  h: EngineHooks,
+  cursor: CursorModel,
+  audio: BuilderAudioApi,
+  speed: number,
   el: BuildElement,
   node: HTMLElement
 ) {
-  const speed = h.speed ?? 1;
-  const { cursor } = h;
-
   const ends = () => {
     const r = node.getBoundingClientRect();
     const horizontal = r.width >= r.height;
@@ -406,7 +456,7 @@ async function connectorGesture(
   };
 
   cursor.tool = 'path';
-  await travel(token, h, () => ends().a);
+  await travel(token, cursor, audio, () => ends().a, speed);
   if (token.cancelled) return;
 
   cursor.down = true;
@@ -421,103 +471,149 @@ async function connectorGesture(
     el.onProgress?.(e);
     if (now() - lastBlip > 70) {
       lastBlip = now();
-      h.audio.playCounterBlip();
+      audio.playCounterBlip();
       triggerHaptic(5);
     }
   });
 
   cursor.down = false;
   triggerHaptic(15);
-  h.audio.playFrameSnap();
+  audio.playFrameSnap();
   await sleep(60 / speed);
 }
 
-async function build(token: CancelToken, h: EngineHooks, el: BuildElement, node: HTMLElement) {
+async function executeGesture(
+  token: CancelToken,
+  cursor: CursorModel,
+  audio: BuilderAudioApi,
+  speed: number,
+  el: BuildElement,
+  node: HTMLElement
+) {
   switch (el.type) {
     case 'stamp':
-      return stampGesture(token, h, el, node);
+      return stampGesture(token, cursor, audio, speed, el, node);
+    case 'click':
+      return clickGesture(token, cursor, audio, speed, el, node);
     case 'frame':
-      return frameGesture(token, h, el, node);
+      return frameGesture(token, cursor, audio, speed, el, node);
     case 'typewriter':
-      return typewriterGesture(token, h, el, node);
+      return typewriterGesture(token, cursor, audio, speed, el, node);
     case 'counter':
-      return counterGesture(token, h, el, node);
+      return counterGesture(token, cursor, audio, speed, el, node);
     case 'connector':
-      return connectorGesture(token, h, el, node);
+      return connectorGesture(token, cursor, audio, speed, el, node);
   }
 }
 
 /* ------------------------------------------------------------------------ */
-/* Orchestrator                                                              */
+/* Dual-Worker Orchestrator                                                  */
 /* ------------------------------------------------------------------------ */
 
-/**
- * Walks every registered element in (section, order) sequence.
- *
- * Continuous autonomous tour:
- * - Robust resolveElementRef polling to eliminate silent skips.
- * - Automatically scrolls the window with mobile chrome compensation to center elements.
- * - Triggers haptic feedback ticks on supported touch devices.
- * - Resolves true when the whole queue was built, false if it was cancelled.
- */
 export async function runBuild(token: CancelToken, h: EngineHooks): Promise<boolean> {
-  const { cursor } = h;
+  const { cursorAlpha, cursorBeta } = h;
   const speed = h.speed ?? 1;
 
-  if (cursor.x === 0 && cursor.y === 0) {
-    const startX = typeof window !== 'undefined' ? window.innerWidth * 0.5 : 500;
+  // Initialize both workers in document space
+  if (cursorAlpha.x === 0 && cursorAlpha.y === 0) {
+    const startX = typeof window !== 'undefined' ? window.innerWidth * 0.35 : 350;
     const start = toDoc(startX, 24);
-    cursor.x = start.x;
-    cursor.y = start.y;
+    cursorAlpha.x = start.x;
+    cursorAlpha.y = start.y;
   }
-  cursor.visible = true;
-  cursor.tool = 'idle';
+  if (cursorBeta.x === 0 && cursorBeta.y === 0) {
+    const startX = typeof window !== 'undefined' ? window.innerWidth * 0.65 : 650;
+    const start = toDoc(startX, 24);
+    cursorBeta.x = start.x;
+    cursorBeta.y = start.y;
+  }
+
+  cursorAlpha.visible = true;
+  cursorAlpha.tool = 'idle';
+  cursorBeta.visible = true;
+  cursorBeta.tool = 'idle';
 
   await sleep(350 / speed);
 
   let currentSection: BuilderSection | null = null;
+  const claimed = new Set<string>();
 
-  while (!token.cancelled) {
-    const next = h
-      .getElements()
-      .filter((e) => !h.isDone(e.id))
-      .sort(compareElements)[0];
-    if (!next) break;
-
-    // Robust polling for the DOM node to eliminate hydration race conditions
-    const node = await resolveElementRef(token, next, 500 / speed);
+  // Process elements section by section with parallel dual-channel execution
+  for (const section of SECTION_ORDER) {
     if (token.cancelled) break;
 
-    if (!node || !node.isConnected) {
-      finish(next, h);
-      continue;
-    }
+    const sectionElements = h
+      .getElements()
+      .filter((e) => e.sectionId === section && !h.isDone(e.id))
+      .sort(compareElements);
 
-    if (next.sectionId !== currentSection) {
-      currentSection = next.sectionId;
+    if (sectionElements.length === 0) continue;
+
+    if (currentSection !== section) {
+      currentSection = section;
       h.onSection(currentSection);
     }
 
-    // Auto-scroll the viewport if the element is out of comfortable view
-    await ensureInViewport(token, node, speed);
-    if (token.cancelled) break;
+    // Scroll to the first element of this section
+    const firstNode = await resolveElementRef(token, sectionElements[0], 500 / speed);
+    if (firstNode && !token.cancelled) {
+      await ensureInViewport(token, firstNode, speed);
+    }
 
-    await build(token, h, next, node);
-    if (token.cancelled) break;
-    finish(next, h);
+    // Partition elements into Track Alpha and Track Beta
+    const queueAlpha: BuildElement[] = [];
+    const queueBeta: BuildElement[] = [];
+
+    for (const el of sectionElements) {
+      const ch = resolveChannel(el);
+      if (ch === 'alpha') queueAlpha.push(el);
+      else queueBeta.push(el);
+    }
+
+    // Worker Loop for a single channel
+    const runWorker = async (
+      workerCursor: CursorModel,
+      queue: BuildElement[],
+      partnerQueue: BuildElement[]
+    ) => {
+      while (!token.cancelled) {
+        // Find next unclaimed element in this queue, or steal from partner if done
+        let target = queue.find((e) => !claimed.has(e.id) && !h.isDone(e.id));
+        if (!target) {
+          target = partnerQueue.find((e) => !claimed.has(e.id) && !h.isDone(e.id));
+        }
+        if (!target) break;
+
+        claimed.add(target.id);
+
+        const node = await resolveElementRef(token, target, 500 / speed);
+        if (token.cancelled) break;
+
+        if (!node || !node.isConnected) {
+          finish(target, h);
+          continue;
+        }
+
+        await executeGesture(token, workerCursor, h.audio, speed, target, node);
+        if (token.cancelled) break;
+        finish(target, h);
+      }
+    };
+
+    // Run Worker Alpha and Worker Beta concurrently for this section
+    await Promise.all([
+      runWorker(cursorAlpha, queueAlpha, queueBeta),
+      runWorker(cursorBeta, queueBeta, queueAlpha),
+    ]);
   }
 
   if (token.cancelled) return false;
 
-  // Hand-off: glide to bottom-right and dock.
-  cursor.tool = 'idle';
-  const dockX = typeof window !== 'undefined' ? window.innerWidth - 160 : 800;
-  const dockY = typeof window !== 'undefined' ? window.innerHeight - 96 : 600;
-  await glide(
-    token,
-    cursor,
-    () => toDoc(dockX, dockY),
-    700 / speed
-  );
+  // Fade out both cursors/sparks cleanly without any permanent idle pill
+  cursorAlpha.visible = false;
+  cursorBeta.visible = false;
+  cursorAlpha.tool = 'idle';
+  cursorBeta.tool = 'idle';
+
   return !token.cancelled;
 }

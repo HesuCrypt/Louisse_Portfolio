@@ -21,13 +21,18 @@ import {
   type CursorModel,
 } from './builderTypes';
 
-export type { BuildElement, BuilderMode, BuilderSection, BuildType } from './builderTypes';
+export type { BuildElement, BuilderChannel, BuilderMode, BuilderSection, BuildType } from './builderTypes';
+
+export interface DualCursorState {
+  alpha: CursorModel;
+  beta: CursorModel;
+}
 
 export interface BuilderContextValue {
   mode: BuilderMode;
   activeSection: BuilderSection;
   isBuilding: boolean;
-  /** True once the whole queue finished building (the cursor is docked). */
+  /** True once all sections finished building. */
   isFinished: boolean;
   isMuted: boolean;
   /** True when sessionStorage says this visitor already built or skipped. */
@@ -42,6 +47,9 @@ export interface BuilderContextValue {
   /** Set of item IDs that have completed their creation animation. */
   completedIds: ReadonlySet<string>;
   registeredElements: ReadonlyMap<string, BuildElement>;
+  cursorAlpha: CursorModel;
+  cursorBeta: CursorModel;
+  /** Backwards compatibility alias for single-cursor references */
   cursor: CursorModel;
   register: (element: BuildElement) => void;
   registerItem: (element: BuildElement) => void;
@@ -56,7 +64,8 @@ export interface BuilderContextValue {
   toggleMute: () => void;
 }
 
-const inertCursor = createCursorModel();
+const inertCursorAlpha = createCursorModel();
+const inertCursorBeta = createCursorModel();
 
 function sortQueue(items: Iterable<BuildElement>): BuildElement[] {
   return Array.from(items).sort((a, b) => {
@@ -82,7 +91,9 @@ const defaultValue: BuilderContextValue = {
   currentStepIndex: 0,
   completedIds: new Set(),
   registeredElements: new Map(),
-  cursor: inertCursor,
+  cursorAlpha: inertCursorAlpha,
+  cursorBeta: inertCursorBeta,
+  cursor: inertCursorAlpha,
   register: () => undefined,
   registerItem: () => undefined,
   unregister: () => undefined,
@@ -121,7 +132,6 @@ function detectMode(enabled: boolean): BuilderMode {
   if (typeof window === 'undefined' || !enabled) return 'instant';
   if (readBuilt()) return 'instant';
   if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return 'instant';
-  // Both desktop and mobile run the autonomous build (mobile uses the AI Spark Tracer)
   return 'cursor';
 }
 
@@ -153,7 +163,8 @@ export const BuilderProvider: React.FC<BuilderProviderProps> = ({
 
   const registry = useRef(new Map<string, BuildElement>());
   const completed = useRef(new Set<string>());
-  const cursor = useRef<CursorModel>(createCursorModel()).current;
+  const cursorAlpha = useRef<CursorModel>(createCursorModel()).current;
+  const cursorBeta = useRef<CursorModel>(createCursorModel()).current;
   const token = useRef<CancelToken>({ cancelled: true });
   const modeRef = useRef(mode);
   const finishedRef = useRef(false);
@@ -163,7 +174,6 @@ export const BuilderProvider: React.FC<BuilderProviderProps> = ({
 
   const register = useCallback((element: BuildElement) => {
     registry.current.set(element.id, element);
-    // A late arrival (conditional UI) after the build ended must not stay hidden.
     if (finishedRef.current && !completed.current.has(element.id)) {
       completed.current.add(element.id);
       element.onStart?.();
@@ -209,10 +219,16 @@ export const BuilderProvider: React.FC<BuilderProviderProps> = ({
       element.onProgress?.(1);
       element.onComplete?.();
     });
-    cursor.visible = false;
-    cursor.frame = null;
-    cursor.caret = false;
-    cursor.down = false;
+    cursorAlpha.visible = false;
+    cursorAlpha.frame = null;
+    cursorAlpha.caret = false;
+    cursorAlpha.down = false;
+
+    cursorBeta.visible = false;
+    cursorBeta.frame = null;
+    cursorBeta.caret = false;
+    cursorBeta.down = false;
+
     writeBuilt(true);
     finishedRef.current = false;
     setCompletedSnapshot(new Set(completed.current));
@@ -222,7 +238,7 @@ export const BuilderProvider: React.FC<BuilderProviderProps> = ({
     setIsBuilding(false);
     setIsFinished(false);
     setActiveSection('completed');
-  }, [cursor]);
+  }, [cursorAlpha, cursorBeta]);
 
   /* ----------------------------- replay ------------------------------- */
 
@@ -231,8 +247,12 @@ export const BuilderProvider: React.FC<BuilderProviderProps> = ({
     writeBuilt(false);
     completed.current.clear();
     finishedRef.current = false;
-    cursor.visible = false;
-    cursor.frame = null;
+
+    cursorAlpha.visible = false;
+    cursorAlpha.frame = null;
+    cursorBeta.visible = false;
+    cursorBeta.frame = null;
+
     if (typeof window !== 'undefined') {
       window.scrollTo({ top: 0, behavior: 'auto' });
     }
@@ -243,7 +263,7 @@ export const BuilderProvider: React.FC<BuilderProviderProps> = ({
     setActiveSection('hero');
     setMode('cursor');
     setEpoch((value) => value + 1);
-  }, [cursor]);
+  }, [cursorAlpha, cursorBeta]);
 
   /* --------------- route enable/disable (home route only) ------------- */
 
@@ -254,8 +274,10 @@ export const BuilderProvider: React.FC<BuilderProviderProps> = ({
 
     if (!enabled) {
       token.current.cancelled = true;
-      cursor.visible = false;
-      cursor.frame = null;
+      cursorAlpha.visible = false;
+      cursorAlpha.frame = null;
+      cursorBeta.visible = false;
+      cursorBeta.frame = null;
       finishedRef.current = false;
       setMode('instant');
       setIsBuilding(false);
@@ -270,9 +292,9 @@ export const BuilderProvider: React.FC<BuilderProviderProps> = ({
     setHasSkipped(readBuilt());
     setMode(next);
     setEpoch((value) => value + 1);
-  }, [enabled, cursor]);
+  }, [enabled, cursorAlpha, cursorBeta]);
 
-  /* ------------------------- the build loop --------------------------- */
+  /* ------------------------- dual-builder loop ------------------------- */
 
   useEffect(() => {
     if (mode !== 'cursor') return undefined;
@@ -295,7 +317,9 @@ export const BuilderProvider: React.FC<BuilderProviderProps> = ({
           setCurrentStepIndex(nextIdx === -1 ? sorted.length : nextIdx);
         }
       },
-      cursor,
+      cursorAlpha,
+      cursorBeta,
+      cursor: cursorAlpha,
       audio: builderAudio,
       speed,
       onSection: (section) => {
@@ -313,12 +337,17 @@ export const BuilderProvider: React.FC<BuilderProviderProps> = ({
 
     return () => {
       mine.cancelled = true;
-      cursor.visible = false;
-      cursor.frame = null;
-      cursor.caret = false;
-      cursor.down = false;
+      cursorAlpha.visible = false;
+      cursorAlpha.frame = null;
+      cursorAlpha.caret = false;
+      cursorAlpha.down = false;
+
+      cursorBeta.visible = false;
+      cursorBeta.frame = null;
+      cursorBeta.caret = false;
+      cursorBeta.down = false;
     };
-  }, [mode, epoch, cursor, speed]);
+  }, [mode, epoch, cursorAlpha, cursorBeta, speed]);
 
   /* -------------------- ESC to skip, mouse conflict ------------------- */
 
@@ -334,11 +363,12 @@ export const BuilderProvider: React.FC<BuilderProviderProps> = ({
   useEffect(() => {
     if (mode !== 'cursor') return undefined;
     const onMove = () => {
-      cursor.userActiveUntil = performance.now() + 1400;
+      cursorAlpha.userActiveUntil = performance.now() + 1400;
+      cursorBeta.userActiveUntil = performance.now() + 1400;
     };
     window.addEventListener('mousemove', onMove, { passive: true });
     return () => window.removeEventListener('mousemove', onMove);
-  }, [mode, cursor]);
+  }, [mode, cursorAlpha, cursorBeta]);
 
   const value = useMemo<BuilderContextValue>(
     () => ({
@@ -354,7 +384,9 @@ export const BuilderProvider: React.FC<BuilderProviderProps> = ({
       currentStepIndex,
       completedIds: completedSnapshot,
       registeredElements: registry.current,
-      cursor,
+      cursorAlpha,
+      cursorBeta,
+      cursor: cursorAlpha,
       register,
       registerItem: register,
       unregister,
@@ -379,7 +411,8 @@ export const BuilderProvider: React.FC<BuilderProviderProps> = ({
       queueSnapshot,
       currentStepIndex,
       completedSnapshot,
-      cursor,
+      cursorAlpha,
+      cursorBeta,
       register,
       unregister,
       markComplete,
