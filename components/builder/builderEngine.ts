@@ -10,9 +10,9 @@ import type { BuilderAudioApi } from '../../lib/builderAudio';
  * Framework-free autonomous build choreography.
  *
  * Everything here is driven by the REAL DOM:
- * - Automatically scrolls the viewport when an element is outside or near edges.
- * - The visitor can simply watch the screen with zero interaction required.
- * - During and after scrolling, cursor coordinates dynamically track the element in document space.
+ * - Robust resolveElementRef polling to eliminate silent skips.
+ * - Smooth scroll coordination with post-scroll settle check.
+ * - Dynamic sub-pixel tracking in document space.
  */
 
 export interface CancelToken {
@@ -60,6 +60,27 @@ function compareElements(a: BuildElement, b: BuildElement): number {
 }
 
 /**
+ * Robustly resolve an element's DOM node with a retry/poll window up to `maxWaitMs`.
+ * Eliminates silent skips caused by hydration or re-rendering latencies.
+ */
+async function resolveElementRef(
+  token: CancelToken,
+  el: BuildElement,
+  maxWaitMs = 500
+): Promise<HTMLElement | null> {
+  const start = now();
+  while (!token.cancelled && now() - start < maxWaitMs) {
+    const node = el.ref.current;
+    if (node && node.isConnected) {
+      return node;
+    }
+    await sleep(25);
+  }
+  const finalNode = el.ref.current;
+  return finalNode && finalNode.isConnected ? finalNode : null;
+}
+
+/**
  * Ensures `node` is comfortably centered in the viewport.
  * If the element is outside the comfortable vertical zone (top 15% - 85%),
  * smoothly scrolls the viewport to position the element near the center.
@@ -103,6 +124,7 @@ async function ensureInViewport(token: CancelToken, node: HTMLElement, speed = 1
     raf(scrollStep);
   });
 
+  // Short settle pause to ensure layout and bounding boxes stabilize
   await sleep(40 / speed);
 }
 
@@ -406,8 +428,8 @@ async function build(token: CancelToken, h: EngineHooks, el: BuildElement, node:
  * Walks every registered element in (section, order) sequence.
  *
  * Continuous autonomous tour:
+ * - Robust resolveElementRef polling to eliminate silent skips.
  * - Automatically scrolls the window to center elements as they come up in sequence.
- * - The visitor never has to manually scroll.
  * - Resolves true when the whole queue was built, false if it was cancelled.
  */
 export async function runBuild(token: CancelToken, h: EngineHooks): Promise<boolean> {
@@ -434,7 +456,10 @@ export async function runBuild(token: CancelToken, h: EngineHooks): Promise<bool
       .sort(compareElements)[0];
     if (!next) break;
 
-    const node = next.ref.current;
+    // Robust polling for the DOM node to eliminate hydration race conditions
+    const node = await resolveElementRef(token, next, 500 / speed);
+    if (token.cancelled) break;
+
     if (!node || !node.isConnected) {
       finish(next, h);
       continue;

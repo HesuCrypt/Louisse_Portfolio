@@ -6,6 +6,8 @@ export type BuilderSection =
   | 'nav'
   | 'hero'
   | 'stats'
+  | 'about'
+  | 'profile'
   | 'experience'
   | 'work'
   | 'projects'
@@ -22,11 +24,15 @@ export type BuilderMode = 'cursor' | 'lite' | 'instant';
 
 export type ToolKind = 'idle' | 'frame' | 'type' | 'stamp' | 'counter' | 'path';
 
-/** Order the engine walks sections. Matches the on-page order of the home route. */
+/** Order the engine walks sections. Matches the on-page order of the home route:
+ * Nav -> Hero -> Stats -> Profile (About) -> Experience -> Work / Projects -> Capabilities -> Contact
+ */
 export const SECTION_ORDER: BuilderSection[] = [
   'nav',
   'hero',
   'stats',
+  'about',
+  'profile',
   'experience',
   'work',
   'projects',

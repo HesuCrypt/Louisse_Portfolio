@@ -9,6 +9,7 @@ import { containerVariants, itemVariants } from '../motion/variants';
 import { scrollToSection, pushRoute } from '../utils/routing';
 import { sound } from '../utils/sound';
 import { ArrowUpRight, Cpu, Globe, ShieldCheck, Sparkles, Zap } from 'lucide-react';
+import { BuildItem } from '../components/builder/BuildItem';
 
 const pipelineNodes = [
   {
@@ -78,67 +79,93 @@ export const About: React.FC = () => {
             title={profile.about.title}
             meta="Manila · Remote Worldwide"
             description={profile.about.description}
+            build={{ id: 'about-title', section: 'about', order: 1 }}
           />
 
           {/* Cyber-Minimalist Bento Grid */}
           <div className="mt-10 grid grid-cols-1 gap-4 lg:grid-cols-12">
             {/* Bento 1: Portrait & Quick Identity HUD (4 cols) */}
-            <motion.div
-              variants={itemVariants}
-              className="flex flex-col justify-between rounded-xl border border-line-mid bg-panel p-4 lg:col-span-4"
-            >
-              <div>
-                <div className="relative aspect-[4/4.3] w-full overflow-hidden rounded-lg border border-line bg-ink">
-                  <img
-                    src="/louisse-portrait.jpg"
-                    alt="Louisse Dominique Bertillo: Web Developer & AI Implementation"
-                    className="h-full w-full object-cover object-center grayscale contrast-[1.08] transition-transform duration-500 hover:scale-[1.02]"
-                    loading="lazy"
-                  />
-                  {/* HUD Corner Overlay */}
-                  <div className="pointer-events-none absolute inset-0 flex flex-col justify-between p-3 font-mono text-xs tracking-wider2 text-fg/80 uppercase">
-                    <div className="flex justify-between">
-                      <span className="rounded bg-ink/80 px-2 py-0.5 backdrop-blur-sm">
-                        ID // L.BERTILLO
-                      </span>
-                      <span className="rounded bg-ink/80 px-2 py-0.5 text-emerald-400 backdrop-blur-sm">
-                        ● ACTIVE
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="rounded bg-ink/80 px-2 py-0.5 backdrop-blur-sm">
-                        IT OFFICER · AI &amp; WEB
-                      </span>
-                      <span className="rounded bg-ink/80 px-2 py-0.5 backdrop-blur-sm">
-                        PH · UTC+8
-                      </span>
+            <div className="lg:col-span-4">
+              <BuildItem
+                id="about-card-portrait"
+                section="about"
+                order={2}
+                type="frame"
+                className="flex h-full flex-col justify-between rounded-xl border border-line-mid bg-panel p-4"
+              >
+                <div>
+                  <div className="relative aspect-[4/4.3] w-full overflow-hidden rounded-lg border border-line bg-ink">
+                    <img
+                      src="/louisse-portrait.jpg"
+                      alt="Louisse Dominique Bertillo: Web Developer & AI Implementation"
+                      className="h-full w-full object-cover object-center grayscale contrast-[1.08] transition-transform duration-500 hover:scale-[1.02]"
+                      loading="lazy"
+                    />
+                    {/* HUD Corner Overlay */}
+                    <div className="pointer-events-none absolute inset-0 flex flex-col justify-between p-3 font-mono text-xs tracking-wider2 text-fg/80 uppercase">
+                      <div className="flex justify-between">
+                        <span className="rounded bg-ink/80 px-2 py-0.5 backdrop-blur-sm">
+                          ID // L.BERTILLO
+                        </span>
+                        <span className="rounded bg-ink/80 px-2 py-0.5 text-emerald-400 backdrop-blur-sm">
+                          ● ACTIVE
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="rounded bg-ink/80 px-2 py-0.5 backdrop-blur-sm">
+                          IT OFFICER · AI &amp; WEB
+                        </span>
+                        <span className="rounded bg-ink/80 px-2 py-0.5 backdrop-blur-sm">
+                          PH · UTC+8
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
 
-              <div className="mt-4 flex items-center justify-between border-t border-line pt-3.5">
-                <div>
-                  <p className="font-sans text-sm font-medium text-fg">Louisse Dominique Bertillo</p>
-                  <p className="font-mono text-2xs text-fg-dim">Full-Stack Web &amp; AI Engineer</p>
+                <div className="mt-4 flex items-center justify-between border-t border-line pt-3.5">
+                  <div>
+                    <BuildItem
+                      as="p"
+                      id="about-portrait-name"
+                      section="about"
+                      order={3}
+                      type="typewriter"
+                      content="Louisse Dominique Bertillo"
+                      className="font-sans text-sm font-medium text-fg"
+                    />
+                    <p className="font-mono text-2xs text-fg-dim">Full-Stack Web &amp; AI Engineer</p>
+                  </div>
+                  <div className="flex gap-2">
+                    <BuildItem
+                      as="span"
+                      id="about-hire-cta"
+                      section="about"
+                      order={4}
+                      type="stamp"
+                      className="inline-flex"
+                    >
+                      <Button
+                        onClick={() => scrollToSection('contact')}
+                        className="px-3 py-2 text-2xs"
+                        icon={<ArrowUpRight size={12} />}
+                      >
+                        Hire
+                      </Button>
+                    </BuildItem>
+                  </div>
                 </div>
-                <div className="flex gap-2">
-                  <Button
-                    onClick={() => scrollToSection('contact')}
-                    className="px-3 py-2 text-2xs"
-                    icon={<ArrowUpRight size={12} />}
-                  >
-                    Hire
-                  </Button>
-                </div>
-              </div>
-            </motion.div>
+              </BuildItem>
+            </div>
 
             {/* Right 8 Columns: Interactive AI Pipeline + 2 Visual Pillar Cards */}
             <div className="grid grid-cols-1 gap-4 lg:col-span-8">
               {/* Bento 2: Interactive Autonomous AI Workflow Visualizer */}
-              <motion.div
-                variants={itemVariants}
+              <BuildItem
+                id="about-card-pipeline"
+                section="about"
+                order={5}
+                type="frame"
                 className="flex flex-col justify-between rounded-xl border border-line-mid bg-panel p-5 sm:p-6"
               >
                 <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line pb-4">
@@ -164,32 +191,39 @@ export const About: React.FC = () => {
                   {pipelineNodes.map((node, index) => {
                     const isSelected = activeNode === index;
                     return (
-                      <button
+                      <BuildItem
                         key={node.id}
-                        type="button"
-                        onClick={() => {
-                          sound.playClick();
-                          setActiveNode(index);
-                        }}
-                        className={`group relative cursor-pointer rounded-lg border p-3.5 text-left transition-all duration-200 ${
-                          isSelected
-                            ? 'border-paper bg-ink shadow-lg'
-                            : 'border-line bg-ink/50 hover:border-line-strong hover:bg-ink'
-                        }`}
+                        id={`about-pipe-node-${index}`}
+                        section="about"
+                        order={6 + index}
+                        type="stamp"
                       >
-                        <div className="flex items-center justify-between font-mono text-xs uppercase">
-                          <span className={isSelected ? 'text-emerald-400 font-bold' : 'text-fg-faint'}>
-                            {node.step}
-                          </span>
-                          <span
-                            className={`h-1.5 w-1.5 rounded-full transition-colors ${
-                              isSelected ? 'bg-emerald-400' : 'bg-line-strong'
-                            }`}
-                          />
-                        </div>
-                        <p className="mt-2 font-sans text-sm font-semibold text-fg">{node.title}</p>
-                        <p className="mt-0.5 font-mono text-xs text-fg-dim">{node.sub}</p>
-                      </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            sound.playClick();
+                            setActiveNode(index);
+                          }}
+                          className={`group relative w-full cursor-pointer rounded-lg border p-3.5 text-left transition-all duration-200 ${
+                            isSelected
+                              ? 'border-paper bg-ink shadow-lg'
+                              : 'border-line bg-ink/50 hover:border-line-strong hover:bg-ink'
+                          }`}
+                        >
+                          <div className="flex items-center justify-between font-mono text-xs uppercase">
+                            <span className={isSelected ? 'text-emerald-400 font-bold' : 'text-fg-faint'}>
+                              {node.step}
+                            </span>
+                            <span
+                              className={`h-1.5 w-1.5 rounded-full transition-colors ${
+                                isSelected ? 'bg-emerald-400' : 'bg-line-strong'
+                              }`}
+                            />
+                          </div>
+                          <p className="mt-2 font-sans text-sm font-semibold text-fg">{node.title}</p>
+                          <p className="mt-0.5 font-mono text-xs text-fg-dim">{node.sub}</p>
+                        </button>
+                      </BuildItem>
                     );
                   })}
                 </div>
@@ -209,13 +243,16 @@ export const About: React.FC = () => {
                     Latency &lt; 120ms
                   </span>
                 </div>
-              </motion.div>
+              </BuildItem>
 
               {/* Bottom 2 Bento Cards */}
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 {/* Bento 3: Performance & Conversion */}
-                <motion.div
-                  variants={itemVariants}
+                <BuildItem
+                  id="about-card-ecommerce"
+                  section="about"
+                  order={10}
+                  type="frame"
                   className="flex flex-col justify-between rounded-xl border border-line-mid bg-panel p-5"
                 >
                   <div>
@@ -260,11 +297,14 @@ export const About: React.FC = () => {
                       </span>
                     ))}
                   </div>
-                </motion.div>
+                </BuildItem>
 
                 {/* Bento 4: Fixed-Scope Execution */}
-                <motion.div
-                  variants={itemVariants}
+                <BuildItem
+                  id="about-card-execution"
+                  section="about"
+                  order={11}
+                  type="frame"
                   className="flex flex-col justify-between rounded-xl border border-line-mid bg-panel p-5"
                 >
                   <div>
@@ -307,7 +347,7 @@ export const About: React.FC = () => {
                       <ArrowUpRight size={12} />
                     </button>
                   </div>
-                </motion.div>
+                </BuildItem>
               </div>
             </div>
           </div>
