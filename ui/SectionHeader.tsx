@@ -1,5 +1,7 @@
 import React from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
+import { BuildItem } from '../components/builder/BuildItem';
+import type { BuilderSection } from '../components/builder/builderTypes';
 
 interface SectionHeaderProps {
   /** Zero-padded ordinal, e.g. "02". */
@@ -11,6 +13,8 @@ interface SectionHeaderProps {
   meta?: string;
   description?: string;
   className?: string;
+  /** When set, the cursor types the title instead of it simply appearing. */
+  build?: { id: string; section: BuilderSection; order: number };
 }
 
 const ease = [0.16, 1, 0.3, 1] as const;
@@ -31,6 +35,7 @@ export const SectionHeader: React.FC<SectionHeaderProps> = ({
   meta,
   description,
   className = '',
+  build,
 }) => {
   const reduceMotion = useReducedMotion();
 
@@ -68,7 +73,19 @@ export const SectionHeader: React.FC<SectionHeaderProps> = ({
               {...rise(0.12)}
               className="mt-3 font-sans text-[clamp(1.7rem,3.8vw,2.9rem)] leading-[1.06] font-medium tracking-[-0.035em] text-fg [text-wrap:balance]"
             >
-              {title}
+              {build ? (
+                <BuildItem
+                  as="span"
+                  id={build.id}
+                  section={build.section}
+                  order={build.order}
+                  type="typewriter"
+                  content={title}
+                  className="block"
+                />
+              ) : (
+                title
+              )}
             </motion.h2>
           </div>
           {meta ? (

@@ -3,6 +3,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowUpRight, Menu, Volume2, VolumeX, X } from 'lucide-react';
 import { Container } from '../ui/Container';
 import { Button } from '../ui/Button';
+import { EraToggle } from '../ui/EraToggle';
+import { BuildItem } from '../components/builder/BuildItem';
 import { MobileIndexStrip } from '../ui/IndexRail';
 import { sections } from '../data/sections';
 import { socials } from '../data/socials';
@@ -106,6 +108,7 @@ export const Header: React.FC<HeaderProps> = ({ currentRoute }) => {
       }`}
     >
       <div className="h-[var(--topbar-h)]">
+        <BuildItem id="hdr-bar" section="hero" order={1} type="frame" className="h-full">
         <Container className="flex h-full items-center justify-between gap-4">
           {/* Authentic Louisse Bertillo Brand Mark */}
           <button
@@ -129,16 +132,26 @@ export const Header: React.FC<HeaderProps> = ({ currentRoute }) => {
 
           {/* Center Navigation */}
           <nav aria-label="Primary" className="hidden items-center gap-6 xl:flex">
-            {desktopNav.map((section) => (
-              <button
+            {desktopNav.map((section, navIndex) => (
+              <BuildItem
+                as="span"
                 key={section.id}
+                id={`hdr-nav-${section.id}`}
+                section="hero"
+                order={2 + navIndex}
+                type="stamp"
+                className="inline-flex"
+              >
+              <button
                 type="button"
                 onClick={() => handleSectionNav(section.id)}
                 className="group flex cursor-pointer items-center gap-1.5 font-sans text-xs text-fg-muted transition-colors duration-200 hover:text-fg"
               >
                 <span>{section.id === 'top' ? 'Overview' : section.nav}</span>
               </button>
+              </BuildItem>
             ))}
+            <BuildItem as="span" id="hdr-nav-services" section="hero" order={15} type="stamp" className="inline-flex">
             <button
               type="button"
               onClick={handleServicesNav}
@@ -151,6 +164,7 @@ export const Header: React.FC<HeaderProps> = ({ currentRoute }) => {
               )}
               <span>Services &amp; Rates</span>
             </button>
+            </BuildItem>
           </nav>
 
           {/* Right Actions: Sound Toggle & CTA */}
@@ -165,6 +179,7 @@ export const Header: React.FC<HeaderProps> = ({ currentRoute }) => {
               {soundEnabled ? <Volume2 size={14} className="text-emerald-400" /> : <VolumeX size={14} />}
             </button>
 
+            <BuildItem as="span" id="hdr-cta" section="hero" order={16} type="stamp" className="hidden xl:inline-flex">
             <button
               type="button"
               onClick={handleQuoteClick}
@@ -173,6 +188,9 @@ export const Header: React.FC<HeaderProps> = ({ currentRoute }) => {
               <span>Start a Project</span>
               <ArrowUpRight size={13} />
             </button>
+            </BuildItem>
+
+            <EraToggle />
 
             <button
               type="button"
@@ -185,6 +203,7 @@ export const Header: React.FC<HeaderProps> = ({ currentRoute }) => {
             </button>
           </div>
         </Container>
+        </BuildItem>
       </div>
 
       {/* Tablet and mobile keep the section index — only its form changes */}

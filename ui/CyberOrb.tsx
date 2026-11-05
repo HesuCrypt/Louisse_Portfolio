@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { BuildItem } from '../components/builder/BuildItem';
 
 interface CyberOrbProps {
   className?: string;
@@ -328,11 +329,17 @@ export const CyberOrb: React.FC<CyberOrbProps> = ({ className = '' }) => {
       </div>
 
       {/* Bottom Minimalist Status Line */}
-      <div className="pointer-events-none mt-3.5 flex items-center gap-3 font-mono text-xs tracking-widest text-white/40 uppercase">
+      <BuildItem
+        id="hero-neural-caption"
+        section="hero"
+        order={71}
+        type="stamp"
+        className="pointer-events-none mt-3.5 flex items-center gap-3 font-mono text-xs tracking-widest text-white/40 uppercase"
+      >
         <span>Interactive 3D</span>
         <span className="h-1 w-1 rounded-full bg-white/30" />
         <span>Gaze Tracking</span>
-      </div>
+      </BuildItem>
     </div>
   );
 };

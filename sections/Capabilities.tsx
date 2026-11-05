@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Container } from '../ui/Container';
 import { SectionHeader } from '../ui/SectionHeader';
+import { BuildItem } from '../components/builder/BuildItem';
 import { Button } from '../ui/Button';
 import { skills } from '../data/skills';
 import { sectionMeta } from '../data/sections';
@@ -38,6 +39,7 @@ export const Capabilities: React.FC = () => {
               index={sectionIndex}
               label={label}
               title="Fixed-Scope Packages & Tech Stack"
+              build={{ id: 'cap-title', section: 'capabilities', order: 1 }}
               meta="Transparent PHP Pricing"
               description="Switch between fixed-scope website packages and my engineering stack."
             />
@@ -96,9 +98,13 @@ export const Capabilities: React.FC = () => {
                         : formatPhpPrice(pack.basePricePhp);
 
                       return (
-                        <div
+                        <BuildItem
                           key={pack.id}
-                          className={`flex flex-col justify-between rounded-2xl border p-7 transition-all duration-300 ${
+                          id={`cap-card-${idx}`}
+                          section="capabilities"
+                          order={10 + idx * 10}
+                          type="frame"
+                          className={`flex h-full flex-col justify-between rounded-2xl border p-7 transition-all duration-300 ${
                             pack.popular
                               ? 'border-emerald-500/40 bg-[#12141a] shadow-xl hover:border-emerald-400/60'
                               : 'border-white/10 bg-[#0d0e12] hover:-translate-y-1 hover:border-white/20'
@@ -125,7 +131,15 @@ export const Capabilities: React.FC = () => {
                             </div>
 
                             <h4 className="mt-4 font-sans text-xl font-bold tracking-tight text-white">
-                              {pack.title.replace(' Package', '')}
+                              <BuildItem
+                                as="span"
+                                id={`cap-title-${idx}`}
+                                section="capabilities"
+                                order={11 + idx * 10}
+                                type="typewriter"
+                                content={pack.title.replace(' Package', '')}
+                                className="block"
+                              />
                             </h4>
 
                             <p className="tnum mt-2 font-mono text-2xl font-bold tracking-[-0.02em] text-fg sm:text-3xl">
@@ -217,12 +231,18 @@ export const Capabilities: React.FC = () => {
                               <span>Ask AI</span>
                             </button>
                           </div>
-                        </div>
+                        </BuildItem>
                       );
                     })}
 
                     {/* Symmetrical 6th Card: Custom Enterprise & AI Retainer */}
-                    <div className="flex flex-col justify-between rounded-2xl border border-white/10 bg-[#0d0e12] p-7 transition-all duration-300 hover:-translate-y-1 hover:border-white/20">
+                    <BuildItem
+                      id="cap-card-custom"
+                      section="capabilities"
+                      order={10 + servicePackages.length * 10}
+                      type="frame"
+                      className="flex h-full flex-col justify-between rounded-2xl border border-white/10 bg-[#0d0e12] p-7 transition-all duration-300 hover:-translate-y-1 hover:border-white/20"
+                    >
                       <div>
                         <div className="flex items-center justify-between gap-2">
                           <span className="tnum font-mono text-xs text-fg-dim">
@@ -234,7 +254,15 @@ export const Capabilities: React.FC = () => {
                         </div>
 
                         <h4 className="mt-4 font-sans text-xl font-bold tracking-tight text-white">
-                          Custom Scope &amp; AI Retainer
+                          <BuildItem
+                            as="span"
+                            id="cap-title-custom"
+                            section="capabilities"
+                            order={11 + servicePackages.length * 10}
+                            type="typewriter"
+                            content="Custom Scope & AI Retainer"
+                            className="block"
+                          />
                         </h4>
 
                         <p className="tnum mt-2 font-mono text-2xl font-bold tracking-[-0.02em] text-fg sm:text-3xl">
@@ -295,7 +323,7 @@ export const Capabilities: React.FC = () => {
                           <span>Ask AI</span>
                         </button>
                       </div>
-                    </div>
+                    </BuildItem>
                   </div>
 
                   <div className="mt-4 flex flex-wrap items-center justify-between gap-4 border border-line bg-panel p-4">

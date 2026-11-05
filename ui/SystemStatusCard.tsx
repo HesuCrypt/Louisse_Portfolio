@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { BuildItem } from '../components/builder/BuildItem';
 
 const timeFormatter = new Intl.DateTimeFormat('en-GB', {
   timeZone: 'Asia/Manila',
@@ -35,9 +36,16 @@ export const SystemStatusCard: React.FC<{ className?: string }> = ({ className =
       {/* Manila Live Time Clock */}
       <div className="border-b border-white/5 py-4">
         <div className="flex items-baseline gap-2">
-          <span className="tnum font-mono text-3xl font-bold tracking-tight text-white">
-            {time}
-          </span>
+          {/* Typed once by the builder, then it simply keeps ticking */}
+          <BuildItem
+            as="span"
+            id="hero-terminal-clock"
+            section="hero"
+            order={81}
+            type="typewriter"
+            content={time}
+            className="tnum font-mono text-3xl font-bold tracking-tight text-white"
+          />
           <span className="text-fg-dim">PHT &middot; UTC+8</span>
         </div>
         <p className="mt-1 text-xs text-fg-dim">Same time zone / Remote</p>

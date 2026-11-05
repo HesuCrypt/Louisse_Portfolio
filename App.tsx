@@ -8,6 +8,10 @@ import { DesktopIndexRail } from './ui/IndexRail';
 import { AIChatWidget } from './ui/AIChatWidget';
 import { CookieConsentBanner } from './ui/CookieConsentBanner';
 import { Container } from './ui/Container';
+import { HelloMarquee } from './ui/HelloMarquee';
+import { BuilderProvider } from './components/builder/DOMSequenceRegistry';
+import { BuilderCursor } from './components/builder/BuilderCursor';
+import { ReplayAssemblyButton } from './components/builder/ReplayAssemblyButton';
 import { sections } from './data/sections';
 import { socials } from './data/socials';
 import {
@@ -74,6 +78,7 @@ export default function App() {
   };
 
   return (
+    <BuilderProvider enabled={route === '/'}>
     <main className="rail-offset relative min-h-screen w-full bg-ink text-fg">
       {/* Hairline scroll reading position */}
       <motion.div
@@ -100,6 +105,7 @@ export default function App() {
 
         <footer className="border-t border-line">
           <Container>
+            <HelloMarquee />
             <div className="grid grid-cols-1 gap-10 py-12 sm:grid-cols-2 lg:grid-cols-12 lg:gap-8">
               <div className="lg:col-span-5">
                 <div className="flex items-center gap-3">
@@ -208,8 +214,9 @@ export default function App() {
               <p className="font-mono text-2xs tracking-wider2 text-fg-faint uppercase">
                 &copy; {new Date().getFullYear()} Louisse Dominique Bertillo
               </p>
-              <p className="font-mono text-2xs tracking-wider2 text-fg-faint uppercase">
-                Manila, PH &middot; Remote Worldwide
+              <p className="flex flex-wrap items-center gap-x-5 gap-y-2 font-mono text-2xs tracking-wider2 text-fg-faint uppercase">
+                <ReplayAssemblyButton />
+                <span>Manila, PH &middot; Remote Worldwide</span>
               </p>
             </div>
           </Container>
@@ -218,6 +225,8 @@ export default function App() {
 
       <AIChatWidget />
       <CookieConsentBanner />
+      <BuilderCursor />
     </main>
+    </BuilderProvider>
   );
 }

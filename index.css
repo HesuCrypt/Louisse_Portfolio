@@ -238,3 +238,37 @@ dialog::backdrop {
     scroll-behavior: auto;
   }
 }
+
+/* --------------------------------------------------------------------------
+   Webdrift-style era switch: 2026 (default) / 1984 (1-bit Macintosh)
+   -------------------------------------------------------------------------- */
+@keyframes fadein {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: none; }
+}
+
+html[data-era='1984'] {
+  /* Invert dark theme to black-on-paper, strip colour, harden contrast. */
+  filter: invert(1) grayscale(1) contrast(1.35);
+  background: #000;
+}
+html[data-era='1984'] body,
+html[data-era='1984'] button,
+html[data-era='1984'] input,
+html[data-era='1984'] textarea {
+  font-family: 'JetBrains Mono', 'Courier New', monospace !important;
+  letter-spacing: 0 !important;
+}
+html[data-era='1984'] * {
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+  backdrop-filter: none !important;
+}
+html[data-era='1984'] .bg-grid,
+html[data-era='1984'] canvas {
+  opacity: 0.9;
+}
+html[data-era='1984'] canvas {
+  image-rendering: pixelated;
+}

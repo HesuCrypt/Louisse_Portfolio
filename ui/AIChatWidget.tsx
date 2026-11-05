@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { MessageCircle, X, SendHorizontal, Sparkles, Bot, RotateCcw, Copy, Check, ChevronDown } from 'lucide-react';
 import { sound } from '../utils/sound';
 import { FormattedChatText } from './FormattedChatText';
+import { BuildItem } from '../components/builder/BuildItem';
 
 type ChatMessage = {
   role: 'user' | 'assistant';
@@ -223,6 +224,7 @@ export const AIChatWidget: React.FC = () => {
       }`}
     >
       {!isOpen ? (
+        <BuildItem as="span" id="hero-ai-assistant" section="hero" order={90} type="stamp" className="inline-flex">
         <button
           onClick={() => {
             sound.playPop();
@@ -238,6 +240,7 @@ export const AIChatWidget: React.FC = () => {
           <MessageCircle size={14} aria-hidden="true" />
           <span>AI Assistant</span>
         </button>
+        </BuildItem>
       ) : (
         <div className="flex w-[390px] max-w-[calc(100vw-1.5rem)] flex-col overflow-hidden rounded-2xl border border-line-strong bg-ink/95 backdrop-blur-md shadow-2xl">
           {/* Header */}

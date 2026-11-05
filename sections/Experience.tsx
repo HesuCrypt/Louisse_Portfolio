@@ -7,6 +7,7 @@ import { experience, Job, RoleMilestone } from '../data/experience';
 import { sectionMeta } from '../data/sections';
 import { accordionTransition, containerVariants, itemVariants } from '../motion/variants';
 import { sound } from '../utils/sound';
+import { BuildItem } from '../components/builder/BuildItem';
 
 const Marker: React.FC<{ filled: boolean }> = ({ filled }) => (
   <span
@@ -115,11 +116,23 @@ export const Experience: React.FC = () => {
             index={index}
             label={label}
             title="Track Record & Leadership"
+            build={{ id: 'exp-title', section: 'experience', order: 1 }}
             meta="Click to expand role"
             description="Select any engagement below to view role progression, deliverables, and live work."
           />
 
-          <motion.div variants={itemVariants} className="mt-10 space-y-4">
+          <motion.div variants={itemVariants} className="relative mt-10 space-y-4 pl-9">
+            {/* Timeline trunk: the Path tool draws it top to bottom */}
+            <BuildItem
+              id="exp-trunk"
+              section="experience"
+              order={2}
+              type="connector"
+              className="pointer-events-none absolute top-6 bottom-6 left-3 w-px"
+            >
+              <div className="h-full w-px border-l border-dashed border-emerald-400/40" />
+            </BuildItem>
+
             {experience.map((job, position) => {
               const isMultiRole = Array.isArray(job.roles) && job.roles.length > 0;
               const isOpen = openIndex === position;
@@ -133,14 +146,30 @@ export const Experience: React.FC = () => {
                     : `${job.role} · ${job.company}`;
 
               return (
-                <div
-                  key={`${job.company}-${position}`}
-                  className={`overflow-hidden rounded-2xl border transition-all duration-300 ${
-                    isOpen
-                      ? 'border-white/30 bg-[#111216]'
-                      : 'border-white/10 bg-[#0c0d11] hover:border-white/20'
-                  }`}
-                >
+                <div key={`${job.company}-${position}`} className="relative">
+                  {/* Glowing anchor node stamped on the trunk */}
+                  <BuildItem
+                    as="span"
+                    id={`exp-node-${position}`}
+                    section="experience"
+                    order={10 + position * 4}
+                    type="stamp"
+                    className="absolute top-7 -left-[30px] block"
+                  >
+                    <span className="block h-3 w-3 rounded-full border-2 border-emerald-400 bg-ink shadow-[0_0_12px_rgba(52,211,153,0.7)]" />
+                  </BuildItem>
+
+                  <BuildItem
+                    id={`exp-card-${position}`}
+                    section="experience"
+                    order={11 + position * 4}
+                    type="frame"
+                    className={`overflow-hidden rounded-2xl border transition-all duration-300 ${
+                      isOpen
+                        ? 'border-white/30 bg-[#111216]'
+                        : 'border-white/10 bg-[#0c0d11] hover:border-white/20'
+                    }`}
+                  >
                   <button
                     type="button"
                     onClick={() => {
@@ -156,9 +185,15 @@ export const Experience: React.FC = () => {
                         <span className="tnum font-mono text-xs text-fg-dim">
                           {String(position + 1).padStart(2, '0')}
                         </span>
-                        <span className="font-sans text-base sm:text-lg font-semibold tracking-tight text-white">
-                          {heading}
-                        </span>
+                        <BuildItem
+                          as="span"
+                          id={`exp-title-${position}`}
+                          section="experience"
+                          order={12 + position * 4}
+                          type="typewriter"
+                          content={heading}
+                          className="font-sans text-base sm:text-lg font-semibold tracking-tight text-white"
+                        />
                         {job.type ? (
                           <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-0.5 font-mono text-xs text-fg-muted uppercase">
                             {job.type}
@@ -213,6 +248,7 @@ export const Experience: React.FC = () => {
                       ) : null}
                     </AnimatePresence>
                   )}
+                  </BuildItem>
                 </div>
               );
             })}

@@ -8,6 +8,7 @@ import { sectionMeta } from '../data/sections';
 import { containerVariants, itemVariants } from '../motion/variants';
 import { openAIChat } from '../ui/AIChatWidget';
 import { sound } from '../utils/sound';
+import { BuildItem } from '../components/builder/BuildItem';
 import { ArrowUpRight, Bot, ChevronDown, Quote, Star } from 'lucide-react';
 
 const endorsements = [
@@ -114,6 +115,7 @@ export const Projects: React.FC = () => {
               index={sectionIndex}
               label={label}
               title="Commercial platforms & client results"
+              build={{ id: 'proj-title', section: 'projects', order: 1 }}
               meta="4 Platforms · 2 Verified Reviews"
               description="Production systems engineered for measurable revenue, peak concurrency, and verified client satisfaction."
             />
@@ -189,10 +191,17 @@ export const Projects: React.FC = () => {
                   const quote = clientQuotes[item.company];
 
                   return (
-                    <motion.article
+                    <BuildItem
                       key={item.company}
+                      id={`proj-card-${index}`}
+                      section="projects"
+                      order={10 + index * 10}
+                      type="frame"
+                      className="h-full"
+                    >
+                    <motion.article
                       variants={itemVariants}
-                      className={`group flex flex-col justify-between rounded-2xl border p-7 transition-all duration-300 md:p-8 ${
+                      className={`group flex h-full flex-col justify-between rounded-2xl border p-7 transition-all duration-300 md:p-8 ${
                         isExpanded
                           ? 'border-white/30 bg-[#12141a]'
                           : 'border-white/10 bg-[#0c0d11] hover:-translate-y-1 hover:border-white/20'
@@ -232,7 +241,17 @@ export const Projects: React.FC = () => {
                         {/* Middle Row: Company Title + Big Outcome Metric & Telemetry Bars */}
                         <div className="mt-5 flex items-end justify-between gap-4 border-y border-line py-5">
                           <div>
-                            <H3 className="text-xl md:text-2xl">{item.company}</H3>
+                            <H3 className="text-xl md:text-2xl">
+                              <BuildItem
+                                as="span"
+                                id={`proj-title-${index}`}
+                                section="projects"
+                                order={11 + index * 10}
+                                type="typewriter"
+                                content={item.company}
+                                className="block"
+                              />
+                            </H3>
                             <p className="mt-1 font-mono text-xs text-fg-dim">
                               {meta.metricLabel}:{' '}
                               <span className="tnum font-semibold text-fg">{meta.metricNumber}</span>
@@ -258,13 +277,20 @@ export const Projects: React.FC = () => {
                         {/* Compact Footer Row */}
                         <div className="mt-4 flex items-center justify-between gap-3">
                           <div className="flex flex-wrap gap-1.5">
-                            {meta.tags.slice(0, 3).map((tag) => (
-                              <span
+                            {meta.tags.slice(0, 3).map((tag, tagIndex) => (
+                              <BuildItem
+                                as="span"
                                 key={tag}
-                                className="border border-line px-2 py-0.5 font-mono text-xs text-fg-dim"
+                                id={`proj-tag-${index}-${tagIndex}`}
+                                section="projects"
+                                order={12 + index * 10 + tagIndex}
+                                type="stamp"
+                                className="inline-flex"
                               >
-                                {tag}
-                              </span>
+                                <span className="border border-line px-2 py-0.5 font-mono text-xs text-fg-dim">
+                                  {tag}
+                                </span>
+                              </BuildItem>
                             ))}
                             {quote && (
                               <span className="inline-flex items-center gap-1 border border-emerald-500/40 bg-emerald-950/20 px-2 py-0.5 font-mono text-xs text-emerald-400">
@@ -351,6 +377,7 @@ export const Projects: React.FC = () => {
                         )}
                       </AnimatePresence>
                     </motion.article>
+                    </BuildItem>
                   );
                 })}
               </div>
@@ -369,8 +396,15 @@ export const Projects: React.FC = () => {
 
               <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
                 {endorsements.map((item, index) => (
-                  <motion.figure
+                  <BuildItem
                     key={`${item.author}-${item.company}`}
+                    id={`proj-quote-${index}`}
+                    section="projects"
+                    order={100 + index}
+                    type="frame"
+                    className="h-full"
+                  >
+                  <motion.figure
                     variants={itemVariants}
                     className="flex h-full flex-col justify-between rounded-2xl border border-white/10 bg-[#0c0d11] p-7 transition-all duration-300 hover:-translate-y-1 hover:border-white/20 md:p-8"
                   >
@@ -427,6 +461,7 @@ export const Projects: React.FC = () => {
                       </div>
                     </figcaption>
                   </motion.figure>
+                  </BuildItem>
                 ))}
               </div>
             </div>

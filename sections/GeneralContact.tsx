@@ -14,6 +14,7 @@ import { Container } from '../ui/Container';
 import { SectionHeader } from '../ui/SectionHeader';
 import { Body } from '../ui/Text';
 import { sectionMeta } from '../data/sections';
+import { ContactSteps } from '../ui/ContactSteps';
 
 const inquiryOptions = [
   'Job Opportunity',
@@ -195,193 +196,16 @@ export const GeneralContact: React.FC = () => {
             </motion.div>
 
             {/* Right: form */}
-            <motion.form
-              variants={itemVariants}
-              onSubmit={handleSubmit}
-              className="border border-line-mid bg-panel p-5 md:p-8 lg:col-span-8"
-            >
-              <div className="flex items-baseline justify-between gap-4 border-b border-line pb-4">
-                <span className="font-mono text-2xs tracking-label text-fg-dim uppercase">
-                  General Inquiry
-                </span>
-                <span className="font-mono text-2xs tracking-wider2 text-fg-faint uppercase">
-                  08 / Contact
-                </span>
-              </div>
-
-              <div className="mt-6 grid grid-cols-1 gap-5 md:grid-cols-2">
-                <label className={fieldLabelStyles}>
-                  Name
-                  <input
-                    required
-                    name="name"
-                    autoComplete="name"
-                    placeholder="Your name or company"
-                    value={formData.name}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, name: e.target.value })}
-                    className={fieldStyles}
-                  />
-                </label>
-                <label className={fieldLabelStyles}>
-                  Email
-                  <input
-                    required
-                    type="email"
-                    name="email"
-                    autoComplete="email"
-                    spellCheck={false}
-                    placeholder="you@company.com"
-                    value={formData.email}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, email: e.target.value })}
-                    className={fieldStyles}
-                  />
-                </label>
-
-                <div className={`${fieldLabelStyles} md:col-span-2`}>
-                  <span className="block">Inquiry Type</span>
-                  <input type="hidden" name="inquiryType" value={formData.inquiryType} />
-                  <div ref={dropdownRef} className="relative mt-2">
-                    <button
-                      type="button"
-                      aria-haspopup="listbox"
-                      aria-expanded={isDropdownOpen}
-                      aria-controls="general-inquiry-options"
-                      className="flex w-full items-center justify-between border border-line-mid bg-ink px-4 py-3 text-left font-sans text-[0.9375rem] text-fg transition-colors focus-visible:border-paper focus-visible:outline-none"
-                      onClick={() => setIsDropdownOpen((current: boolean) => !current)}
-                      onKeyDown={(event: React.KeyboardEvent<HTMLButtonElement>) => {
-                        if (event.key === 'ArrowDown') {
-                          event.preventDefault();
-                          setIsDropdownOpen(true);
-                          setHighlightedIndex((current: number) => getNextInquiryIndex(current, inquiryOptions));
-                        }
-
-                        if (event.key === 'ArrowUp') {
-                          event.preventDefault();
-                          setIsDropdownOpen(true);
-                          setHighlightedIndex((current: number) => getPreviousInquiryIndex(current, inquiryOptions));
-                        }
-
-                        if (event.key === 'Enter' || event.key === ' ') {
-                          event.preventDefault();
-                          setIsDropdownOpen((current: boolean) => !current);
-                        }
-
-                        if (event.key === 'Escape') {
-                          setIsDropdownOpen(false);
-                        }
-                      }}
-                    >
-                      <span className={formData.inquiryType ? 'text-fg' : 'text-fg-faint'}>
-                        {selectedInquiryLabel}
-                      </span>
-                      <ChevronDown
-                        size={16}
-                        aria-hidden="true"
-                        className={`text-fg-dim transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`}
-                      />
-                    </button>
-
-                    {isDropdownOpen ? (
-                      <div className="absolute left-0 right-0 z-20 mt-px border border-line-strong bg-ink">
-                        <p className="border-b border-line px-3.5 py-2 font-mono text-2xs tracking-wider2 text-fg-faint uppercase">
-                          Select Inquiry Type
-                        </p>
-                        <ul id="general-inquiry-options" role="listbox" aria-label="Inquiry Type">
-                          {inquiryOptions.map((option, index) => (
-                            <li key={option} className="border-b border-line last:border-b-0">
-                              <button
-                                ref={(element: HTMLButtonElement | null) => {
-                                  optionRefs.current[index] = element;
-                                }}
-                                type="button"
-                                role="option"
-                                aria-selected={formData.inquiryType === option}
-                                className={`flex w-full items-center gap-3 px-3.5 py-3 text-left font-mono text-xs tracking-wider2 uppercase transition-colors focus-visible:outline-none ${
-                                  highlightedIndex === index || formData.inquiryType === option
-                                    ? 'bg-paper text-ink'
-                                    : 'text-fg-dim hover:bg-panel-2 hover:text-fg'
-                                }`}
-                                onClick={() => selectInquiryType(option, index)}
-                                onMouseEnter={() => setHighlightedIndex(index)}
-                                onKeyDown={(event: React.KeyboardEvent<HTMLButtonElement>) => {
-                                  if (event.key === 'ArrowDown') {
-                                    event.preventDefault();
-                                    setHighlightedIndex((current: number) => getNextInquiryIndex(current, inquiryOptions));
-                                  }
-
-                                  if (event.key === 'ArrowUp') {
-                                    event.preventDefault();
-                                    setHighlightedIndex((current: number) => getPreviousInquiryIndex(current, inquiryOptions));
-                                  }
-
-                                  if (event.key === 'Home') {
-                                    event.preventDefault();
-                                    setHighlightedIndex(0);
-                                  }
-
-                                  if (event.key === 'End') {
-                                    event.preventDefault();
-                                    setHighlightedIndex(inquiryOptions.length - 1);
-                                  }
-
-                                  if (event.key === 'Escape') {
-                                    event.preventDefault();
-                                    setIsDropdownOpen(false);
-                                  }
-                                }}
-                              >
-                                <span
-                                  className={`h-1.5 w-1.5 shrink-0 ${
-                                    highlightedIndex === index || formData.inquiryType === option
-                                      ? 'bg-ink'
-                                      : 'bg-line-strong'
-                                  }`}
-                                  aria-hidden="true"
-                                />
-                                {option}
-                              </button>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    ) : null}
-                  </div>
-                </div>
-
-                <label className={`${fieldLabelStyles} md:col-span-2`}>
-                  Message
-                  <textarea
-                    required
-                    name="message"
-                    rows={5}
-                    value={formData.message}
-                    onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setFormData({ ...formData, message: e.target.value })}
-                    placeholder="Tell me a bit about the role, project, or opportunity…"
-                    className={`${fieldStyles} resize-y`}
-                  />
-                </label>
-              </div>
-
-              <div className="mt-7 flex flex-col gap-4 border-t border-line pt-6 sm:flex-row sm:items-center sm:justify-between">
-                <p className="max-w-[46ch] font-mono text-2xs leading-relaxed text-fg-faint uppercase">
-                  By sending this message you agree to the Privacy Policy and Terms.
-                </p>
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="inline-flex shrink-0 items-center justify-center gap-2 border border-paper bg-paper px-5 py-3 font-mono text-[11px] tracking-wider2 text-ink uppercase transition-colors duration-200 hover:bg-ink hover:text-paper disabled:opacity-60"
-                >
-                  <span>{isSubmitting ? 'Sending…' : 'Send Message'}</span>
-                  <ArrowUpRight size={13} />
-                </button>
-              </div>
-
-              {submitFeedback ? (
-                <p className="mt-4 font-mono text-2xs tracking-wider2 text-fg-muted uppercase" aria-live="polite">
-                  {submitFeedback}
-                </p>
-              ) : null}
-            </motion.form>
+            <motion.div variants={itemVariants} className="lg:col-span-8">
+              <ContactSteps
+                options={inquiryOptions}
+                formData={formData}
+                setFormData={setFormData}
+                isSubmitting={isSubmitting}
+                feedback={submitFeedback}
+                onSubmit={handleSubmit}
+              />
+            </motion.div>
           </div>
         </motion.div>
       </Container>
