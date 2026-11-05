@@ -87,8 +87,8 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-describe('dual-cursor builder engine', () => {
-  it('keeps every element in layout but hidden before workers reach them', async () => {
+describe('single high-speed builder engine', () => {
+  it('keeps every element in layout but hidden before builder reaches them', async () => {
     root.render(<Page />);
     await vi.waitFor(() => expect(stateOf('a-nav')).toBeDefined());
 
@@ -99,7 +99,7 @@ describe('dual-cursor builder engine', () => {
     }
   });
 
-  it('runs dual concurrent workers through all sections including referral banner', async () => {
+  it('runs sequentially through all sections including referral banner', async () => {
     const seen: string[] = [];
     const observer = new MutationObserver(() => {
       for (const id of ['a-nav', 'a-title', 'a-btn', 'a-stat', 'ref-card', 'b-below']) {
