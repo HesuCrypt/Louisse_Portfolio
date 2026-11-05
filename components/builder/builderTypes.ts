@@ -16,11 +16,10 @@ export type BuilderSection =
   | 'completed';
 
 /**
- * cursor  - desktop: the autonomous cursor builds the page.
- * lite    - mobile/touch: no cursor, staggered fade-in on scroll.
+ * cursor  - desktop & mobile: the autonomous cursor / AI spark tracer builds the page.
  * instant - returning visitor, skipped, reduced-motion, or non-home route.
  */
-export type BuilderMode = 'cursor' | 'lite' | 'instant';
+export type BuilderMode = 'cursor' | 'instant';
 
 export type ToolKind = 'idle' | 'frame' | 'type' | 'stamp' | 'counter' | 'path';
 

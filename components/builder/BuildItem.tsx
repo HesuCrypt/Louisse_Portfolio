@@ -167,28 +167,6 @@ export const BuildItem: React.FC<BuildItemProps> = ({
         ? formattedCounter
         : children;
 
-  /* ---------------- mobile / touch: staggered fade on scroll ---------------- */
-  if (mode === 'lite') {
-    const text = type === 'typewriter' ? renderRuns(resolvedText ?? '', 0, textAccent) : null;
-    const liteCounter = formatCounterTarget(targetValue, 1);
-    return (
-      <MotionTag
-        ref={rootRef}
-        className={className}
-        initial={{ opacity: 0, y: 14 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: '-6%' }}
-        transition={{ duration: 0.45, delay: (order % 8) * 0.08, ease: [0.16, 1, 0.3, 1] }}
-      >
-        {type === 'typewriter'
-          ? text ?? children
-          : typeof children === 'function'
-            ? children({ progress: 1, done: true, formattedValue: liteCounter })
-            : children ?? liteCounter}
-      </MotionTag>
-    );
-  }
-
   /* ----------------------------- typewriter -------------------------------- */
   if (type === 'typewriter') {
     const text = resolvedText ?? (typeof children === 'string' ? children : '');

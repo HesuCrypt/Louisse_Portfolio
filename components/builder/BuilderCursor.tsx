@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useEffect, useRef } from 'react';
-import { FastForward, Volume2, VolumeX } from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
+import { FastForward, Volume2, VolumeX, X } from 'lucide-react';
 import { useBuilder } from './DOMSequenceRegistry';
 import type { ToolKind } from './builderTypes';
 
@@ -20,22 +20,40 @@ const ACCENT = {
 } as const;
 
 /**
- * The single autonomous collaborator pointer.
- *
- * Painted imperatively from the engine's mutable cursor model inside one rAF
- * loop, so a 60fps cursor never triggers a React render. Coordinates are kept
- * in DOCUMENT space and converted with the live scroll offset every frame,
- * which keeps the pointer glued to its target while the visitor scrolls.
+ * The autonomous collaborator pointer with responsive dual-mode presentation:
+ * - Desktop (>= 768px): High-precision Figma-style SVG pointer arrow + floating tool tags.
+ * - Mobile (< 768px): Sleek, glowing "AI Energy Spark" tracer dot (10px x 10px circular node
+ *   with pulsing radial glow and stamp ping rings), hiding bulky tags to keep narrow screens clean.
  */
 export const BuilderCursor: React.FC = () => {
   const { mode, cursor, isBuilding, isFinished, isMuted, toggleMute, skipAll } = useBuilder();
 
+  const [isMobile, setIsMobile] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      return window.innerWidth < 768;
+    }
+    return false;
+  });
+
   const groupRef = useRef<HTMLDivElement>(null);
   const arrowRef = useRef<HTMLDivElement>(null);
+  const sparkRef = useRef<HTMLDivElement>(null);
+  const pingRingRef = useRef<HTMLSpanElement>(null);
   const caretRef = useRef<HTMLSpanElement>(null);
   const badgeRef = useRef<HTMLDivElement>(null);
   const frameRef = useRef<HTMLDivElement>(null);
   const frameSizeRef = useRef<HTMLSpanElement>(null);
+
+  // Responsive breakpoint listener
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const checkViewport = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkViewport();
+    window.addEventListener('resize', checkViewport, { passive: true });
+    return () => window.removeEventListener('resize', checkViewport);
+  }, []);
 
   useEffect(() => {
     if (mode !== 'cursor') return undefined;
@@ -43,6 +61,7 @@ export const BuilderCursor: React.FC = () => {
     let frameId = 0;
     let opacity = 0;
     let lastTool: ToolKind | null = null;
+    let wasDown = false;
 
     const paint = () => {
       const sx = window.scrollX;
@@ -57,20 +76,45 @@ export const BuilderCursor: React.FC = () => {
         group.style.transform = `translate3d(${(cursor.x - sx).toFixed(2)}px, ${(cursor.y - sy).toFixed(2)}px, 0)`;
       }
 
+      // Desktop arrow scaling
       if (arrowRef.current) {
         arrowRef.current.style.transform = cursor.down ? 'scale(0.85)' : 'scale(1)';
       }
+
+      // Mobile spark scaling & stamp ping animation
+      if (sparkRef.current) {
+        sparkRef.current.style.transform = cursor.down ? 'scale(1.3)' : 'scale(1)';
+      }
+
+      // Mobile radial ping ring when stamping/clicking
+      if (pingRingRef.current) {
+        if (cursor.down && !wasDown) {
+          pingRingRef.current.style.transition = 'none';
+          pingRingRef.current.style.transform = 'translate(-50%, -50%) scale(1)';
+          pingRingRef.current.style.opacity = '0.85';
+          requestAnimationFrame(() => {
+            if (pingRingRef.current) {
+              pingRingRef.current.style.transition = 'transform 180ms ease-out, opacity 180ms ease-out';
+              pingRingRef.current.style.transform = 'translate(-50%, -50%) scale(2.4)';
+              pingRingRef.current.style.opacity = '0';
+            }
+          });
+        }
+      }
+      wasDown = cursor.down;
 
       if (caretRef.current) {
         caretRef.current.style.display = cursor.caret ? 'block' : 'none';
         caretRef.current.style.height = `${Math.max(14, cursor.caretH)}px`;
       }
 
+      // Desktop badge text
       if (badgeRef.current && lastTool !== cursor.tool) {
         lastTool = cursor.tool;
         badgeRef.current.textContent = TOOL_LABEL[cursor.tool];
       }
 
+      // Frame selection box / animated border trace
       const frame = frameRef.current;
       if (frame) {
         const box = cursor.frame;
@@ -85,8 +129,15 @@ export const BuilderCursor: React.FC = () => {
           frame.style.height = `${Math.max(0, box.h).toFixed(2)}px`;
           frame.style.border = `1.5px ${flash ? 'solid' : 'dashed'} ${colors.line}`;
           frame.style.background = flash ? colors.fill : 'rgba(255,255,255,0.02)';
-          frame.style.boxShadow = flash ? `0 0 28px ${colors.glow}` : 'none';
+          frame.style.boxShadow = flash
+            ? `0 0 28px ${colors.glow}`
+            : isMobile
+              ? `0 0 12px ${colors.glow}`
+              : 'none';
+
           if (frameSizeRef.current) {
+            // Hide frame dimensions badge on mobile screens to prevent clutter
+            frameSizeRef.current.style.display = isMobile ? 'none' : 'block';
             frameSizeRef.current.textContent = `${Math.round(box.w)} × ${Math.round(box.h)}`;
           }
         }
@@ -97,13 +148,13 @@ export const BuilderCursor: React.FC = () => {
 
     frameId = requestAnimationFrame(paint);
     return () => cancelAnimationFrame(frameId);
-  }, [mode, cursor, isFinished]);
+  }, [mode, cursor, isFinished, isMobile]);
 
   if (mode !== 'cursor') return null;
 
   return (
     <>
-      {/* Simulated layer: never intercepts the visitor's real mouse. */}
+      {/* Simulated layer: never intercepts user gestures */}
       <div className="pointer-events-none fixed inset-0 z-[9999] overflow-hidden" aria-hidden="true">
         <div
           ref={frameRef}
@@ -121,66 +172,108 @@ export const BuilderCursor: React.FC = () => {
           className="absolute top-0 left-0"
           style={{ opacity: 0, willChange: 'transform, opacity' }}
         >
-          {/* Typewriter caret sits exactly at the leading edge of typed text. */}
+          {/* Typewriter caret sits at leading edge of typed text */}
           <span
             ref={caretRef}
             className="absolute top-0 left-[-1px] hidden w-[2px] animate-pulse rounded-full bg-emerald-300"
             style={{ boxShadow: '0 0 10px #10B981' }}
           />
 
-          {/* High-precision Figma-style arrow; the tip is the (0,0) anchor. */}
-          <div
-            ref={arrowRef}
-            className="origin-top-left transition-transform duration-75"
-            style={{ filter: 'drop-shadow(0 3px 6px rgba(0,0,0,0.7))' }}
-          >
-            <svg width="22" height="26" viewBox="0 0 22 26" fill="none">
-              <path
-                d="M1.5 1.2 L1.5 19.4 L6.2 15.1 L9.4 22.6 L12.6 21.2 L9.5 13.9 L15.8 13.7 Z"
-                fill="#10B981"
-                stroke="#022c22"
-                strokeWidth="1.4"
-                strokeLinejoin="round"
+          {isMobile ? (
+            /* =========================================================== */
+            /* MOBILE: AI Energy Spark Node (10px x 10px glowing dot)     */
+            /* =========================================================== */
+            <div className="relative -left-[5px] -top-[5px] h-[10px] w-[10px]">
+              {/* Radial ping ring for button stamps */}
+              <span
+                ref={pingRingRef}
+                className="pointer-events-none absolute left-1/2 top-1/2 h-[18px] w-[18px] rounded-full border border-emerald-400 opacity-0"
               />
-            </svg>
-          </div>
 
-          <div
-            ref={badgeRef}
-            className="absolute top-5 left-4 rounded-md border border-emerald-400/50 bg-[#05100c]/95 px-2 py-1 font-mono text-[11px] leading-none whitespace-nowrap text-emerald-300 shadow-xl"
-          >
-            {TOOL_LABEL.idle}
-          </div>
+              {/* Core pulsing energy spark */}
+              <div
+                ref={sparkRef}
+                className="relative h-full w-full rounded-full bg-emerald-400 shadow-[0_0_15px_#10B981] transition-transform duration-75"
+              >
+                <span className="absolute inset-0 animate-ping rounded-full bg-emerald-300 opacity-70" />
+                <span className="absolute inset-[2px] rounded-full bg-white opacity-90" />
+              </div>
+            </div>
+          ) : (
+            /* =========================================================== */
+            /* DESKTOP: High-precision SVG pointer arrow + tool tags      */
+            /* =========================================================== */
+            <>
+              <div
+                ref={arrowRef}
+                className="origin-top-left transition-transform duration-75"
+                style={{ filter: 'drop-shadow(0 3px 6px rgba(0,0,0,0.7))' }}
+              >
+                <svg width="22" height="26" viewBox="0 0 22 26" fill="none">
+                  <path
+                    d="M1.5 1.2 L1.5 19.4 L6.2 15.1 L9.4 22.6 L12.6 21.2 L9.5 13.9 L15.8 13.7 Z"
+                    fill="#10B981"
+                    stroke="#022c22"
+                    strokeWidth="1.4"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </div>
+
+              <div
+                ref={badgeRef}
+                className="absolute top-5 left-4 rounded-md border border-emerald-400/50 bg-[#05100c]/95 px-2 py-1 font-mono text-[11px] leading-none whitespace-nowrap text-emerald-300 shadow-xl"
+              >
+                {TOOL_LABEL.idle}
+              </div>
+            </>
+          )}
         </div>
       </div>
 
-      {/* Skip + mute controls (pointer-events-auto). */}
+      {/* Controls UI (pointer-events-auto) */}
       {isBuilding && (
         <div
-          className="pointer-events-auto fixed right-4 z-[9999] flex items-center gap-2"
-          style={{ top: 'calc(var(--topbar-h, 64px) + var(--strip-h, 0px) + 12px)' }}
+          className="pointer-events-auto fixed right-3 z-[9999] flex items-center gap-2 sm:right-4"
+          style={{ top: 'calc(var(--topbar-h, 64px) + var(--strip-h, 0px) + 10px)' }}
         >
-          <button
-            type="button"
-            onClick={toggleMute}
-            aria-pressed={isMuted}
-            className="flex cursor-pointer items-center gap-1.5 rounded-full border border-white/15 bg-black/80 px-3 py-1.5 font-mono text-[11px] tracking-wider text-white/80 uppercase backdrop-blur-md transition-colors hover:border-emerald-400 hover:text-emerald-300"
-          >
-            {isMuted ? <VolumeX size={12} /> : <Volume2 size={12} />}
-            <span>[ Audio: {isMuted ? 'OFF' : 'ON'} ]</span>
-          </button>
-          <button
-            type="button"
-            onClick={skipAll}
-            className="flex cursor-pointer items-center gap-2 rounded-full border border-white/15 bg-black/80 px-3 py-1.5 font-mono text-[11px] tracking-wider text-white/80 uppercase backdrop-blur-md transition-colors hover:border-emerald-400 hover:text-emerald-300"
-          >
-            <FastForward size={12} className="text-emerald-400" />
-            <span>[ Skip Build (ESC) ]</span>
-          </button>
+          {isMobile ? (
+            /* Mobile compact floating pill escape hatch */
+            <button
+              type="button"
+              onClick={skipAll}
+              className="flex cursor-pointer items-center gap-1.5 rounded-full border border-white/10 bg-zinc-900/80 px-3 py-1 font-mono text-xs tracking-wider text-zinc-200 uppercase shadow-lg backdrop-blur"
+              aria-label="Skip animation"
+            >
+              <span>Skip</span>
+              <X size={12} className="text-emerald-400" />
+            </button>
+          ) : (
+            /* Desktop controls: Audio + Skip Build */
+            <>
+              <button
+                type="button"
+                onClick={toggleMute}
+                aria-pressed={isMuted}
+                className="flex cursor-pointer items-center gap-1.5 rounded-full border border-white/15 bg-black/80 px-3 py-1.5 font-mono text-[11px] tracking-wider text-white/80 uppercase backdrop-blur-md transition-colors hover:border-emerald-400 hover:text-emerald-300"
+              >
+                {isMuted ? <VolumeX size={12} /> : <Volume2 size={12} />}
+                <span>[ Audio: {isMuted ? 'OFF' : 'ON'} ]</span>
+              </button>
+              <button
+                type="button"
+                onClick={skipAll}
+                className="flex cursor-pointer items-center gap-2 rounded-full border border-white/15 bg-black/80 px-3 py-1.5 font-mono text-[11px] tracking-wider text-white/80 uppercase backdrop-blur-md transition-colors hover:border-emerald-400 hover:text-emerald-300"
+              >
+                <FastForward size={12} className="text-emerald-400" />
+                <span>[ Skip Build (ESC) ]</span>
+              </button>
+            </>
+          )}
         </div>
       )}
 
-      {/* Docking Gesture: permanent miniature badge once everything is assembled. */}
+      {/* Docking Gesture: badge once everything is assembled */}
       {isFinished && (
         <div
           className="pointer-events-none fixed right-4 z-[9999] flex items-center gap-2 rounded-full border border-emerald-400/40 bg-black/85 px-3 py-1.5 font-mono text-[11px] tracking-wider text-emerald-300 uppercase backdrop-blur-md"

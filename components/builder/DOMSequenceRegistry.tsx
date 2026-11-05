@@ -121,8 +121,7 @@ function detectMode(enabled: boolean): BuilderMode {
   if (typeof window === 'undefined' || !enabled) return 'instant';
   if (readBuilt()) return 'instant';
   if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return 'instant';
-  const touch = window.matchMedia?.('(pointer: coarse)').matches ?? false;
-  if (touch || window.innerWidth < 768) return 'lite';
+  // Both desktop and mobile run the autonomous build (mobile uses the AI Spark Tracer)
   return 'cursor';
 }
 
@@ -350,7 +349,7 @@ export const BuilderProvider: React.FC<BuilderProviderProps> = ({
       isMuted,
       hasSkipped,
       epoch,
-      canReplay: enabled && mode !== 'lite',
+      canReplay: enabled,
       registeredQueue: queueSnapshot,
       currentStepIndex,
       completedIds: completedSnapshot,

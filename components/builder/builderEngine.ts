@@ -11,8 +11,9 @@ import type { BuilderAudioApi } from '../../lib/builderAudio';
  *
  * Everything here is driven by the REAL DOM:
  * - Robust resolveElementRef polling to eliminate silent skips.
- * - Smooth scroll coordination with post-scroll settle check.
+ * - Smooth scroll coordination with mobile offset compensation for bottom URL bars.
  * - Dynamic sub-pixel tracking in document space.
+ * - Native mobile micro-vibrations / haptic feedback.
  */
 
 export interface CancelToken {
@@ -59,6 +60,17 @@ function compareElements(a: BuildElement, b: BuildElement): number {
   return a.id.localeCompare(b.id);
 }
 
+/** Micro-vibration haptic feedback for supported mobile devices */
+function triggerHaptic(durationMs: number) {
+  if (typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function') {
+    try {
+      navigator.vibrate(durationMs);
+    } catch {
+      // Haptics disabled or unavailable
+    }
+  }
+}
+
 /**
  * Robustly resolve an element's DOM node with a retry/poll window up to `maxWaitMs`.
  * Eliminates silent skips caused by hydration or re-rendering latencies.
@@ -82,23 +94,29 @@ async function resolveElementRef(
 
 /**
  * Ensures `node` is comfortably centered in the viewport.
- * If the element is outside the comfortable vertical zone (top 15% - 85%),
- * smoothly scrolls the viewport to position the element near the center.
+ * On mobile devices (< 768px), accounts for bottom browser chrome/URL bars
+ * by centering elements in the upper-middle viewport (offset: window.innerHeight * 0.35).
  */
 async function ensureInViewport(token: CancelToken, node: HTMLElement, speed = 1): Promise<void> {
   if (typeof window === 'undefined') return;
   const rect = node.getBoundingClientRect();
   const vh = window.innerHeight || 800;
+  const isMobile = window.innerWidth < 768;
 
-  // If element is already nicely visible within top 15% to 80% of screen, no scroll needed
-  if (rect.top >= vh * 0.12 && rect.bottom <= vh * 0.88) {
+  // On mobile, keep elements within 10% - 75% to stay clear of virtual address/nav bars
+  const minTop = vh * 0.10;
+  const maxBottom = isMobile ? vh * 0.75 : vh * 0.88;
+
+  if (rect.top >= minTop && rect.bottom <= maxBottom) {
     return;
   }
 
-  // Calculate ideal scroll position: center element vertically
-  const elementDocY = rect.top + window.scrollY;
-  const targetScrollY = Math.max(0, elementDocY - vh * 0.38);
+  // Calculate target scroll offset (mobile uses 0.35 offset to center in upper-middle viewport)
+  const mobileOffset = vh * 0.35;
+  const desktopOffset = vh * 0.38;
+  const offset = isMobile ? mobileOffset : desktopOffset;
 
+  const targetScrollY = Math.max(0, window.scrollY + rect.top - offset);
   const startY = window.scrollY;
   const delta = Math.abs(targetScrollY - startY);
   if (delta < 20) return;
@@ -228,6 +246,7 @@ async function stampGesture(token: CancelToken, h: EngineHooks, el: BuildElement
 
   h.cursor.down = true;
   await sleep(55 / speed);
+  triggerHaptic(25); // Stamp micro-vibration
   h.audio.playStampPop();
   reveal(el);
   h.cursor.down = false;
@@ -281,6 +300,7 @@ async function frameGesture(token: CancelToken, h: EngineHooks, el: BuildElement
     phase: 'flash',
     accent,
   };
+  triggerHaptic(15); // Frame snap micro-vibration
   h.audio.playFrameSnap();
   reveal(el);
   await sleep(130 / speed);
@@ -323,7 +343,10 @@ async function typewriterGesture(
     const chars = Math.round(p * text.length);
     el.onProgress?.(p);
     for (let i = typed; i < chars; i += 1) {
-      if (text[i] !== ' ') h.audio.playKeyClick();
+      if (text[i] !== ' ') {
+        h.audio.playKeyClick();
+        triggerHaptic(5); // Ultra-light typing tick
+      }
     }
     typed = chars;
     const pt = caretPoint();
@@ -346,6 +369,7 @@ async function counterGesture(token: CancelToken, h: EngineHooks, el: BuildEleme
   cursor.down = true;
   await sleep(55 / speed);
   cursor.down = false;
+  triggerHaptic(20);
   h.audio.playStampPop();
   reveal(el); // label appears on the click, number still at 0
 
@@ -358,6 +382,7 @@ async function counterGesture(token: CancelToken, h: EngineHooks, el: BuildEleme
     if (tick !== lastTick) {
       lastTick = tick;
       h.audio.playCounterBlip();
+      triggerHaptic(5);
     }
   });
   await sleep(80 / speed);
@@ -397,10 +422,12 @@ async function connectorGesture(
     if (now() - lastBlip > 70) {
       lastBlip = now();
       h.audio.playCounterBlip();
+      triggerHaptic(5);
     }
   });
 
   cursor.down = false;
+  triggerHaptic(15);
   h.audio.playFrameSnap();
   await sleep(60 / speed);
 }
@@ -429,7 +456,8 @@ async function build(token: CancelToken, h: EngineHooks, el: BuildElement, node:
  *
  * Continuous autonomous tour:
  * - Robust resolveElementRef polling to eliminate silent skips.
- * - Automatically scrolls the window to center elements as they come up in sequence.
+ * - Automatically scrolls the window with mobile chrome compensation to center elements.
+ * - Triggers haptic feedback ticks on supported touch devices.
  * - Resolves true when the whole queue was built, false if it was cancelled.
  */
 export async function runBuild(token: CancelToken, h: EngineHooks): Promise<boolean> {
