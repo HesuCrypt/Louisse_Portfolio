@@ -13,7 +13,10 @@ import type { BuilderAudioApi } from '../../lib/builderAudio';
  * - Worker Alpha (Cursor A / Spark A - Emerald): Handles frames, headings, containers, copy.
  * - Worker Beta (Cursor B / Spark B - Cyan): Handles badges, numbers, buttons, clicks, pills.
  *
- * Halves the total watch duration while keeping the tactile mechanical aesthetic.
+ * Performance Hardened:
+ * - Pre-calculates DOM bounding boxes once per gesture, eliminating layout thrashing.
+ * - Hardware accelerated CSS transforms (translate3d) with will-change.
+ * - Hard guards on audio state and direct hardware synchronization.
  */
 
 export interface CancelToken {
@@ -26,11 +29,9 @@ export interface EngineHooks {
   markDone(id: string): void;
   cursorAlpha: CursorModel;
   cursorBeta: CursorModel;
-  /** Backwards compatible alias */
   cursor?: CursorModel;
   audio: BuilderAudioApi;
   onSection(section: BuilderSection): void;
-  /** Multiplies every duration down. 1 = authored pace. */
   speed?: number;
 }
 
@@ -63,7 +64,6 @@ function compareElements(a: BuildElement, b: BuildElement): number {
   return a.id.localeCompare(b.id);
 }
 
-/** Micro-vibration haptic feedback for supported mobile devices */
 function triggerHaptic(durationMs: number) {
   if (typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function') {
     try {
@@ -74,11 +74,6 @@ function triggerHaptic(durationMs: number) {
   }
 }
 
-/**
- * Assigns an element to Track Alpha or Beta if channel is 'auto'.
- * Alpha: containers, frames, typewriter text, timeline connectors.
- * Beta: stamps, counters, button clicks, tags, badges.
- */
 function resolveChannel(el: BuildElement): 'alpha' | 'beta' {
   if (el.channel === 'alpha' || el.channel === 'beta') return el.channel;
   if (el.type === 'frame' || el.type === 'typewriter' || el.type === 'connector') {
@@ -87,10 +82,6 @@ function resolveChannel(el: BuildElement): 'alpha' | 'beta' {
   return 'beta';
 }
 
-/**
- * Robustly resolve an element's DOM node with a retry/poll window up to `maxWaitMs`.
- * Eliminates silent skips caused by hydration or re-rendering latencies.
- */
 async function resolveElementRef(
   token: CancelToken,
   el: BuildElement,
@@ -108,9 +99,6 @@ async function resolveElementRef(
   return finalNode && finalNode.isConnected ? finalNode : null;
 }
 
-/**
- * Ensures `node` is comfortably centered in the viewport.
- */
 async function ensureInViewport(token: CancelToken, node: HTMLElement, speed = 1): Promise<void> {
   if (typeof window === 'undefined') return;
   const rect = node.getBoundingClientRect();
@@ -158,30 +146,30 @@ async function ensureInViewport(token: CancelToken, node: HTMLElement, speed = 1
 }
 
 /* ------------------------------------------------------------------------ */
-/* Primitives                                                                */
+/* Primitives & Smooth Non-Thrashing Tweening                              */
 /* ------------------------------------------------------------------------ */
 
 function moveDuration(distance: number, speed: number): number {
   return clamp(120 + distance * 0.32, 120, 560) / speed;
 }
 
-function glide(
+function glideTo(
   token: CancelToken,
   cursor: CursorModel,
-  target: () => Point,
+  targetPoint: Point,
   ms: number
 ): Promise<void> {
   return new Promise((resolve) => {
-    const from = { x: cursor.x, y: cursor.y };
+    const fromX = cursor.x;
+    const fromY = cursor.y;
     const startedAt = now();
 
     const step = () => {
       if (token.cancelled) return resolve();
       const p = clamp((now() - startedAt) / ms, 0, 1);
       const e = easeInOut(p);
-      const to = target();
-      cursor.x = from.x + (to.x - from.x) * e;
-      cursor.y = from.y + (to.y - from.y) * e;
+      cursor.x = fromX + (targetPoint.x - fromX) * e;
+      cursor.y = fromY + (targetPoint.y - fromY) * e;
       if (p < 1) raf(step);
       else resolve();
     };
@@ -207,35 +195,28 @@ function run(
   });
 }
 
-function centerOf(node: HTMLElement): () => Point {
-  return () => {
-    const r = node.getBoundingClientRect();
-    return toDoc(r.left + r.width / 2, r.top + r.height / 2);
-  };
-}
-
 function dist(a: Point, b: Point): number {
   return Math.hypot(a.x - b.x, a.y - b.y);
 }
 
-async function travel(
+async function travelTo(
   token: CancelToken,
   cursor: CursorModel,
   audio: BuilderAudioApi,
-  target: () => Point,
+  targetPoint: Point,
   speed: number,
   minMs = 0
 ): Promise<void> {
-  const distance = dist({ x: cursor.x, y: cursor.y }, target());
+  const distance = dist({ x: cursor.x, y: cursor.y }, targetPoint);
   const ms = Math.max(moveDuration(distance, speed), minMs);
   if (typeof window !== 'undefined' && distance > window.innerHeight * 0.5) {
     audio.playWhoosh(ms);
   }
-  await glide(token, cursor, target, ms);
+  await glideTo(token, cursor, targetPoint, ms);
 }
 
 /* ------------------------------------------------------------------------ */
-/* Gestures                                                                  */
+/* Zero-Jank Gestures: Measure DOM once per gesture                         */
 /* ------------------------------------------------------------------------ */
 
 function reveal(el: BuildElement) {
@@ -256,8 +237,11 @@ async function stampGesture(
   el: BuildElement,
   node: HTMLElement
 ) {
+  const r = node.getBoundingClientRect();
+  const center = toDoc(r.left + r.width / 2, r.top + r.height / 2);
+
   cursor.tool = 'stamp';
-  await travel(token, cursor, audio, centerOf(node), speed);
+  await travelTo(token, cursor, audio, center, speed);
   if (token.cancelled) return;
 
   cursor.down = true;
@@ -277,19 +261,21 @@ async function clickGesture(
   el: BuildElement,
   node: HTMLElement
 ) {
+  const r = node.getBoundingClientRect();
+  const center = toDoc(r.left + r.width / 2, r.top + r.height / 2);
+
   cursor.tool = 'stamp';
-  await travel(token, cursor, audio, centerOf(node), speed);
+  await travelTo(token, cursor, audio, center, speed);
   if (token.cancelled) return;
 
   cursor.down = true;
   await sleep(65 / speed);
   triggerHaptic(20);
   audio.playStampPop();
-  // Trigger DOM click event if node is clickable
   try {
     node.click();
   } catch {
-    // Ignore click dispatch errors
+    // Ignore click error
   }
   reveal(el);
   cursor.down = false;
@@ -305,45 +291,43 @@ async function frameGesture(
   node: HTMLElement
 ) {
   const accent = el.accent ?? 'emerald';
-  const corners = () => {
-    const r = node.getBoundingClientRect();
-    return { tl: toDoc(r.left, r.top), br: toDoc(r.right, r.bottom), w: r.width, h: r.height };
-  };
+  const r = node.getBoundingClientRect();
+  const tl = toDoc(r.left, r.top);
+  const br = toDoc(r.right, r.bottom);
+  const width = r.width;
+  const height = r.height;
 
   cursor.tool = 'frame';
-  await travel(token, cursor, audio, () => corners().tl, speed);
+  await travelTo(token, cursor, audio, tl, speed);
   if (token.cancelled) return;
 
-  const start = corners();
   cursor.down = true;
-  cursor.frame = { x: start.tl.x, y: start.tl.y, w: 0, h: 0, phase: 'drag', accent };
+  cursor.frame = { x: tl.x, y: tl.y, w: 0, h: 0, phase: 'drag', accent };
   await sleep(45 / speed);
 
-  const diagonal = Math.hypot(start.w, start.h);
+  const diagonal = Math.hypot(width, height);
   const dragMs = clamp(240 + diagonal * 0.28, 300, 620) / speed;
   await run(token, dragMs, (p) => {
-    const c = corners();
     const e = easeInOut(p);
-    cursor.x = c.tl.x + (c.br.x - c.tl.x) * e;
-    cursor.y = c.tl.y + (c.br.y - c.tl.y) * e;
+    cursor.x = tl.x + (br.x - tl.x) * e;
+    cursor.y = tl.y + (br.y - tl.y) * e;
     cursor.frame = {
-      x: c.tl.x,
-      y: c.tl.y,
-      w: (c.br.x - c.tl.x) * e,
-      h: (c.br.y - c.tl.y) * e,
+      x: tl.x,
+      y: tl.y,
+      w: (br.x - tl.x) * e,
+      h: (br.y - tl.y) * e,
       phase: 'drag',
       accent,
     };
   });
   if (token.cancelled) return;
 
-  const end = corners();
   cursor.down = false;
   cursor.frame = {
-    x: end.tl.x,
-    y: end.tl.y,
-    w: end.br.x - end.tl.x,
-    h: end.br.y - end.tl.y,
+    x: tl.x,
+    y: tl.y,
+    w: width,
+    h: height,
     phase: 'flash',
     accent,
   };
@@ -363,19 +347,13 @@ async function typewriterGesture(
   node: HTMLElement
 ) {
   const text = el.content ?? el.textContent ?? node.textContent ?? '';
-
-  const caretPoint = (): Point => {
-    const c = el.getCaret?.();
-    if (c) {
-      cursor.caretH = c.h;
-      return toDoc(c.x, c.y);
-    }
-    const r = node.getBoundingClientRect();
-    return toDoc(r.left, r.top);
-  };
+  const r = node.getBoundingClientRect();
+  const c = el.getCaret?.();
+  const caretPos = c ? toDoc(c.x, c.y) : toDoc(r.left, r.top);
+  cursor.caretH = c ? c.h : Math.min(r.height, 18);
 
   cursor.tool = 'type';
-  await travel(token, cursor, audio, caretPoint, speed);
+  await travelTo(token, cursor, audio, caretPos, speed);
   if (token.cancelled) return;
 
   cursor.down = true;
@@ -396,9 +374,14 @@ async function typewriterGesture(
       }
     }
     typed = chars;
-    const pt = caretPoint();
-    cursor.x = pt.x;
-    cursor.y = pt.y;
+
+    // Read caret incrementally only during typing
+    const currentC = el.getCaret?.();
+    if (currentC) {
+      const pt = toDoc(currentC.x, currentC.y);
+      cursor.x = pt.x;
+      cursor.y = pt.y;
+    }
   });
 
   cursor.caret = false;
@@ -413,8 +396,11 @@ async function counterGesture(
   el: BuildElement,
   node: HTMLElement
 ) {
+  const r = node.getBoundingClientRect();
+  const center = toDoc(r.left + r.width / 2, r.top + r.height / 2);
+
   cursor.tool = 'counter';
-  await travel(token, cursor, audio, centerOf(node), speed);
+  await travelTo(token, cursor, audio, center, speed);
   if (token.cancelled) return;
 
   cursor.down = true;
@@ -447,24 +433,21 @@ async function connectorGesture(
   el: BuildElement,
   node: HTMLElement
 ) {
-  const ends = () => {
-    const r = node.getBoundingClientRect();
-    const horizontal = r.width >= r.height;
-    return horizontal
-      ? { a: toDoc(r.left, r.top + r.height / 2), b: toDoc(r.right, r.top + r.height / 2), length: r.width }
-      : { a: toDoc(r.left + r.width / 2, r.top), b: toDoc(r.left + r.width / 2, r.bottom), length: r.height };
-  };
+  const r = node.getBoundingClientRect();
+  const horizontal = r.width >= r.height;
+  const a = horizontal ? toDoc(r.left, r.top + r.height / 2) : toDoc(r.left + r.width / 2, r.top);
+  const b = horizontal ? toDoc(r.right, r.top + r.height / 2) : toDoc(r.left + r.width / 2, r.bottom);
+  const length = horizontal ? r.width : r.height;
 
   cursor.tool = 'path';
-  await travel(token, cursor, audio, () => ends().a, speed);
+  await travelTo(token, cursor, audio, a, speed);
   if (token.cancelled) return;
 
   cursor.down = true;
   reveal(el);
 
   let lastBlip = 0;
-  await run(token, clamp(ends().length * 0.9, 350, 1100) / speed, (p) => {
-    const { a, b } = ends();
+  await run(token, clamp(length * 0.9, 350, 1100) / speed, (p) => {
     const e = easeInOut(p);
     cursor.x = a.x + (b.x - a.x) * e;
     cursor.y = a.y + (b.y - a.y) * e;
@@ -514,7 +497,6 @@ export async function runBuild(token: CancelToken, h: EngineHooks): Promise<bool
   const { cursorAlpha, cursorBeta } = h;
   const speed = h.speed ?? 1;
 
-  // Initialize both workers in document space
   if (cursorAlpha.x === 0 && cursorAlpha.y === 0) {
     const startX = typeof window !== 'undefined' ? window.innerWidth * 0.35 : 350;
     const start = toDoc(startX, 24);
@@ -538,7 +520,6 @@ export async function runBuild(token: CancelToken, h: EngineHooks): Promise<bool
   let currentSection: BuilderSection | null = null;
   const claimed = new Set<string>();
 
-  // Process elements section by section with parallel dual-channel execution
   for (const section of SECTION_ORDER) {
     if (token.cancelled) break;
 
@@ -554,13 +535,11 @@ export async function runBuild(token: CancelToken, h: EngineHooks): Promise<bool
       h.onSection(currentSection);
     }
 
-    // Scroll to the first element of this section
     const firstNode = await resolveElementRef(token, sectionElements[0], 500 / speed);
     if (firstNode && !token.cancelled) {
       await ensureInViewport(token, firstNode, speed);
     }
 
-    // Partition elements into Track Alpha and Track Beta
     const queueAlpha: BuildElement[] = [];
     const queueBeta: BuildElement[] = [];
 
@@ -570,14 +549,12 @@ export async function runBuild(token: CancelToken, h: EngineHooks): Promise<bool
       else queueBeta.push(el);
     }
 
-    // Worker Loop for a single channel
     const runWorker = async (
       workerCursor: CursorModel,
       queue: BuildElement[],
       partnerQueue: BuildElement[]
     ) => {
       while (!token.cancelled) {
-        // Find next unclaimed element in this queue, or steal from partner if done
         let target = queue.find((e) => !claimed.has(e.id) && !h.isDone(e.id));
         if (!target) {
           target = partnerQueue.find((e) => !claimed.has(e.id) && !h.isDone(e.id));
@@ -600,7 +577,6 @@ export async function runBuild(token: CancelToken, h: EngineHooks): Promise<bool
       }
     };
 
-    // Run Worker Alpha and Worker Beta concurrently for this section
     await Promise.all([
       runWorker(cursorAlpha, queueAlpha, queueBeta),
       runWorker(cursorBeta, queueBeta, queueAlpha),
@@ -609,7 +585,6 @@ export async function runBuild(token: CancelToken, h: EngineHooks): Promise<bool
 
   if (token.cancelled) return false;
 
-  // Fade out both cursors/sparks cleanly without any permanent idle pill
   cursorAlpha.visible = false;
   cursorBeta.visible = false;
   cursorAlpha.tool = 'idle';

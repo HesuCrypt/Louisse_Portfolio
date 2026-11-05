@@ -152,7 +152,13 @@ export const BuilderProvider: React.FC<BuilderProviderProps> = ({
   const [activeSection, setActiveSection] = useState<BuilderSection>('hero');
   const [isBuilding, setIsBuilding] = useState(false);
   const [isFinished, setIsFinished] = useState(false);
-  const [isMuted, setIsMuted] = useState(() => builderAudio.isMuted());
+  const [isMuted, setIsMuted] = useState(() =>
+    typeof builderAudio.isMuted === 'boolean'
+      ? builderAudio.isMuted
+      : typeof (builderAudio as any).getMuted === 'function'
+        ? (builderAudio as any).getMuted()
+        : true
+  );
   const [hasSkipped, setHasSkipped] = useState(() =>
     typeof window === 'undefined' ? true : readBuilt()
   );
