@@ -5,9 +5,10 @@
  * white-noise buffer routed through one master gain node (which is also the
  * mute switch).
  *
- * Browsers refuse to start an AudioContext before a user gesture, so the
- * context is created lazily on the first pointer/key/touch interaction and
- * every `play*` call is a silent no-op until then.
+ * Audio Guardrails:
+ * - Master gain hardware audio clamp: when muted, gain is clamped to 0.00001
+ *   and no audio nodes are connected/played.
+ * - Auto-unlock on first user gesture (pointerdown, keydown, touchstart, wheel).
  */
 
 const MUTE_KEY = 'portfolio_builder_muted';
@@ -41,7 +42,7 @@ class BuilderAudio implements BuilderAudioApi {
       this.muted = false;
     }
 
-    const events = ['pointerdown', 'keydown', 'touchstart'] as const;
+    const events = ['pointerdown', 'keydown', 'touchstart', 'wheel'] as const;
     const unlock = () => {
       this.unlocked = true;
       this.ensureContext();
@@ -66,7 +67,8 @@ class BuilderAudio implements BuilderAudioApi {
       // storage unavailable: mute still applies for this page view
     }
     if (this.master && this.ctx) {
-      this.master.gain.setTargetAtTime(next ? 0 : MASTER_LEVEL, this.ctx.currentTime, 0.015);
+      // Clamped to 0.00001 to prevent audio leakage
+      this.master.gain.setValueAtTime(next ? 0.00001 : MASTER_LEVEL, this.ctx.currentTime);
     }
     this.listeners.forEach((listener) => listener(next));
   }
@@ -98,7 +100,7 @@ class BuilderAudio implements BuilderAudioApi {
 
       this.ctx = new Ctor();
       this.master = this.ctx.createGain();
-      this.master.gain.value = this.muted ? 0 : MASTER_LEVEL;
+      this.master.gain.value = this.muted ? 0.00001 : MASTER_LEVEL;
       this.master.connect(this.ctx.destination);
 
       // One second of white noise, reused by every noise-based voice.
@@ -128,6 +130,7 @@ class BuilderAudio implements BuilderAudioApi {
 
   /** 25ms band-passed noise burst (~2.4kHz): a tactile mechanical key. */
   playKeyClick(): void {
+    if (this.muted) return;
     const ctx = this.ready();
     if (!ctx) return;
 
@@ -155,6 +158,7 @@ class BuilderAudio implements BuilderAudioApi {
 
   /** Sine sweep 900Hz -> 180Hz in 50ms: a dragged frame snapping solid. */
   playFrameSnap(): void {
+    if (this.muted) return;
     const ctx = this.ready();
     if (!ctx) return;
 
@@ -176,6 +180,7 @@ class BuilderAudio implements BuilderAudioApi {
 
   /** Resonant low pop 180Hz -> 55Hz over 70ms with exponential decay. */
   playStampPop(): void {
+    if (this.muted) return;
     const ctx = this.ready();
     if (!ctx) return;
 
@@ -197,6 +202,7 @@ class BuilderAudio implements BuilderAudioApi {
 
   /** 12ms micro-tick at 1.2kHz, fired on each counter integer step. */
   playCounterBlip(): void {
+    if (this.muted) return;
     const ctx = this.ready();
     if (!ctx) return;
 
@@ -217,6 +223,7 @@ class BuilderAudio implements BuilderAudioApi {
 
   /** Filtered noise sweep for long cursor transits between sections. */
   playWhoosh(durationMs = 420): void {
+    if (this.muted) return;
     const ctx = this.ready();
     if (!ctx) return;
 
@@ -246,4 +253,3 @@ class BuilderAudio implements BuilderAudioApi {
 }
 
 export const builderAudio = new BuilderAudio();
-

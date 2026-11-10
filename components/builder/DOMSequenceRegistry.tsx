@@ -10,7 +10,11 @@ import React, {
   useState,
 } from 'react';
 import { builderAudio } from '../../lib/builderAudio';
-import { runBuild, type CancelToken } from './builderEngine';
+import {
+  runBuild,
+  initUserPresenceListeners,
+  type CancelToken,
+} from './builderEngine';
 import {
   BUILT_STORAGE_KEY,
   SECTION_ORDER,
@@ -22,6 +26,7 @@ import {
 } from './builderTypes';
 
 export type { BuildElement, BuilderMode, BuilderSection, BuildType } from './builderTypes';
+export { initUserPresenceListeners } from './builderEngine';
 
 export interface BuilderContextValue {
   mode: BuilderMode;
@@ -320,7 +325,17 @@ export const BuilderProvider: React.FC<BuilderProviderProps> = ({
     };
   }, [mode, epoch, cursor, speed]);
 
-  /* -------------------- ESC to skip, mouse conflict ------------------- */
+  /* -------------------- Active Gesture & Reading Presence -------------- */
+
+  useEffect(() => {
+    if (mode !== 'cursor') return undefined;
+    const cleanup = initUserPresenceListeners(() => {
+      cursor.userActiveUntil = performance.now() + 2000;
+    });
+    return cleanup;
+  }, [mode, cursor]);
+
+  /* -------------------- ESC to skip, mouse movement ------------------- */
 
   useEffect(() => {
     if (mode !== 'cursor' || !isBuilding) return undefined;

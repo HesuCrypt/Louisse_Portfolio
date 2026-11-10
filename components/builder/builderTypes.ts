@@ -12,6 +12,7 @@ export type BuilderSection =
   | 'work'
   | 'projects'
   | 'capabilities'
+  | 'referral'
   | 'contact'
   | 'completed';
 
@@ -24,7 +25,7 @@ export type BuilderMode = 'cursor' | 'instant';
 export type ToolKind = 'idle' | 'frame' | 'type' | 'stamp' | 'counter' | 'path';
 
 /** Order the engine walks sections. Matches the on-page order of the home route:
- * Nav -> Hero -> Stats -> Profile (About) -> Experience -> Work / Projects -> Capabilities -> Contact
+ * Nav -> Hero -> Stats -> Profile (About) -> Experience -> Work / Projects -> Capabilities -> Referral/Estimator -> Contact
  */
 export const SECTION_ORDER: BuilderSection[] = [
   'nav',
@@ -36,6 +37,7 @@ export const SECTION_ORDER: BuilderSection[] = [
   'work',
   'projects',
   'capabilities',
+  'referral',
   'contact',
 ];
 

@@ -21,9 +21,11 @@ const ACCENT = {
 
 /**
  * The autonomous collaborator pointer with responsive dual-mode presentation:
- * - Desktop (>= 768px): High-precision Figma-style SVG pointer arrow + floating tool tags.
+ * - Desktop (>= 768px): High-precision Figma-style SVG pointer arrow + tool tags.
  * - Mobile (< 768px): Sleek, glowing "AI Energy Spark" tracer dot (10px x 10px circular node
  *   with pulsing radial glow and stamp ping rings), hiding bulky tags to keep narrow screens clean.
+ * - Clean finish: Permanently unmounts and leaves the viewport clean when assembly finishes
+ *   (no lingering idle pill).
  */
 export const BuilderCursor: React.FC = () => {
   const { mode, cursor, isBuilding, isFinished, isMuted, toggleMute, skipAll } = useBuilder();
@@ -70,7 +72,7 @@ export const BuilderCursor: React.FC = () => {
       const group = groupRef.current;
       if (group) {
         const hidden = !cursor.visible || isFinished;
-        const target = hidden ? 0 : performance.now() < cursor.userActiveUntil ? 0.4 : 1;
+        const target = hidden ? 0 : performance.now() < cursor.userActiveUntil ? 0.35 : 1;
         opacity += (target - opacity) * 0.22;
         group.style.opacity = opacity.toFixed(3);
         group.style.transform = `translate3d(${(cursor.x - sx).toFixed(2)}px, ${(cursor.y - sy).toFixed(2)}px, 0)`;
@@ -118,7 +120,7 @@ export const BuilderCursor: React.FC = () => {
       const frame = frameRef.current;
       if (frame) {
         const box = cursor.frame;
-        if (!box) {
+        if (!box || isFinished) {
           frame.style.display = 'none';
         } else {
           const colors = ACCENT[box.accent];
@@ -150,7 +152,7 @@ export const BuilderCursor: React.FC = () => {
     return () => cancelAnimationFrame(frameId);
   }, [mode, cursor, isFinished, isMobile]);
 
-  if (mode !== 'cursor') return null;
+  if (mode !== 'cursor' || isFinished) return null;
 
   return (
     <>
@@ -270,17 +272,6 @@ export const BuilderCursor: React.FC = () => {
               </button>
             </>
           )}
-        </div>
-      )}
-
-      {/* Docking Gesture: badge once everything is assembled */}
-      {isFinished && (
-        <div
-          className="pointer-events-none fixed right-4 z-[9999] flex items-center gap-2 rounded-full border border-emerald-400/40 bg-black/85 px-3 py-1.5 font-mono text-[11px] tracking-wider text-emerald-300 uppercase backdrop-blur-md"
-          style={{ bottom: '4.5rem' }}
-        >
-          <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-          <span>[ Louisse // Builder: IDLE • ALL SYSTEMS OPERATIONAL ]</span>
         </div>
       )}
     </>

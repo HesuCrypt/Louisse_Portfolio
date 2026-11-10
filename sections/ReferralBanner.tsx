@@ -5,6 +5,7 @@ import { containerVariants, itemVariants } from '../motion/variants';
 import { scrollToSection } from '../utils/routing';
 import { sound } from '../utils/sound';
 import { Check, Copy, ArrowUpRight, Handshake, Calculator } from 'lucide-react';
+import { BuildItem } from '../components/builder/BuildItem';
 
 interface ReferralTier {
   id: string;
@@ -69,7 +70,7 @@ export const ReferralBanner: React.FC = () => {
   };
 
   return (
-    <section className="py-12 md:py-16">
+    <section id="referral" className="py-12 md:py-16">
       <Container>
         <motion.div
           variants={containerVariants}
@@ -77,8 +78,11 @@ export const ReferralBanner: React.FC = () => {
           whileInView="visible"
           viewport={{ once: true, margin: '-10%' }}
         >
-          <motion.div
-            variants={itemVariants}
+          <BuildItem
+            id="referral-container"
+            section="referral"
+            order={1}
+            type="frame"
             className="relative overflow-hidden rounded-2xl border border-line-strong bg-panel p-6 sm:p-8 md:p-10"
           >
             {/* Subtle Grid Backdrop */}
@@ -90,13 +94,27 @@ export const ReferralBanner: React.FC = () => {
             <div className="relative z-10 grid grid-cols-1 items-center gap-8 lg:grid-cols-12">
               {/* Left Column: Partner Pitch & 3-Step Flow */}
               <div className="lg:col-span-6">
-                <div className="inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 font-mono text-2xs tracking-wider2 text-emerald-300 uppercase">
+                <BuildItem
+                  id="referral-badge"
+                  section="referral"
+                  order={2}
+                  type="stamp"
+                  className="inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 font-mono text-2xs tracking-wider2 text-emerald-300 uppercase"
+                >
                   <Handshake size={12} />
                   <span>Partner &amp; Agency Referral Program</span>
-                </div>
+                </BuildItem>
 
                 <h2 className="mt-4 max-w-[22ch] font-sans text-2xl leading-[1.12] font-semibold tracking-[-0.03em] text-fg sm:text-3xl md:text-4xl">
-                  Refer a project. Share the revenue.
+                  <BuildItem
+                    as="span"
+                    id="referral-title"
+                    section="referral"
+                    order={3}
+                    type="typewriter"
+                    content="Refer a project. Share the revenue."
+                    className="block"
+                  />
                 </h2>
 
                 <p className="mt-3 max-w-[46ch] font-sans text-sm leading-relaxed text-fg-muted">
@@ -110,9 +128,13 @@ export const ReferralBanner: React.FC = () => {
                     { step: '01', title: 'Intro Client', sub: 'Share link or email' },
                     { step: '02', title: 'We Scope & Ship', sub: 'Zero work for you' },
                     { step: '03', title: 'Instant Payout', sub: '15%–20% commission' },
-                  ].map((item) => (
-                    <div
+                  ].map((item, idx) => (
+                    <BuildItem
                       key={item.step}
+                      id={`referral-step-${idx}`}
+                      section="referral"
+                      order={4 + idx}
+                      type="stamp"
                       className="rounded-xl border border-line bg-ink/60 p-3"
                     >
                       <span className="font-mono text-[10px] text-emerald-400">
@@ -124,23 +146,32 @@ export const ReferralBanner: React.FC = () => {
                       <p className="mt-0.5 font-mono text-[10px] text-fg-faint">
                         {item.sub}
                       </p>
-                    </div>
+                    </BuildItem>
                   ))}
                 </div>
 
                 {/* Action Buttons */}
                 <div className="mt-6 flex flex-wrap items-center gap-3">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      sound.playClick();
-                      scrollToSection('contact');
-                    }}
-                    className="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-paper px-4 py-2.5 font-mono text-2xs font-semibold tracking-wider2 text-ink uppercase transition-transform hover:scale-[1.02]"
+                  <BuildItem
+                    as="span"
+                    id="referral-btn-intro"
+                    section="referral"
+                    order={7}
+                    type="stamp"
+                    className="inline-flex"
                   >
-                    <span>Introduce a Client</span>
-                    <ArrowUpRight size={13} />
-                  </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        sound.playClick();
+                        scrollToSection('contact');
+                      }}
+                      className="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-paper px-4 py-2.5 font-mono text-2xs font-semibold tracking-wider2 text-ink uppercase transition-transform hover:scale-[1.02]"
+                    >
+                      <span>Introduce a Client</span>
+                      <ArrowUpRight size={13} />
+                    </button>
+                  </BuildItem>
 
                   <button
                     type="button"
@@ -155,7 +186,13 @@ export const ReferralBanner: React.FC = () => {
 
               {/* Right Column: Interactive Commission Payout Calculator */}
               <div className="lg:col-span-6">
-                <div className="rounded-xl border border-line-mid bg-ink/90 p-5 sm:p-6">
+                <BuildItem
+                  id="referral-calc-card"
+                  section="referral"
+                  order={8}
+                  type="frame"
+                  className="rounded-xl border border-line-mid bg-ink/90 p-5 sm:p-6"
+                >
                   <div className="flex items-center justify-between border-b border-line pb-3">
                     <span className="flex items-center gap-2 font-mono text-2xs tracking-wider2 text-fg-dim uppercase">
                       <Calculator size={13} className="text-emerald-400" />
@@ -168,29 +205,38 @@ export const ReferralBanner: React.FC = () => {
 
                   {/* Interactive Tier Selector Pills */}
                   <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
-                    {REFERRAL_TIERS.map((tier) => {
+                    {REFERRAL_TIERS.map((tier, tIdx) => {
                       const isSelected = tier.id === activeTier.id;
                       return (
-                        <button
+                        <BuildItem
                           key={tier.id}
-                          type="button"
-                          onClick={() => {
-                            sound.playClick();
-                            setSelectedTierId(tier.id);
-                          }}
-                          className={`cursor-pointer rounded-lg border px-3 py-2.5 text-left transition-all duration-150 ${
-                            isSelected
-                              ? 'border-paper bg-paper text-ink'
-                              : 'border-line bg-panel/60 text-fg-muted hover:border-line-strong hover:text-fg'
-                          }`}
+                          id={`referral-tier-${tIdx}`}
+                          section="referral"
+                          order={9 + tIdx}
+                          type="stamp"
+                          as="span"
+                          className="block"
                         >
-                          <span className="block font-mono text-[10px] uppercase opacity-75">
-                            ₱{(tier.projectValue / 1000).toFixed(0)}K Tier
-                          </span>
-                          <span className="mt-0.5 block truncate font-sans text-xs font-semibold">
-                            {tier.label}
-                          </span>
-                        </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              sound.playClick();
+                              setSelectedTierId(tier.id);
+                            }}
+                            className={`w-full cursor-pointer rounded-lg border px-3 py-2.5 text-left transition-all duration-150 ${
+                              isSelected
+                                ? 'border-paper bg-paper text-ink'
+                                : 'border-line bg-panel/60 text-fg-muted hover:border-line-strong hover:text-fg'
+                            }`}
+                          >
+                            <span className="block font-mono text-[10px] uppercase opacity-75">
+                              ₱{(tier.projectValue / 1000).toFixed(0)}K Tier
+                            </span>
+                            <span className="mt-0.5 block truncate font-sans text-xs font-semibold">
+                              {tier.label}
+                            </span>
+                          </button>
+                        </BuildItem>
                       );
                     })}
                   </div>
@@ -221,10 +267,10 @@ export const ReferralBanner: React.FC = () => {
                       Includes: <span className="text-fg-muted">{activeTier.scope}</span>
                     </p>
                   </div>
-                </div>
+                </BuildItem>
               </div>
             </div>
-          </motion.div>
+          </BuildItem>
         </motion.div>
       </Container>
     </section>

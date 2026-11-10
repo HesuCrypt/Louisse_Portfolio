@@ -7,13 +7,18 @@ import {
 import type { BuilderAudioApi } from '../../lib/builderAudio';
 
 /**
- * Framework-free autonomous build choreography.
+ * Framework-free autonomous build choreography with Smart Reading-Aware Auto-Scroll.
  *
- * Everything here is driven by the REAL DOM:
+ * Capabilities:
+ * - 1 single high-speed cursor (Desktop: SVG arrow + tool pill; Mobile: glowing AI Spark node).
+ * - Immediate Gesture Cancellation: on wheel, touchmove, or arrow key, kills in-flight auto-scroll
+ *   and yields 100% control to the visitor.
+ * - Non-blocking Reading Dwell Window: holds position for 3.5s - 4.5s after a section finishes
+ *   so the visitor can read what was just built.
+ * - Hybrid Mode: if the visitor stays idle, smoothly glides camera to next section. If user is
+ *   interacting, waits for the element to naturally enter viewport via IntersectionObserver.
  * - Robust resolveElementRef polling to eliminate silent skips.
- * - Smooth scroll coordination with mobile offset compensation for bottom URL bars.
- * - Dynamic sub-pixel tracking in document space.
- * - Native mobile micro-vibrations / haptic feedback.
+ * - Clean completion: unmounts pointer and hides idle badge permanently.
  */
 
 export interface CancelToken {
@@ -92,57 +97,200 @@ async function resolveElementRef(
   return finalNode && finalNode.isConnected ? finalNode : null;
 }
 
+/* ------------------------------------------------------------------------ */
+/* User Presence & Gesture State Tracker                                     */
+/* ------------------------------------------------------------------------ */
+
+let isUserInteracting = false;
+let userInteractionTimeout: ReturnType<typeof setTimeout> | null = null;
+let currentScrollAbort: (() => void) | null = null;
+
+export const initUserPresenceListeners = (onUserInterrupt: () => void): (() => void) => {
+  if (typeof window === 'undefined') return () => {};
+
+  const handleUserIntent = () => {
+    isUserInteracting = true;
+    if (currentScrollAbort) {
+      currentScrollAbort();
+      currentScrollAbort = null;
+    }
+    onUserInterrupt();
+
+    if (userInteractionTimeout) clearTimeout(userInteractionTimeout);
+    userInteractionTimeout = setTimeout(() => {
+      isUserInteracting = false;
+    }, 4500);
+  };
+
+  const keyHandler = (e: KeyboardEvent) => {
+    if (['ArrowDown', 'ArrowUp', 'PageDown', 'PageUp', 'Space'].includes(e.code)) {
+      handleUserIntent();
+    }
+  };
+
+  window.addEventListener('wheel', handleUserIntent, { passive: true });
+  window.addEventListener('touchmove', handleUserIntent, { passive: true });
+  window.addEventListener('keydown', keyHandler);
+
+  return () => {
+    window.removeEventListener('wheel', handleUserIntent);
+    window.removeEventListener('touchmove', handleUserIntent);
+    window.removeEventListener('keydown', keyHandler);
+    if (userInteractionTimeout) clearTimeout(userInteractionTimeout);
+  };
+};
+
 /**
- * Ensures `node` is comfortably centered in the viewport.
- * On mobile devices (< 768px), accounts for bottom browser chrome/URL bars
- * by centering elements in the upper-middle viewport (offset: window.innerHeight * 0.35).
+ * Checks if an element is currently intersecting the viewport nicely.
  */
-async function ensureInViewport(token: CancelToken, node: HTMLElement, speed = 1): Promise<void> {
-  if (typeof window === 'undefined') return;
+function isElementInComfortableViewport(node: HTMLElement): boolean {
+  if (typeof window === 'undefined') return true;
   const rect = node.getBoundingClientRect();
   const vh = window.innerHeight || 800;
   const isMobile = window.innerWidth < 768;
+  const minTop = vh * 0.08;
+  const maxBottom = isMobile ? vh * 0.78 : vh * 0.88;
+  return rect.top >= minTop && rect.bottom <= maxBottom;
+}
 
-  // On mobile, keep elements within 10% - 75% to stay clear of virtual address/nav bars
-  const minTop = vh * 0.10;
-  const maxBottom = isMobile ? vh * 0.75 : vh * 0.88;
+/**
+ * Waits for the user to scroll to the target element on their own using IntersectionObserver.
+ */
+function waitForElementInViewport(token: CancelToken, target: HTMLElement): Promise<void> {
+  return new Promise((resolve) => {
+    if (token.cancelled || isElementInComfortableViewport(target)) {
+      return resolve();
+    }
 
-  if (rect.top >= minTop && rect.bottom <= maxBottom) {
+    let observer: IntersectionObserver | null = null;
+    let pollInterval: ReturnType<typeof setInterval> | null = null;
+
+    const cleanup = () => {
+      if (observer) {
+        observer.disconnect();
+        observer = null;
+      }
+      if (pollInterval) {
+        clearInterval(pollInterval);
+        pollInterval = null;
+      }
+      resolve();
+    };
+
+    if (typeof IntersectionObserver !== 'undefined') {
+      observer = new IntersectionObserver(
+        (entries) => {
+          if (token.cancelled || entries[0]?.isIntersecting) {
+            cleanup();
+          }
+        },
+        { threshold: [0.1, 0.25, 0.5] }
+      );
+      observer.observe(target);
+    }
+
+    pollInterval = setInterval(() => {
+      if (token.cancelled || isElementInComfortableViewport(target)) {
+        cleanup();
+      }
+    }, 200);
+  });
+}
+
+/**
+ * Performs gentle camera glide to target with immediate gesture cancellation.
+ * Never fights visitor intent.
+ */
+function performSmoothScroll(
+  token: CancelToken,
+  target: HTMLElement,
+  speed = 1
+): Promise<void> {
+  return new Promise((resolve) => {
+    if (token.cancelled || typeof window === 'undefined') return resolve();
+
+    const rect = target.getBoundingClientRect();
+    const vh = window.innerHeight || 800;
+    const isMobile = window.innerWidth < 768;
+    const offset = isMobile ? vh * 0.32 : vh * 0.42;
+    const targetY = Math.max(0, window.scrollY + rect.top - offset);
+
+    const delta = Math.abs(targetY - window.scrollY);
+    if (delta < 25) return resolve();
+
+    let done = false;
+    const finish = () => {
+      if (done) return;
+      done = true;
+      window.removeEventListener('wheel', abortListener);
+      window.removeEventListener('touchmove', abortListener);
+      if (currentScrollAbort === finish) currentScrollAbort = null;
+      resolve();
+    };
+
+    const abortListener = () => {
+      isUserInteracting = true;
+      finish();
+    };
+
+    currentScrollAbort = finish;
+    window.addEventListener('wheel', abortListener, { passive: true });
+    window.addEventListener('touchmove', abortListener, { passive: true });
+
+    // Native smooth scroll when available, capped duration settle
+    try {
+      window.scrollTo({
+        top: targetY,
+        behavior: 'smooth',
+      });
+    } catch {
+      window.scrollTo(0, targetY);
+    }
+
+    const settleDuration = clamp(delta * 0.35, 200, 600) / speed;
+    setTimeout(finish, settleDuration);
+  });
+}
+
+/**
+ * Coordinates section transition:
+ * 1. Holds position for 3.5s reading dwell time if crossing section boundaries.
+ * 2. Checks if visitor is interacting: if so, does NOT force scroll.
+ * 3. If idle, glides camera gently.
+ */
+async function coordinateReadingTransition(
+  token: CancelToken,
+  node: HTMLElement,
+  isNewSection: boolean,
+  speed = 1
+): Promise<void> {
+  if (token.cancelled || typeof window === 'undefined') return;
+
+  // If entering a new section, grant a natural 3.5s reading buffer for previous content
+  if (isNewSection) {
+    const readingDwellMs = 3500 / speed;
+    const startDwell = now();
+    while (!token.cancelled && now() - startDwell < readingDwellMs) {
+      await sleep(50);
+    }
+  }
+
+  if (token.cancelled) return;
+
+  // Check comfortable visibility
+  if (isElementInComfortableViewport(node)) {
     return;
   }
 
-  // Calculate target scroll offset (mobile uses 0.35 offset to center in upper-middle viewport)
-  const mobileOffset = vh * 0.35;
-  const desktopOffset = vh * 0.38;
-  const offset = isMobile ? mobileOffset : desktopOffset;
+  // If visitor is currently reading or scrolling manually: yield and wait for them
+  if (isUserInteracting) {
+    await waitForElementInViewport(token, node);
+  } else {
+    // Visitor is idle: perform gentle camera glide
+    await performSmoothScroll(token, node, speed);
+  }
 
-  const targetScrollY = Math.max(0, window.scrollY + rect.top - offset);
-  const startY = window.scrollY;
-  const delta = Math.abs(targetScrollY - startY);
-  if (delta < 20) return;
-
-  const duration = clamp(delta * 0.45, 250, 750) / speed;
-
-  await new Promise<void>((resolve) => {
-    const started = now();
-    const scrollStep = () => {
-      if (token.cancelled) return resolve();
-      const p = clamp((now() - started) / duration, 0, 1);
-      const e = easeInOut(p);
-      const current = startY + (targetScrollY - startY) * e;
-      window.scrollTo(0, current);
-
-      if (p < 1) {
-        raf(scrollStep);
-      } else {
-        window.scrollTo(0, targetScrollY);
-        resolve();
-      }
-    };
-    raf(scrollStep);
-  });
-
-  // Short settle pause to ensure layout and bounding boxes stabilize
+  // Short settle pause to ensure bounding boxes stabilize
   await sleep(40 / speed);
 }
 
@@ -454,11 +602,12 @@ async function build(token: CancelToken, h: EngineHooks, el: BuildElement, node:
 /**
  * Walks every registered element in (section, order) sequence.
  *
- * Continuous autonomous tour:
+ * User-First Smart Reading-Aware Auto-Scroll Tour:
  * - Robust resolveElementRef polling to eliminate silent skips.
- * - Automatically scrolls the window with mobile chrome compensation to center elements.
+ * - Non-blocking reading dwell buffer (3.5s) between section boundaries.
+ * - Yields immediately to manual wheel, touch, or arrow scroll gestures.
  * - Triggers haptic feedback ticks on supported touch devices.
- * - Resolves true when the whole queue was built, false if it was cancelled.
+ * - Permanent clean exit when finished.
  */
 export async function runBuild(token: CancelToken, h: EngineHooks): Promise<boolean> {
   const { cursor } = h;
@@ -493,13 +642,14 @@ export async function runBuild(token: CancelToken, h: EngineHooks): Promise<bool
       continue;
     }
 
+    const isNewSection = currentSection !== null && next.sectionId !== currentSection;
     if (next.sectionId !== currentSection) {
       currentSection = next.sectionId;
       h.onSection(currentSection);
     }
 
-    // Auto-scroll the viewport if the element is out of comfortable view
-    await ensureInViewport(token, node, speed);
+    // Smart reading buffer and non-intrusive auto-scroll
+    await coordinateReadingTransition(token, node, isNewSection, speed);
     if (token.cancelled) break;
 
     await build(token, h, next, node);
@@ -509,15 +659,10 @@ export async function runBuild(token: CancelToken, h: EngineHooks): Promise<bool
 
   if (token.cancelled) return false;
 
-  // Hand-off: glide to bottom-right and dock.
-  cursor.tool = 'idle';
-  const dockX = typeof window !== 'undefined' ? window.innerWidth - 160 : 800;
-  const dockY = typeof window !== 'undefined' ? window.innerHeight - 96 : 600;
-  await glide(
-    token,
-    cursor,
-    () => toDoc(dockX, dockY),
-    700 / speed
-  );
+  // Clean exit: fade out and hide pointer permanently
+  cursor.visible = false;
+  cursor.frame = null;
+  cursor.caret = false;
+  cursor.down = false;
   return !token.cancelled;
 }
