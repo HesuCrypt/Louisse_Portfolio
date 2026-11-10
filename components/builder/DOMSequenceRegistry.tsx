@@ -12,7 +12,7 @@ import React, {
 import { builderAudio } from '../../lib/builderAudio';
 import {
   runBuild,
-  initUserPresenceListeners,
+  initScrollWatchdog,
   type CancelToken,
 } from './builderEngine';
 import {
@@ -26,7 +26,7 @@ import {
 } from './builderTypes';
 
 export type { BuildElement, BuilderMode, BuilderSection, BuildType } from './builderTypes';
-export { initUserPresenceListeners } from './builderEngine';
+export { initScrollWatchdog } from './builderEngine';
 
 export interface BuilderContextValue {
   mode: BuilderMode;
@@ -325,11 +325,11 @@ export const BuilderProvider: React.FC<BuilderProviderProps> = ({
     };
   }, [mode, epoch, cursor, speed]);
 
-  /* -------------------- Active Gesture & Reading Presence -------------- */
+  /* -------------------- Active Gesture & Watchdog Listeners ----------- */
 
   useEffect(() => {
     if (mode !== 'cursor') return undefined;
-    const cleanup = initUserPresenceListeners(() => {
+    const cleanup = initScrollWatchdog(() => {
       cursor.userActiveUntil = performance.now() + 2000;
     });
     return cleanup;

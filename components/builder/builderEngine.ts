@@ -7,18 +7,18 @@ import {
 import type { BuilderAudioApi } from '../../lib/builderAudio';
 
 /**
- * Framework-free autonomous build choreography with Smart Reading-Aware Auto-Scroll.
+ * Framework-free autonomous build choreography with Inactivity Watchdog.
  *
- * Capabilities:
+ * Guarantees:
  * - 1 single high-speed cursor (Desktop: SVG arrow + tool pill; Mobile: glowing AI Spark node).
- * - Immediate Gesture Cancellation: on wheel, touchmove, or arrow key, kills in-flight auto-scroll
- *   and yields 100% control to the visitor.
- * - Non-blocking Reading Dwell Window: holds position for 3.5s - 4.5s after a section finishes
- *   so the visitor can read what was just built.
- * - Hybrid Mode: if the visitor stays idle, smoothly glides camera to next section. If user is
- *   interacting, waits for the element to naturally enter viewport via IntersectionObserver.
+ * - Anti-Freeze Dual-Trigger Race Condition:
+ *     If the visitor touches/scrolls, pauses auto-scroll. As soon as the visitor stops touching/scrolling
+ *     for 2.5s, the Inactivity Watchdog resolves automatically and resumes smooth camera glide to next section.
+ *     If visitor manually scrolls element into view, it resumes instantly via IntersectionObserver.
+ * - Non-blocking Reading Dwell Window (2.0s) between section boundaries.
+ * - Smooth camera glide with deceleration settle.
  * - Robust resolveElementRef polling to eliminate silent skips.
- * - Clean completion: unmounts pointer and hides idle badge permanently.
+ * - Clean completion: unmounts pointer permanently when assembly ends.
  */
 
 export interface CancelToken {
@@ -98,45 +98,53 @@ async function resolveElementRef(
 }
 
 /* ------------------------------------------------------------------------ */
-/* User Presence & Gesture State Tracker                                     */
+/* Gesture Tracking & Idle Watchdog State                                   */
 /* ------------------------------------------------------------------------ */
 
-let isUserInteracting = false;
-let userInteractionTimeout: ReturnType<typeof setTimeout> | null = null;
+let isUserReading = false;
+let readingIdleTimer: ReturnType<typeof setTimeout> | null = null;
+let resumeResolver: (() => void) | null = null;
 let currentScrollAbort: (() => void) | null = null;
 
-export const initUserPresenceListeners = (onUserInterrupt: () => void): (() => void) => {
+export const initScrollWatchdog = (onUserInterrupt?: () => void): (() => void) => {
   if (typeof window === 'undefined') return () => {};
 
-  const handleUserIntent = () => {
-    isUserInteracting = true;
+  const handleUserGesture = () => {
+    isUserReading = true;
     if (currentScrollAbort) {
       currentScrollAbort();
       currentScrollAbort = null;
     }
-    onUserInterrupt();
+    onUserInterrupt?.();
 
-    if (userInteractionTimeout) clearTimeout(userInteractionTimeout);
-    userInteractionTimeout = setTimeout(() => {
-      isUserInteracting = false;
-    }, 4500);
+    // Reset countdown on every scroll/touch event
+    if (readingIdleTimer) clearTimeout(readingIdleTimer);
+
+    // 2.5 seconds after user stops touching/scrolling, automatically resume auto-scroll
+    readingIdleTimer = setTimeout(() => {
+      isUserReading = false;
+      if (resumeResolver) {
+        resumeResolver();
+        resumeResolver = null;
+      }
+    }, 2500);
   };
 
   const keyHandler = (e: KeyboardEvent) => {
     if (['ArrowDown', 'ArrowUp', 'PageDown', 'PageUp', 'Space'].includes(e.code)) {
-      handleUserIntent();
+      handleUserGesture();
     }
   };
 
-  window.addEventListener('wheel', handleUserIntent, { passive: true });
-  window.addEventListener('touchmove', handleUserIntent, { passive: true });
+  window.addEventListener('wheel', handleUserGesture, { passive: true });
+  window.addEventListener('touchmove', handleUserGesture, { passive: true });
   window.addEventListener('keydown', keyHandler);
 
   return () => {
-    window.removeEventListener('wheel', handleUserIntent);
-    window.removeEventListener('touchmove', handleUserIntent);
+    window.removeEventListener('wheel', handleUserGesture);
+    window.removeEventListener('touchmove', handleUserGesture);
     window.removeEventListener('keydown', keyHandler);
-    if (userInteractionTimeout) clearTimeout(userInteractionTimeout);
+    if (readingIdleTimer) clearTimeout(readingIdleTimer);
   };
 };
 
@@ -154,11 +162,11 @@ function isElementInComfortableViewport(node: HTMLElement): boolean {
 }
 
 /**
- * Waits for the user to scroll to the target element on their own using IntersectionObserver.
+ * Helper: Detects if user manually scrolled the element into view.
  */
-function waitForElementInViewport(token: CancelToken, target: HTMLElement): Promise<void> {
+function waitForElementVisible(token: CancelToken, element: HTMLElement): Promise<void> {
   return new Promise((resolve) => {
-    if (token.cancelled || isElementInComfortableViewport(target)) {
+    if (token.cancelled || isElementInComfortableViewport(element)) {
       return resolve();
     }
 
@@ -184,60 +192,73 @@ function waitForElementInViewport(token: CancelToken, target: HTMLElement): Prom
             cleanup();
           }
         },
-        { threshold: [0.1, 0.25, 0.5] }
+        { threshold: 0.25 }
       );
-      observer.observe(target);
+      observer.observe(element);
     }
 
     pollInterval = setInterval(() => {
-      if (token.cancelled || isElementInComfortableViewport(target)) {
+      if (token.cancelled || isElementInComfortableViewport(element)) {
         cleanup();
       }
-    }, 200);
+    }, 150);
   });
 }
 
 /**
- * Performs gentle camera glide to target with immediate gesture cancellation.
- * Never fights visitor intent.
+ * Smooth Camera Glide with Deceleration Settle & Gesture Cancellation.
  */
-function performSmoothScroll(
+function smoothScrollToTarget(
   token: CancelToken,
-  target: HTMLElement,
+  element: HTMLElement,
   speed = 1
 ): Promise<void> {
   return new Promise((resolve) => {
     if (token.cancelled || typeof window === 'undefined') return resolve();
 
-    const rect = target.getBoundingClientRect();
-    const vh = window.innerHeight || 800;
     const isMobile = window.innerWidth < 768;
-    const offset = isMobile ? vh * 0.32 : vh * 0.42;
-    const targetY = Math.max(0, window.scrollY + rect.top - offset);
+    const rect = element.getBoundingClientRect();
+    const targetOffset = isMobile ? window.innerHeight * 0.32 : window.innerHeight * 0.45;
+    const targetY = Math.max(0, window.scrollY + rect.top - targetOffset);
+
+    // If already in comfortable view, don't scroll unnecessarily
+    if (rect.top >= 80 && rect.bottom <= window.innerHeight - 80) {
+      resolve();
+      return;
+    }
 
     const delta = Math.abs(targetY - window.scrollY);
     if (delta < 25) return resolve();
 
     let done = false;
-    const finish = () => {
+    let settleTimer: ReturnType<typeof setTimeout> | null = null;
+
+    const cleanup = () => {
       if (done) return;
       done = true;
+      if (settleTimer) clearTimeout(settleTimer);
       window.removeEventListener('wheel', abortListener);
       window.removeEventListener('touchmove', abortListener);
-      if (currentScrollAbort === finish) currentScrollAbort = null;
+      window.removeEventListener('scroll', onScrollEnd);
+      if (currentScrollAbort === cleanup) currentScrollAbort = null;
       resolve();
     };
 
     const abortListener = () => {
-      isUserInteracting = true;
-      finish();
+      isUserReading = true;
+      cleanup();
     };
 
-    currentScrollAbort = finish;
+    const onScrollEnd = () => {
+      if (settleTimer) clearTimeout(settleTimer);
+      settleTimer = setTimeout(cleanup, 120);
+    };
+
+    currentScrollAbort = cleanup;
     window.addEventListener('wheel', abortListener, { passive: true });
     window.addEventListener('touchmove', abortListener, { passive: true });
+    window.addEventListener('scroll', onScrollEnd, { passive: true });
 
-    // Native smooth scroll when available, capped duration settle
     try {
       window.scrollTo({
         top: targetY,
@@ -247,50 +268,63 @@ function performSmoothScroll(
       window.scrollTo(0, targetY);
     }
 
-    const settleDuration = clamp(delta * 0.35, 200, 600) / speed;
-    setTimeout(finish, settleDuration);
+    // Safety fallback in case scroll is disabled or reaches target without events
+    const maxDuration = clamp(delta * 0.35, 200, 600) / speed;
+    setTimeout(cleanup, maxDuration + 150);
   });
 }
 
 /**
- * Coordinates section transition:
- * 1. Holds position for 3.5s reading dwell time if crossing section boundaries.
- * 2. Checks if visitor is interacting: if so, does NOT force scroll.
- * 3. If idle, glides camera gently.
+ * Seamless Section Transition with Guaranteed Auto-Resume (Dual-Trigger Race Condition):
+ * 1. Reading buffer for current section (2.0s pause) so visitor digests what just appeared.
+ * 2. If user is touching/reading, waits for either:
+ *      Option A: 2.5s of no touches (user finished reading -> Inactivity Watchdog fires)
+ *      Option B: User manually scrolled the element into view (IntersectionObserver)
+ * 3. Once resolved, smoothly glides camera to next element.
  */
-async function coordinateReadingTransition(
+async function transitionToNextSection(
   token: CancelToken,
-  node: HTMLElement,
+  nextElement: HTMLElement,
   isNewSection: boolean,
   speed = 1
 ): Promise<void> {
   if (token.cancelled || typeof window === 'undefined') return;
 
-  // If entering a new section, grant a natural 3.5s reading buffer for previous content
+  // Reading buffer for current section (let visitor digest what just appeared)
   if (isNewSection) {
-    const readingDwellMs = 3500 / speed;
+    const readingBufferMs = 2000 / speed;
     const startDwell = now();
-    while (!token.cancelled && now() - startDwell < readingDwellMs) {
+    while (!token.cancelled && now() - startDwell < readingBufferMs) {
       await sleep(50);
     }
   }
 
   if (token.cancelled) return;
 
-  // Check comfortable visibility
-  if (isElementInComfortableViewport(node)) {
+  // If already in view, proceed directly
+  if (isElementInComfortableViewport(nextElement)) {
     return;
   }
 
-  // If visitor is currently reading or scrolling manually: yield and wait for them
-  if (isUserInteracting) {
-    await waitForElementInViewport(token, node);
-  } else {
-    // Visitor is idle: perform gentle camera glide
-    await performSmoothScroll(token, node, speed);
+  // If user is actively touching or reading, race:
+  // Option A: 2.5s of no touches (Inactivity Watchdog resumes)
+  // Option B: User manually scrolled the element into view
+  if (isUserReading) {
+    const watchdogPromise = new Promise<void>((resolve) => {
+      resumeResolver = resolve;
+    });
+    const manualScrollPromise = waitForElementVisible(token, nextElement);
+
+    await Promise.race([watchdogPromise, manualScrollPromise]);
+    resumeResolver = null;
   }
 
-  // Short settle pause to ensure bounding boxes stabilize
+  if (token.cancelled) return;
+
+  // Auto-scroll resumes smoothly to the next element
+  await smoothScrollToTarget(token, nextElement, speed);
+
+  // Short settle pause to ensure layout and bounding boxes stabilize
   await sleep(40 / speed);
 }
 
@@ -602,10 +636,12 @@ async function build(token: CancelToken, h: EngineHooks, el: BuildElement, node:
 /**
  * Walks every registered element in (section, order) sequence.
  *
- * User-First Smart Reading-Aware Auto-Scroll Tour:
+ * User-First Auto-Scroll Tour with Inactivity Watchdog:
  * - Robust resolveElementRef polling to eliminate silent skips.
- * - Non-blocking reading dwell buffer (3.5s) between section boundaries.
- * - Yields immediately to manual wheel, touch, or arrow scroll gestures.
+ * - Non-blocking reading buffer (2.0s) between section boundaries.
+ * - Anti-freeze dual-trigger race condition:
+ *     Pauses on manual touch/scroll. Resumes automatically 2.5s after user goes idle,
+ *     or immediately if user manually scrolls the element into view.
  * - Triggers haptic feedback ticks on supported touch devices.
  * - Permanent clean exit when finished.
  */
@@ -648,8 +684,8 @@ export async function runBuild(token: CancelToken, h: EngineHooks): Promise<bool
       h.onSection(currentSection);
     }
 
-    // Smart reading buffer and non-intrusive auto-scroll
-    await coordinateReadingTransition(token, node, isNewSection, speed);
+    // Anti-Freeze Watchdog section transition
+    await transitionToNextSection(token, node, isNewSection, speed);
     if (token.cancelled) break;
 
     await build(token, h, next, node);
