@@ -1,28 +1,50 @@
 /**
  * Pure Web Audio API Sound Synthesizer
  * Zero-dependency procedural sound engine providing tactile click and interaction feedback.
+ * Single source of truth for all audio states across the entire portfolio.
  */
 
 const STORAGE_KEY = 'portfolio_sound_enabled';
 
 class SoundEngine {
   private ctx: AudioContext | null = null;
-  private enabled: boolean = false;
+  private enabled: boolean = true;
+  private unlocked: boolean = false;
   private listeners: Set<(enabled: boolean) => void> = new Set();
 
   constructor() {
     if (typeof window !== 'undefined') {
       try {
         const stored = localStorage.getItem(STORAGE_KEY);
-        // Default to false (opt-in) to respect user audio preferences
-        this.enabled = stored === 'true';
+        // Default to true (ON) unless visitor explicitly muted ('false')
+        this.enabled = stored !== 'false';
       } catch {
-        this.enabled = false;
+        this.enabled = true;
       }
+
+      // Auto-unlock AudioContext on first user interaction gesture (W3C Autoplay Policy)
+      const events = [
+        'pointerdown',
+        'click',
+        'keydown',
+        'touchstart',
+        'wheel',
+        'scroll',
+      ] as const;
+
+      const unlock = () => {
+        this.unlocked = true;
+        if (this.ctx && this.ctx.state === 'suspended') {
+          void this.ctx.resume().catch(() => undefined);
+        }
+        events.forEach((name) => window.removeEventListener(name, unlock));
+      };
+
+      events.forEach((name) => window.addEventListener(name, unlock, { passive: true }));
     }
   }
 
-  private initContext(): AudioContext | null {
+  public initContext(): AudioContext | null {
     if (typeof window === 'undefined') return null;
     if (!this.ctx) {
       const AudioCtx =
@@ -32,14 +54,18 @@ class SoundEngine {
         this.ctx = new AudioCtx();
       }
     }
-    if (this.ctx && this.ctx.state === 'suspended') {
-      void this.ctx.resume();
+    if (this.ctx && this.ctx.state === 'suspended' && this.unlocked) {
+      void this.ctx.resume().catch(() => undefined);
     }
     return this.ctx;
   }
 
   public isEnabled(): boolean {
     return this.enabled;
+  }
+
+  public isUnlocked(): boolean {
+    return this.unlocked;
   }
 
   public toggle(): boolean {
@@ -52,7 +78,11 @@ class SoundEngine {
       }
     }
     if (this.enabled) {
-      this.initContext();
+      this.unlocked = true;
+      const ctx = this.initContext();
+      if (ctx && ctx.state === 'suspended') {
+        void ctx.resume().catch(() => undefined);
+      }
       this.playChime();
     }
     this.notify();

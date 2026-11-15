@@ -1,11 +1,13 @@
+import { sound } from '../utils/sound';
+
 /**
  * Procedural Web Audio synthesizer for the cursor-builder choreography.
  *
- * Always-On Web Audio Engine:
- * - Master audio is permanently active (no mute toggle).
- * - Aggressive auto-unlock on first user interaction gesture (pointerdown, pointermove,
- *   keydown, touchstart, touchmove, wheel, scroll, click).
- * - Safe AudioContext resumption on modern browsers enforcing the Autoplay Policy.
+ * Unified Web Audio Engine:
+ * - Synchronized with the global sound engine (Header volume button).
+ * - Master audio clamp: when muted via the Header button, gain is clamped to 0.00001
+ *   and no audio nodes are generated.
+ * - Auto-unlocks on first user interaction gesture (W3C Autoplay Policy compliant).
  */
 
 const MASTER_LEVEL = 0.6;
@@ -31,12 +33,16 @@ class BuilderAudio implements BuilderAudioApi {
   constructor() {
     if (typeof window === 'undefined') return;
 
-    // Clean up any legacy mute setting from storage so audio stays always-on
-    try {
-      window.localStorage.removeItem('portfolio_builder_muted');
-    } catch {
-      // storage unavailable
-    }
+    // Synchronize master gain with global sound engine toggle
+    sound.subscribe((enabled) => {
+      if (this.master && this.ctx) {
+        this.master.gain.setValueAtTime(
+          enabled ? MASTER_LEVEL : 0.00001,
+          this.ctx.currentTime
+        );
+      }
+      this.listeners.forEach((listener) => listener(!enabled));
+    });
 
     const events = [
       'pointerdown',
@@ -62,21 +68,22 @@ class BuilderAudio implements BuilderAudioApi {
   }
 
   /* ------------------------------------------------------------------ */
-  /* Mute state (Always-On)                                             */
+  /* Mute state (Synced with global sound engine)                       */
   /* ------------------------------------------------------------------ */
 
   isMuted(): boolean {
-    return false;
+    return !sound.isEnabled();
   }
 
-  setMuted(_next: boolean): void {
-    // Audio is locked always-on; listeners notified with false
-    this.listeners.forEach((listener) => listener(false));
+  setMuted(muted: boolean): void {
+    if (sound.isEnabled() === muted) {
+      sound.toggle();
+    }
   }
 
   toggleMuted(): boolean {
-    // Audio is locked always-on
-    return false;
+    sound.toggle();
+    return !sound.isEnabled();
   }
 
   subscribe(listener: MuteListener): () => void {
@@ -102,7 +109,7 @@ class BuilderAudio implements BuilderAudioApi {
       try {
         this.ctx = new Ctor();
         this.master = this.ctx.createGain();
-        this.master.gain.value = MASTER_LEVEL;
+        this.master.gain.value = sound.isEnabled() ? MASTER_LEVEL : 0.00001;
         this.master.connect(this.ctx.destination);
 
         // One second of white noise, reused by every noise-based voice.
@@ -115,18 +122,20 @@ class BuilderAudio implements BuilderAudioApi {
       }
     }
 
-    if (this.ctx && this.ctx.state === 'suspended' && this.unlocked) {
+    if (this.ctx && this.ctx.state === 'suspended' && (this.unlocked || sound.isUnlocked())) {
       void this.ctx.resume().catch(() => undefined);
     }
     return this.ctx;
   }
 
-  /** Returns a running context, or null when sound is still pending unlock. */
+  /** Returns a running context, or null when sound is muted or pending unlock. */
   private ready(): AudioContext | null {
+    if (!sound.isEnabled()) return null;
+
     const ctx = this.ensureContext();
     if (!ctx || !this.master || !this.noise) return null;
     if (ctx.state === 'suspended') {
-      if (this.unlocked) {
+      if (this.unlocked || sound.isUnlocked()) {
         void ctx.resume().catch(() => undefined);
       }
       return null;
@@ -140,6 +149,7 @@ class BuilderAudio implements BuilderAudioApi {
 
   /** 25ms band-passed noise burst (~2.4kHz): a tactile mechanical key. */
   playKeyClick(): void {
+    if (!sound.isEnabled()) return;
     const ctx = this.ready();
     if (!ctx) return;
 
@@ -167,6 +177,7 @@ class BuilderAudio implements BuilderAudioApi {
 
   /** Sine sweep 900Hz -> 180Hz in 50ms: a dragged frame snapping solid. */
   playFrameSnap(): void {
+    if (!sound.isEnabled()) return;
     const ctx = this.ready();
     if (!ctx) return;
 
@@ -188,6 +199,7 @@ class BuilderAudio implements BuilderAudioApi {
 
   /** Resonant low pop 180Hz -> 55Hz over 70ms with exponential decay. */
   playStampPop(): void {
+    if (!sound.isEnabled()) return;
     const ctx = this.ready();
     if (!ctx) return;
 
@@ -209,6 +221,7 @@ class BuilderAudio implements BuilderAudioApi {
 
   /** 12ms micro-tick at 1.2kHz, fired on each counter integer step. */
   playCounterBlip(): void {
+    if (!sound.isEnabled()) return;
     const ctx = this.ready();
     if (!ctx) return;
 
@@ -229,6 +242,7 @@ class BuilderAudio implements BuilderAudioApi {
 
   /** Filtered noise sweep for long cursor transits between sections. */
   playWhoosh(durationMs = 420): void {
+    if (!sound.isEnabled()) return;
     const ctx = this.ready();
     if (!ctx) return;
 
