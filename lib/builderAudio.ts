@@ -1,17 +1,13 @@
 /**
  * Procedural Web Audio synthesizer for the cursor-builder choreography.
  *
- * Zero audio files: every sound is generated from oscillators and a shared
- * white-noise buffer routed through one master gain node (which is also the
- * mute switch).
- *
- * Audio Guardrails:
- * - Master gain hardware audio clamp: when muted, gain is clamped to 0.00001
- *   and no audio nodes are connected/played.
- * - Auto-unlock on first user gesture (pointerdown, keydown, touchstart, wheel).
+ * Always-On Web Audio Engine:
+ * - Master audio is permanently active (no mute toggle).
+ * - Aggressive auto-unlock on first user interaction gesture (pointerdown, pointermove,
+ *   keydown, touchstart, touchmove, wheel, scroll, click).
+ * - Safe AudioContext resumption on modern browsers enforcing the Autoplay Policy.
  */
 
-const MUTE_KEY = 'portfolio_builder_muted';
 const MASTER_LEVEL = 0.6;
 
 type MuteListener = (muted: boolean) => void;
@@ -28,7 +24,6 @@ class BuilderAudio implements BuilderAudioApi {
   private ctx: AudioContext | null = null;
   private master: GainNode | null = null;
   private noise: AudioBuffer | null = null;
-  private muted = false;
   private unlocked = false;
   private lastKeyAt = 0;
   private listeners = new Set<MuteListener>();
@@ -36,46 +31,52 @@ class BuilderAudio implements BuilderAudioApi {
   constructor() {
     if (typeof window === 'undefined') return;
 
+    // Clean up any legacy mute setting from storage so audio stays always-on
     try {
-      this.muted = window.localStorage.getItem(MUTE_KEY) === 'true';
+      window.localStorage.removeItem('portfolio_builder_muted');
     } catch {
-      this.muted = false;
+      // storage unavailable
     }
 
-    const events = ['pointerdown', 'keydown', 'touchstart', 'wheel'] as const;
+    const events = [
+      'pointerdown',
+      'pointermove',
+      'keydown',
+      'touchstart',
+      'touchmove',
+      'wheel',
+      'scroll',
+      'click',
+    ] as const;
+
     const unlock = () => {
       this.unlocked = true;
-      this.ensureContext();
+      const ctx = this.ensureContext();
+      if (ctx && ctx.state === 'suspended') {
+        void ctx.resume().catch(() => undefined);
+      }
       events.forEach((name) => window.removeEventListener(name, unlock));
     };
+
     events.forEach((name) => window.addEventListener(name, unlock, { passive: true }));
   }
 
   /* ------------------------------------------------------------------ */
-  /* Mute state                                                          */
+  /* Mute state (Always-On)                                             */
   /* ------------------------------------------------------------------ */
 
   isMuted(): boolean {
-    return this.muted;
+    return false;
   }
 
-  setMuted(next: boolean): void {
-    this.muted = next;
-    try {
-      window.localStorage.setItem(MUTE_KEY, String(next));
-    } catch {
-      // storage unavailable: mute still applies for this page view
-    }
-    if (this.master && this.ctx) {
-      // Clamped to 0.00001 to prevent audio leakage
-      this.master.gain.setValueAtTime(next ? 0.00001 : MASTER_LEVEL, this.ctx.currentTime);
-    }
-    this.listeners.forEach((listener) => listener(next));
+  setMuted(_next: boolean): void {
+    // Audio is locked always-on; listeners notified with false
+    this.listeners.forEach((listener) => listener(false));
   }
 
   toggleMuted(): boolean {
-    this.setMuted(!this.muted);
-    return this.muted;
+    // Audio is locked always-on
+    return false;
   }
 
   subscribe(listener: MuteListener): () => void {
@@ -90,7 +91,7 @@ class BuilderAudio implements BuilderAudioApi {
   /* ------------------------------------------------------------------ */
 
   private ensureContext(): AudioContext | null {
-    if (typeof window === 'undefined' || !this.unlocked) return null;
+    if (typeof window === 'undefined') return null;
 
     if (!this.ctx) {
       const Ctor =
@@ -98,29 +99,38 @@ class BuilderAudio implements BuilderAudioApi {
         (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
       if (!Ctor) return null;
 
-      this.ctx = new Ctor();
-      this.master = this.ctx.createGain();
-      this.master.gain.value = this.muted ? 0.00001 : MASTER_LEVEL;
-      this.master.connect(this.ctx.destination);
+      try {
+        this.ctx = new Ctor();
+        this.master = this.ctx.createGain();
+        this.master.gain.value = MASTER_LEVEL;
+        this.master.connect(this.ctx.destination);
 
-      // One second of white noise, reused by every noise-based voice.
-      const length = this.ctx.sampleRate;
-      this.noise = this.ctx.createBuffer(1, length, this.ctx.sampleRate);
-      const data = this.noise.getChannelData(0);
-      for (let i = 0; i < length; i += 1) data[i] = Math.random() * 2 - 1;
+        // One second of white noise, reused by every noise-based voice.
+        const length = this.ctx.sampleRate;
+        this.noise = this.ctx.createBuffer(1, length, this.ctx.sampleRate);
+        const data = this.noise.getChannelData(0);
+        for (let i = 0; i < length; i += 1) data[i] = Math.random() * 2 - 1;
+      } catch {
+        return null;
+      }
     }
 
-    if (this.ctx.state === 'suspended') {
+    if (this.ctx && this.ctx.state === 'suspended' && this.unlocked) {
       void this.ctx.resume().catch(() => undefined);
     }
     return this.ctx;
   }
 
-  /** Returns a running context, or null when sound should stay silent. */
+  /** Returns a running context, or null when sound is still pending unlock. */
   private ready(): AudioContext | null {
-    if (this.muted) return null;
     const ctx = this.ensureContext();
-    if (!ctx || !this.master || !this.noise || ctx.state !== 'running') return null;
+    if (!ctx || !this.master || !this.noise) return null;
+    if (ctx.state === 'suspended') {
+      if (this.unlocked) {
+        void ctx.resume().catch(() => undefined);
+      }
+      return null;
+    }
     return ctx;
   }
 
@@ -130,7 +140,6 @@ class BuilderAudio implements BuilderAudioApi {
 
   /** 25ms band-passed noise burst (~2.4kHz): a tactile mechanical key. */
   playKeyClick(): void {
-    if (this.muted) return;
     const ctx = this.ready();
     if (!ctx) return;
 
@@ -158,7 +167,6 @@ class BuilderAudio implements BuilderAudioApi {
 
   /** Sine sweep 900Hz -> 180Hz in 50ms: a dragged frame snapping solid. */
   playFrameSnap(): void {
-    if (this.muted) return;
     const ctx = this.ready();
     if (!ctx) return;
 
@@ -180,7 +188,6 @@ class BuilderAudio implements BuilderAudioApi {
 
   /** Resonant low pop 180Hz -> 55Hz over 70ms with exponential decay. */
   playStampPop(): void {
-    if (this.muted) return;
     const ctx = this.ready();
     if (!ctx) return;
 
@@ -202,7 +209,6 @@ class BuilderAudio implements BuilderAudioApi {
 
   /** 12ms micro-tick at 1.2kHz, fired on each counter integer step. */
   playCounterBlip(): void {
-    if (this.muted) return;
     const ctx = this.ready();
     if (!ctx) return;
 
@@ -223,7 +229,6 @@ class BuilderAudio implements BuilderAudioApi {
 
   /** Filtered noise sweep for long cursor transits between sections. */
   playWhoosh(durationMs = 420): void {
-    if (this.muted) return;
     const ctx = this.ready();
     if (!ctx) return;
 

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
-import { FastForward, Volume2, VolumeX, X } from 'lucide-react';
+import { FastForward, X } from 'lucide-react';
 import { useBuilder } from './DOMSequenceRegistry';
 import type { ToolKind } from './builderTypes';
 
@@ -28,7 +28,7 @@ const ACCENT = {
  *   (no lingering idle pill).
  */
 export const BuilderCursor: React.FC = () => {
-  const { mode, cursor, isBuilding, isFinished, isMuted, toggleMute, skipAll } = useBuilder();
+  const { mode, cursor, isBuilding, isFinished, skipAll } = useBuilder();
 
   const [isMobile, setIsMobile] = useState<boolean>(() => {
     if (typeof window !== 'undefined') {
@@ -251,26 +251,15 @@ export const BuilderCursor: React.FC = () => {
               <X size={12} className="text-emerald-400" />
             </button>
           ) : (
-            /* Desktop controls: Audio + Skip Build */
-            <>
-              <button
-                type="button"
-                onClick={toggleMute}
-                aria-pressed={isMuted}
-                className="flex cursor-pointer items-center gap-1.5 rounded-full border border-white/15 bg-black/80 px-3 py-1.5 font-mono text-[11px] tracking-wider text-white/80 uppercase backdrop-blur-md transition-colors hover:border-emerald-400 hover:text-emerald-300"
-              >
-                {isMuted ? <VolumeX size={12} /> : <Volume2 size={12} />}
-                <span>[ Audio: {isMuted ? 'OFF' : 'ON'} ]</span>
-              </button>
-              <button
-                type="button"
-                onClick={skipAll}
-                className="flex cursor-pointer items-center gap-2 rounded-full border border-white/15 bg-black/80 px-3 py-1.5 font-mono text-[11px] tracking-wider text-white/80 uppercase backdrop-blur-md transition-colors hover:border-emerald-400 hover:text-emerald-300"
-              >
-                <FastForward size={12} className="text-emerald-400" />
-                <span>[ Skip Build (ESC) ]</span>
-              </button>
-            </>
+            /* Desktop controls: Skip Build */
+            <button
+              type="button"
+              onClick={skipAll}
+              className="flex cursor-pointer items-center gap-2 rounded-full border border-white/15 bg-black/80 px-3 py-1.5 font-mono text-[11px] tracking-wider text-white/80 uppercase backdrop-blur-md transition-colors hover:border-emerald-400 hover:text-emerald-300"
+            >
+              <FastForward size={12} className="text-emerald-400" />
+              <span>[ Skip Build (ESC) ]</span>
+            </button>
           )}
         </div>
       )}
