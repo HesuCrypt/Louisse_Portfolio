@@ -2,39 +2,40 @@
  * Pure Web Audio API Sound Synthesizer
  * Zero-dependency procedural sound engine providing tactile click and interaction feedback.
  * Single source of truth for all audio states across the entire portfolio.
+ *
+ * GUARANTEE: Every time the website is opened, it ALWAYS starts 100% MUTED by default.
+ * Sound is only activated if the visitor explicitly clicks the sound toggle in the header.
  */
 
 const STORAGE_KEY = 'portfolio_sound_enabled';
 
 class SoundEngine {
   private ctx: AudioContext | null = null;
-  private enabled: boolean = true;
+  // Always starts MUTED (false) on every page load / visit
+  private enabled: boolean = false;
   private unlocked: boolean = false;
   private listeners: Set<(enabled: boolean) => void> = new Set();
 
   constructor() {
     if (typeof window !== 'undefined') {
+      // Explicitly start muted on every open
+      this.enabled = false;
       try {
-        const stored = localStorage.getItem(STORAGE_KEY);
-        // Default to true (ON) unless visitor explicitly muted ('false')
-        this.enabled = stored !== 'false';
+        localStorage.setItem(STORAGE_KEY, 'false');
       } catch {
-        this.enabled = true;
+        // ignore
       }
 
-      // Auto-unlock AudioContext on first user interaction gesture (W3C Autoplay Policy)
       const events = [
         'pointerdown',
         'click',
         'keydown',
         'touchstart',
-        'wheel',
-        'scroll',
       ] as const;
 
       const unlock = () => {
         this.unlocked = true;
-        if (this.ctx && this.ctx.state === 'suspended') {
+        if (this.ctx && this.ctx.state === 'suspended' && this.enabled) {
           void this.ctx.resume().catch(() => undefined);
         }
         events.forEach((name) => window.removeEventListener(name, unlock));
@@ -45,7 +46,7 @@ class SoundEngine {
   }
 
   public initContext(): AudioContext | null {
-    if (typeof window === 'undefined') return null;
+    if (typeof window === 'undefined' || !this.enabled) return null;
     if (!this.ctx) {
       const AudioCtx =
         window.AudioContext ||
@@ -84,6 +85,10 @@ class SoundEngine {
         void ctx.resume().catch(() => undefined);
       }
       this.playChime();
+    } else {
+      if (this.ctx && this.ctx.state === 'running') {
+        void this.ctx.suspend().catch(() => undefined);
+      }
     }
     this.notify();
     return this.enabled;

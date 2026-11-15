@@ -98,7 +98,7 @@ class BuilderAudio implements BuilderAudioApi {
   /* ------------------------------------------------------------------ */
 
   private ensureContext(): AudioContext | null {
-    if (typeof window === 'undefined') return null;
+    if (typeof window === 'undefined' || !sound.isEnabled()) return null;
 
     if (!this.ctx) {
       const Ctor =
