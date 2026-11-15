@@ -83,15 +83,16 @@ function triggerHaptic(durationMs: number) {
 async function resolveElementRef(
   token: CancelToken,
   el: BuildElement,
-  maxWaitMs = 500
+  maxWaitMs = 300
 ): Promise<HTMLElement | null> {
+  if (!el?.ref) return null;
   const start = now();
   while (!token.cancelled && now() - start < maxWaitMs) {
     const node = el.ref.current;
     if (node && node.isConnected) {
       return node;
     }
-    await sleep(25);
+    await sleep(16);
   }
   const finalNode = el.ref.current;
   return finalNode && finalNode.isConnected ? finalNode : null;
@@ -109,6 +110,8 @@ let currentScrollAbort: (() => void) | null = null;
 export const initScrollWatchdog = (onUserInterrupt?: () => void): (() => void) => {
   if (typeof window === 'undefined') return () => {};
 
+  let touchStartY = 0;
+
   const handleUserGesture = () => {
     isUserReading = true;
     if (currentScrollAbort) {
@@ -117,17 +120,36 @@ export const initScrollWatchdog = (onUserInterrupt?: () => void): (() => void) =
     }
     onUserInterrupt?.();
 
-    // Reset countdown on every scroll/touch event
+    // Reset countdown on intentional scroll/touch event
     if (readingIdleTimer) clearTimeout(readingIdleTimer);
 
-    // 2.5 seconds after user stops touching/scrolling, automatically resume auto-scroll
+    // Agile watchdog: 900ms after user pauses touching/scrolling, resume auto-scroll immediately
     readingIdleTimer = setTimeout(() => {
       isUserReading = false;
       if (resumeResolver) {
         resumeResolver();
         resumeResolver = null;
       }
-    }, 2500);
+    }, 900);
+  };
+
+  const wheelHandler = (e: WheelEvent) => {
+    // Filter out trackpad micro-jitter / vibrations
+    if (Math.abs(e.deltaY) > 6 || Math.abs(e.deltaX) > 6) {
+      handleUserGesture();
+    }
+  };
+
+  const touchStartHandler = (e: TouchEvent) => {
+    if (e.touches[0]) {
+      touchStartY = e.touches[0].clientY;
+    }
+  };
+
+  const touchMoveHandler = (e: TouchEvent) => {
+    if (e.touches[0] && Math.abs(e.touches[0].clientY - touchStartY) > 10) {
+      handleUserGesture();
+    }
   };
 
   const keyHandler = (e: KeyboardEvent) => {
@@ -136,13 +158,15 @@ export const initScrollWatchdog = (onUserInterrupt?: () => void): (() => void) =
     }
   };
 
-  window.addEventListener('wheel', handleUserGesture, { passive: true });
-  window.addEventListener('touchmove', handleUserGesture, { passive: true });
+  window.addEventListener('wheel', wheelHandler, { passive: true });
+  window.addEventListener('touchstart', touchStartHandler, { passive: true });
+  window.addEventListener('touchmove', touchMoveHandler, { passive: true });
   window.addEventListener('keydown', keyHandler);
 
   return () => {
-    window.removeEventListener('wheel', handleUserGesture);
-    window.removeEventListener('touchmove', handleUserGesture);
+    window.removeEventListener('wheel', wheelHandler);
+    window.removeEventListener('touchstart', touchStartHandler);
+    window.removeEventListener('touchmove', touchMoveHandler);
     window.removeEventListener('keydown', keyHandler);
     if (readingIdleTimer) clearTimeout(readingIdleTimer);
   };
@@ -156,8 +180,8 @@ function isElementInComfortableViewport(node: HTMLElement): boolean {
   const rect = node.getBoundingClientRect();
   const vh = window.innerHeight || 800;
   const isMobile = window.innerWidth < 768;
-  const minTop = vh * 0.08;
-  const maxBottom = isMobile ? vh * 0.78 : vh * 0.88;
+  const minTop = vh * 0.05;
+  const maxBottom = isMobile ? vh * 0.85 : vh * 0.92;
   return rect.top >= minTop && rect.bottom <= maxBottom;
 }
 
@@ -192,7 +216,7 @@ function waitForElementVisible(token: CancelToken, element: HTMLElement): Promis
             cleanup();
           }
         },
-        { threshold: 0.25 }
+        { threshold: 0.15 }
       );
       observer.observe(element);
     }
@@ -201,7 +225,7 @@ function waitForElementVisible(token: CancelToken, element: HTMLElement): Promis
       if (token.cancelled || isElementInComfortableViewport(element)) {
         cleanup();
       }
-    }, 150);
+    }, 80);
   });
 }
 
@@ -222,21 +246,23 @@ function smoothScrollToTarget(
     const targetY = Math.max(0, window.scrollY + rect.top - targetOffset);
 
     // If already in comfortable view, don't scroll unnecessarily
-    if (rect.top >= 80 && rect.bottom <= window.innerHeight - 80) {
+    if (isElementInComfortableViewport(element)) {
       resolve();
       return;
     }
 
     const delta = Math.abs(targetY - window.scrollY);
-    if (delta < 25) return resolve();
+    if (delta < 20) return resolve();
 
     let done = false;
     let settleTimer: ReturnType<typeof setTimeout> | null = null;
+    let progressCheck: ReturnType<typeof setInterval> | null = null;
 
     const cleanup = () => {
       if (done) return;
       done = true;
       if (settleTimer) clearTimeout(settleTimer);
+      if (progressCheck) clearInterval(progressCheck);
       window.removeEventListener('wheel', abortListener);
       window.removeEventListener('touchmove', abortListener);
       window.removeEventListener('scroll', onScrollEnd);
@@ -251,8 +277,15 @@ function smoothScrollToTarget(
 
     const onScrollEnd = () => {
       if (settleTimer) clearTimeout(settleTimer);
-      settleTimer = setTimeout(cleanup, 120);
+      settleTimer = setTimeout(cleanup, 50);
     };
+
+    // If element enters viewport midway during smooth scroll, finish early to avoid waiting
+    progressCheck = setInterval(() => {
+      if (isElementInComfortableViewport(element)) {
+        cleanup();
+      }
+    }, 40);
 
     currentScrollAbort = cleanup;
     window.addEventListener('wheel', abortListener, { passive: true });
@@ -268,19 +301,18 @@ function smoothScrollToTarget(
       window.scrollTo(0, targetY);
     }
 
-    // Safety fallback in case scroll is disabled or reaches target without events
-    const maxDuration = clamp(delta * 0.35, 200, 600) / speed;
-    setTimeout(cleanup, maxDuration + 150);
+    // Safety fallback: tight max duration to avoid lingering
+    const maxDuration = clamp(delta * 0.22, 120, 380) / speed;
+    setTimeout(cleanup, maxDuration + 60);
   });
 }
 
 /**
- * Seamless Section Transition with Guaranteed Auto-Resume (Dual-Trigger Race Condition):
- * 1. Reading buffer for current section (2.0s pause) so visitor digests what just appeared.
- * 2. If user is touching/reading, waits for either:
- *      Option A: 2.5s of no touches (user finished reading -> Inactivity Watchdog fires)
- *      Option B: User manually scrolled the element into view (IntersectionObserver)
- * 3. Once resolved, smoothly glides camera to next element.
+ * Seamless Section Transition with Guaranteed Auto-Resume:
+ * 1. Agile micro-pause (200ms) to allow layout settle without freezing the tour.
+ * 2. If already in view, bypasses immediately without delay.
+ * 3. If user is touching/reading, races an agile 900ms watchdog with IntersectionObserver.
+ * 4. Smoothly glides camera to next element.
  */
 async function transitionToNextSection(
   token: CancelToken,
@@ -290,24 +322,24 @@ async function transitionToNextSection(
 ): Promise<void> {
   if (token.cancelled || typeof window === 'undefined') return;
 
-  // Reading buffer for current section (let visitor digest what just appeared)
+  // Agile micro-pause between sections to let layout settle smoothly
   if (isNewSection) {
-    const readingBufferMs = 2000 / speed;
+    const readingBufferMs = 200 / speed;
     const startDwell = now();
     while (!token.cancelled && now() - startDwell < readingBufferMs) {
-      await sleep(50);
+      await sleep(20);
     }
   }
 
   if (token.cancelled) return;
 
-  // If already in view, proceed directly
+  // If already in view, proceed directly with zero pause
   if (isElementInComfortableViewport(nextElement)) {
     return;
   }
 
   // If user is actively touching or reading, race:
-  // Option A: 2.5s of no touches (Inactivity Watchdog resumes)
+  // Option A: 900ms of no touches (Inactivity Watchdog resumes)
   // Option B: User manually scrolled the element into view
   if (isUserReading) {
     const watchdogPromise = new Promise<void>((resolve) => {
@@ -324,8 +356,8 @@ async function transitionToNextSection(
   // Auto-scroll resumes smoothly to the next element
   await smoothScrollToTarget(token, nextElement, speed);
 
-  // Short settle pause to ensure layout and bounding boxes stabilize
-  await sleep(40 / speed);
+  // Ultra-crisp settle pause to ensure bounding boxes stabilize
+  await sleep(20 / speed);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -333,7 +365,7 @@ async function transitionToNextSection(
 /* ------------------------------------------------------------------------ */
 
 function moveDuration(distance: number, speed: number): number {
-  return clamp(120 + distance * 0.32, 120, 560) / speed;
+  return clamp(90 + distance * 0.22, 90, 380) / speed;
 }
 
 function glide(
@@ -427,12 +459,12 @@ async function stampGesture(token: CancelToken, h: EngineHooks, el: BuildElement
   if (token.cancelled) return;
 
   h.cursor.down = true;
-  await sleep(55 / speed);
+  await sleep(35 / speed);
   triggerHaptic(25); // Stamp micro-vibration
   h.audio.playStampPop();
   reveal(el);
   h.cursor.down = false;
-  await sleep(95 / speed);
+  await sleep(35 / speed);
 }
 
 async function frameGesture(token: CancelToken, h: EngineHooks, el: BuildElement, node: HTMLElement) {
@@ -451,10 +483,10 @@ async function frameGesture(token: CancelToken, h: EngineHooks, el: BuildElement
   const start = corners();
   cursor.down = true;
   cursor.frame = { x: start.tl.x, y: start.tl.y, w: 0, h: 0, phase: 'drag', accent };
-  await sleep(45 / speed);
+  await sleep(25 / speed);
 
   const diagonal = Math.hypot(start.w, start.h);
-  const dragMs = clamp(240 + diagonal * 0.28, 300, 620) / speed;
+  const dragMs = clamp(180 + diagonal * 0.2, 220, 440) / speed;
   await run(token, dragMs, (p) => {
     const c = corners();
     const e = easeInOut(p);
@@ -485,7 +517,7 @@ async function frameGesture(token: CancelToken, h: EngineHooks, el: BuildElement
   triggerHaptic(15); // Frame snap micro-vibration
   h.audio.playFrameSnap();
   reveal(el);
-  await sleep(130 / speed);
+  await sleep(35 / speed);
   cursor.frame = null;
 }
 
@@ -514,12 +546,12 @@ async function typewriterGesture(
   if (token.cancelled) return;
 
   cursor.down = true;
-  await sleep(50 / speed);
+  await sleep(25 / speed);
   cursor.down = false;
   cursor.caret = true;
   reveal(el);
 
-  const total = clamp(text.length * 22, 240, 1000) / speed;
+  const total = clamp(text.length * 15, 160, 650) / speed;
   let typed = 0;
   await run(token, total, (p) => {
     const chars = Math.round(p * text.length);
@@ -537,7 +569,7 @@ async function typewriterGesture(
   });
 
   cursor.caret = false;
-  await sleep(60 / speed);
+  await sleep(25 / speed);
 }
 
 async function counterGesture(token: CancelToken, h: EngineHooks, el: BuildElement, node: HTMLElement) {
@@ -549,7 +581,7 @@ async function counterGesture(token: CancelToken, h: EngineHooks, el: BuildEleme
   if (token.cancelled) return;
 
   cursor.down = true;
-  await sleep(55 / speed);
+  await sleep(30 / speed);
   cursor.down = false;
   triggerHaptic(20);
   h.audio.playStampPop();
@@ -557,7 +589,7 @@ async function counterGesture(token: CancelToken, h: EngineHooks, el: BuildEleme
 
   const ticks = Math.max(1, el.ticks ?? 24);
   let lastTick = 0;
-  await run(token, 950 / speed, (p) => {
+  await run(token, 600 / speed, (p) => {
     const eased = easeOut(p);
     el.onProgress?.(eased);
     const tick = Math.floor(eased * ticks);
@@ -567,7 +599,7 @@ async function counterGesture(token: CancelToken, h: EngineHooks, el: BuildEleme
       triggerHaptic(5);
     }
   });
-  await sleep(80 / speed);
+  await sleep(30 / speed);
 }
 
 async function connectorGesture(
@@ -595,7 +627,7 @@ async function connectorGesture(
   reveal(el);
 
   let lastBlip = 0;
-  await run(token, clamp(ends().length * 0.9, 350, 1100) / speed, (p) => {
+  await run(token, clamp(ends().length * 0.6, 220, 650) / speed, (p) => {
     const { a, b } = ends();
     const e = easeInOut(p);
     cursor.x = a.x + (b.x - a.x) * e;
@@ -611,7 +643,7 @@ async function connectorGesture(
   cursor.down = false;
   triggerHaptic(15);
   h.audio.playFrameSnap();
-  await sleep(60 / speed);
+  await sleep(25 / speed);
 }
 
 async function build(token: CancelToken, h: EngineHooks, el: BuildElement, node: HTMLElement) {
@@ -638,9 +670,9 @@ async function build(token: CancelToken, h: EngineHooks, el: BuildElement, node:
  *
  * User-First Auto-Scroll Tour with Inactivity Watchdog:
  * - Robust resolveElementRef polling to eliminate silent skips.
- * - Non-blocking reading buffer (2.0s) between section boundaries.
+ * - Agile non-blocking micro-settle (200ms) between section boundaries.
  * - Anti-freeze dual-trigger race condition:
- *     Pauses on manual touch/scroll. Resumes automatically 2.5s after user goes idle,
+ *     Pauses on manual touch/scroll. Resumes automatically 900ms after user goes idle,
  *     or immediately if user manually scrolls the element into view.
  * - Triggers haptic feedback ticks on supported touch devices.
  * - Permanent clean exit when finished.
@@ -658,7 +690,7 @@ export async function runBuild(token: CancelToken, h: EngineHooks): Promise<bool
   cursor.visible = true;
   cursor.tool = 'idle';
 
-  await sleep(350 / speed);
+  await sleep(100 / speed);
 
   let currentSection: BuilderSection | null = null;
 
@@ -670,7 +702,7 @@ export async function runBuild(token: CancelToken, h: EngineHooks): Promise<bool
     if (!next) break;
 
     // Robust polling for the DOM node to eliminate hydration race conditions
-    const node = await resolveElementRef(token, next, 500 / speed);
+    const node = await resolveElementRef(token, next, 300 / speed);
     if (token.cancelled) break;
 
     if (!node || !node.isConnected) {
